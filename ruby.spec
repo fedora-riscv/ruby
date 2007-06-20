@@ -469,7 +469,7 @@ rm -rf tmp-ruby-docs
 %endif
 
 %changelog
-* Thu Jul 20 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-1
+* Wed Jul 20 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-1
 - New upstream release.
   - Fix Etc::getgrgid to get the correct gid as requested. (#236647)
 
