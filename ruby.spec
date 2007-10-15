@@ -11,7 +11,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	Ruby or GPL+
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -175,11 +175,7 @@ export CFLAGS
   --with-bundled-rmd160 \
   --enable-shared \
   --enable-ipv6 \
-%ifarch ppc
-  --disable-pthread \
-%else
   --enable-pthread \
-%endif
   --with-lookup-order-hack=INET \
   --disable-rpath \
   --with-ruby-prefix=%{_prefix}/lib
@@ -471,6 +467,10 @@ rm -rf tmp-ruby-docs
 %endif
 
 %changelog
+* Mon Oct 15 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.110-2
+- Enable pthread support for ppc too. (#201452)
+- Fix unexpected dependencies appears in ruby-libs. (#253325)
+
 * Thu Oct  4 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.110-1
 - New upstream release.
   - ruby-r12567.patch: removed.
