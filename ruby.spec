@@ -1,6 +1,6 @@
 %define	rubyxver	1.8
 %define	rubyver		1.8.6
-%define _patchlevel	114
+%define _patchlevel	230
 %define dotpatchlevel	%{?_patchlevel:.%{_patchlevel}}
 %define patchlevel	%{?_patchlevel:-p%{_patchlevel}}
 %define	arcver		%{rubyver}%{?patchlevel}
@@ -35,7 +35,6 @@ Patch20:	ruby-rubyprefix.patch
 Patch21:	ruby-deprecated-sitelib-search-path.patch
 Patch22:	ruby-deprecated-search-path.patch
 Patch23:	ruby-multilib.patch
-Patch24:	ruby-1.8.6.111-CVE-2007-5162.patch
 Patch25:	ruby-1.8.6.111-gcc43.patch
 
 Summary:	An interpreter of object-oriented scripting language
@@ -156,7 +155,6 @@ pushd %{name}-%{arcver}
 %patch22 -p1
 %patch23 -p1
 %endif
-%patch24 -p1
 %patch25 -p1
 popd
 
@@ -514,6 +512,17 @@ rm -rf tmp-ruby-docs
 %endif
 
 %changelog
+* Tue Jun 24 2008 Akira TAGOH <tagoh@redhat.com> - 1.8.6.230-1
+- New upstream release.
+- Security fixes. (#452293)
+  - CVE-2008-1891: WEBrick CGI source disclosure.
+  - CVE-2008-2662: Integer overflow in rb_str_buf_append().
+  - CVE-2008-2663: Integer overflow in rb_ary_store().
+  - CVE-2008-2664: Unsafe use of alloca in rb_str_format().
+  - CVE-2008-2725: Integer overflow in rb_ary_splice().
+  - CVE-2008-2726: Integer overflow in rb_ary_splice().
+- ruby-1.8.6.111-CVE-2007-5162.patch: removed.
+
 * Tue Mar  4 2008 Akira TAGOH <tagoh@redhat.com> - 1.8.6.114-1
 - Security fix for CVE-2008-1145.
 - Improve a spec file. (#226381)
