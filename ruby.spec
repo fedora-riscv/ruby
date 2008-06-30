@@ -12,7 +12,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -37,6 +37,8 @@ Patch22:	ruby-deprecated-search-path.patch
 Patch23:	ruby-multilib.patch
 Patch25:	ruby-1.8.6.111-gcc43.patch
 Patch26:	ruby-1.8.6.230-string-str_buf_cat.patch
+Patch27:	ruby-1.8.6.230-p238.patch
+Patch28:	ruby-1.8.6.230-p248.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -158,6 +160,8 @@ pushd %{name}-%{arcver}
 %endif
 %patch25 -p1
 %patch26 -p1
+%patch27 -p1
+%patch28 -p1
 popd
 
 %build
@@ -514,6 +518,10 @@ rm -rf tmp-ruby-docs
 %endif
 
 %changelog
+* Mon Jun 30 2008 Akira TAGOH <tagoh@redhat.com> - 1.8.6.230-3
+- Backported from upstream SVN to fix a segfault issue. (#452825)
+- Backported from upstream SVN to fix an integer overflow in rb_ary_fill.
+
 * Wed Jun 25 2008 Akira TAGOH <tagoh@redhat.com> - 1.8.6.230-2
 - Fix a segfault issue. (#452809)
 
