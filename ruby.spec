@@ -8,11 +8,11 @@
 # This is required to ensure that noarch files puts under /usr/lib/... for
 # multilib because ruby library is installed under /usr/{lib,lib64}/ruby anyway.
 %define	sitedir2	%{_prefix}/lib/ruby/site_ruby
-%define	_normalized_cpu	%(echo `echo %{_target_cpu} | sed 's/^ppc/powerpc/'`)
+%define	_normalized_cpu	%(echo `echo %{_target_cpu} | sed 's/^ppc/powerpc/' | sed -e 's|i.86|i386|'`)
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	7%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -34,7 +34,10 @@ Patch21:	ruby-deprecated-sitelib-search-path.patch
 Patch22:	ruby-deprecated-search-path.patch
 Patch23:	ruby-multilib.patch
 Patch25:	ruby-1.8.6.111-gcc43.patch
-Patch26:	ruby-1.8.6-rexml-CVE-2008-3790.patch
+Patch26:        ruby-1.8.6-rexml-CVE-2008-3790.patch
+Patch27:        ruby-1.8.6-p287-CVE-2008-5189.patch
+Patch28:        ruby-1.8.6-p287-remove-ssl-rand-range.patch
+Patch29:	ruby-always-use-i386.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -154,6 +157,9 @@ pushd %{name}-%{arcver}
 %endif
 %patch25 -p1
 %patch26 -p1
+%patch27 -p0
+%patch28 -p1
+%patch29 -p1
 popd
 
 %build
@@ -165,7 +171,7 @@ autoconf
 
 rb_cv_func_strtod=no
 export rb_cv_func_strtod
-CFLAGS="$RPM_OPT_FLAGS -Wall"
+CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 export CFLAGS
 %configure \
   --with-sitedir='%{sitedir}' \
@@ -279,11 +285,11 @@ done
 find -type f | xargs chmod 0644
 
 # convert to utf-8
-for i in `find -type f`; do
-	iconv -f utf-8 -t utf-8 $i > /dev/null 2>&1 || (iconv -f euc-jp -t utf-8 $i > $i.new && mv $i.new $i || exit 1)
-	if [ $? != 0 ]; then
-		iconv -f iso8859-1 -t utf-8 $i > $.new && mv $i.new $i || exit 1
-	fi
+for i in `find -type f ! -name "*.gif"`; do
+    sh -c "iconv -f utf-8 -t utf-8 $i > /dev/null 2>&1 || (iconv -f euc-jp -t utf-8 $i > $i.new && mv $i.new $i || exit 1)
+    if [ $? != 0 ]; then
+        iconv -f iso8859-1 -t utf-8 $i > $.new && mv $i.new $i || exit 1
+    fi"
 done
 
 # done
@@ -326,6 +332,8 @@ for i in $RPM_BUILD_ROOT%{_prefix}/lib/ruby/1.8/{abbrev,generator,irb/{cmd/subir
 	sed -i -e '/^#!.*/,1D' $i
 done
 
+find $RPM_BUILD_ROOT/ -name "*.so" -exec chmod 755 {} \;
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 rm -rf tmp-ruby-docs
@@ -341,10 +349,10 @@ rm -rf tmp-ruby-docs
 %doc %{name}-%{arcver}/GPL
 %doc %{name}-%{arcver}/LEGAL
 %doc %{name}-%{arcver}/LGPL
-%doc %{name}-%{arcver}/NEWS 
+%doc %{name}-%{arcver}/NEWS
 %doc %{name}-%{arcver}/README
 %lang(ja) %doc %{name}-%{arcver}/README.ja
-%doc %{name}-%{arcver}/ToDo 
+%doc %{name}-%{arcver}/ToDo
 %doc %{name}-%{arcver}/doc/ChangeLog-1.8.0
 %doc %{name}-%{arcver}/doc/NEWS-1.8.0
 %doc tmp-ruby-docs/ruby/*
@@ -504,6 +512,19 @@ rm -rf tmp-ruby-docs
 %{_datadir}/emacs/site-lisp/site-start.d/ruby-mode-init.el
 
 %changelog
+* Wed Mar 18 2009 Jeroen van Meeuwen <j.van.meeuwen@ogd.nl> - 1.8.6.287-7
+- Fix regression in CVE-2008-3790 (#485383)
+
+* Mon Mar 16 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.287-6
+- Again use -O2 optimization level
+- i586 should search i386-linux directory
+
+* Thu Mar 05 2009 Jeroen van Meeuwen <kanarip@fedoraproject.org> - 1.8.6.287-5
+- Rebuild for gcc4.4
+
+* Fri Feb 27 2009 Jeroen van Meeuwen <kanarip@fedoraproject.org> - 1.8.6.287-3
+- CVE-2008-5189: CGI header injection.
+
 * Wed Oct  8 2008 Akira TAGOH <tagoh@redhat.com> - 1.8.6.287-2
 - CVE-2008-3790: DoS vulnerability in the REXML module.
 
@@ -882,8 +903,8 @@ rm -rf tmp-ruby-docs
 
 * Mon Dec 16 2002 Elliot Lee <sopwith@redhat.com> 1.6.7-13
 - Remove ExcludeArch: x86_64
-- Fix x86_64 ruby with long2int.patch (ruby was assuming that sizeof(long) 
-  == sizeof(int). The patch does not fix the source of the problem, just 
+- Fix x86_64 ruby with long2int.patch (ruby was assuming that sizeof(long)
+  == sizeof(int). The patch does not fix the source of the problem, just
   makes it a non-issue.)
 - _smp_mflags
 
@@ -940,7 +961,7 @@ rm -rf tmp-ruby-docs
   removed.
 - ruby-1.6.7-100.patch: applied a bug fix patch.
   (ruby-dev#16274: patch for 'wm state')
-  (PR#206ja: SEGV handle EXIT) 
+  (PR#206ja: SEGV handle EXIT)
 - ruby-1.6.7-101.patch: applied a bug fix patch.
   (ruby-list#34313: singleton should not be Marshal.dump'ed)
   (ruby-dev#16411: block local var)
@@ -1041,7 +1062,7 @@ rm -rf tmp-ruby-docs
 * Thu Dec 14 2000 akira yamada <akira@vinelinux.org>
 - Removed ruby_cvs.2000101901.patch, added ruby_cvs.2000121413.patch
   (upgraded ruby to latest cvs version).
-- Removed ruby-dev.11262.patch, ruby-dev.11265.patch, 
+- Removed ruby-dev.11262.patch, ruby-dev.11265.patch,
   and ruby-dev.11268.patch (included into above patch).
 
 * Sun Nov 12 2000 MACHINO, Satoshi <machino@vinelinux.org> 1.6.1-0vl9
@@ -1055,7 +1076,7 @@ rm -rf tmp-ruby-docs
   (upgraded ruby to latest cvs version).
 - Added ruby-dev.11262.patch.
 - Added ruby-dev.11265.patch.
-  
+
 * Wed Oct 11 2000 akira yamada <akira@vinelinux.org>
 - Removed ruby_cvs.2000100313.patch and added ruby_cvs.2000101117.patch
   (upgraded ruby to latest cvs version).
