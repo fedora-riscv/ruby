@@ -16,7 +16,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -44,6 +44,7 @@ Patch26:        ruby-1.8.6-rexml-CVE-2008-3790.patch
 Patch27:        ruby-1.8.6-p287-CVE-2008-5189.patch
 Patch28:        ruby-1.8.6-p287-remove-ssl-rand-range.patch
 Patch29:	ruby-always-use-i386.patch
+Patch31:	ruby-1.8.6-p369-ri-gem_multipath.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -173,6 +174,7 @@ pushd %{name}-%{arcver}
 %patch27 -p0
 %patch28 -p1
 %patch29 -p1
+%patch31 -p1
 popd
 
 %build
@@ -535,6 +537,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_emacs_sitestartdir}/ruby-mode-init.el
 
 %changelog
+* Sat Oct 24 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.383-2
+- Restore the previous changes
+
+* Sat Oct 24 2009 Jeroen van Meeuwen <kanarip@fedoraproject.org> - 1.8.6.383-1
+- Update to 1.8.6 patchlevel 383 (bug 520063)
+
+* Wed Oct 14 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-3
+- Much better idea for Patch31 provided by Akira TAGOH <tagoh@redhat.com>
+
+* Wed Oct 14 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-2
+- Fix the search path of ri command for ri manuals installed with gem
+  (bug 528787)
+
 * Sat Jun 20 2009  Jeroen van Meeuwen <kanarip@fedoraproject.org> - 1.8.6.369-1
 - New patchlevel fixing CVE-2009-1904
 - Fix directory on ARM (#506233, Kedar Sovani)
