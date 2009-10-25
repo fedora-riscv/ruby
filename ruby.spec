@@ -16,7 +16,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -45,6 +45,8 @@ Patch27:        ruby-1.8.6-p287-CVE-2008-5189.patch
 Patch28:        ruby-1.8.6-p287-remove-ssl-rand-range.patch
 Patch29:	ruby-always-use-i386.patch
 Patch31:	ruby-1.8.6-p369-ri-gem_multipath.patch
+# Patch from ruby_1_8 branch
+Patch32:	ruby-1.8head-irb-save-history.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -175,6 +177,7 @@ pushd %{name}-%{arcver}
 %patch28 -p1
 %patch29 -p1
 %patch31 -p1
+%patch32 -p0
 popd
 
 %build
@@ -537,6 +540,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_emacs_sitestartdir}/ruby-mode-init.el
 
 %changelog
+* Sun Oct 25 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.383-3
+- Patch so that irb saves its history (bug 518584, ruby issue 1556)
+
 * Sat Oct 24 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.383-2
 - Restore the previous changes
 
