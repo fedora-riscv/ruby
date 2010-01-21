@@ -1,6 +1,6 @@
 %define	rubyxver	1.8
 %define	rubyver		1.8.6
-%define _patchlevel	383
+%define _patchlevel	388
 %define dotpatchlevel	%{?_patchlevel:.%{_patchlevel}}
 %define patchlevel	%{?_patchlevel:-p%{_patchlevel}}
 %define	arcver		%{rubyver}%{?patchlevel}
@@ -20,7 +20,12 @@ Release:	6%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-BuildRequires:	readline readline-devel ncurses ncurses-devel gdbm gdbm-devel glibc-devel tcl-devel tk-devel libX11-devel autoconf gcc unzip openssl-devel db4-devel byacc
+%if 0%{?fedora} >= 12 || 0%{?rhel} >= 6
+BuildRequires:  compat-readline5-devel
+%else
+BuildRequires:	readline readline-devel
+%endif
+BuildRequires:  ncurses ncurses-devel gdbm gdbm-devel glibc-devel tcl-devel tk-devel libX11-devel autoconf gcc unzip openssl-devel db4-devel byacc
 # Use bison to recreate parse.c (ref: bug 530275 comment 4)
 BuildRequires:	bison
 BuildRequires:	emacs
@@ -46,12 +51,11 @@ Patch26:        ruby-1.8.6-rexml-CVE-2008-3790.patch
 Patch27:        ruby-1.8.6-p287-CVE-2008-5189.patch
 Patch28:        ruby-1.8.6-p287-remove-ssl-rand-range.patch
 Patch29:	ruby-always-use-i386.patch
+Patch30:	ruby-openssl-1.0.patch
 Patch31:	ruby-1.8.6-p369-ri-gem_multipath.patch
 # Patch32 from ruby_1_8 branch
 Patch32:	ruby-1.8head-irb-save-history.patch
 Patch33:	ruby-1.8.6-p383-mkmf-use-shared.patch
-# Patch34 already applied in 1.8.6p388
-Patch34:	ruby-1.8.6.x-CVE-2009-4492.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -189,10 +193,10 @@ pushd %{name}-%{arcver}
 %patch27 -p0
 %patch28 -p1
 %patch29 -p1
+%patch30 -p2
 %patch31 -p1
 %patch32 -p0
 %patch33 -p1
-%patch34 -p0
 popd
 
 %build
@@ -217,6 +221,10 @@ export CFLAGS
   --enable-pthread \
   --with-lookup-order-hack=INET \
   --disable-rpath \
+%if 0%{?fedora} >= 12 || 0%{?rhel} >= 6
+  --with-readline-include=%{_includedir}/readline5 \
+  --with-readline-lib=%{_libdir}/readline5 \
+%endif
   --with-ruby-prefix=%{_prefix}/lib
 
 # For example ext/socket/extconf.rb uses try_run (for getaddrinfo test),
@@ -564,6 +572,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_emacs_sitestartdir}/ruby-mode-init.el
 
 %changelog
+* Mon Jan 18 2010 Akira TAGOH <tagoh@redhat.com>
+- Add conditional for RHEL.
+
 * Wed Jan 13 2010 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.383-6
 - CVE-2009-4492 ruby WEBrick log escape sequence (bug 554485)
 
@@ -580,17 +591,21 @@ rm -rf $RPM_BUILD_ROOT
 - Patch so that irb saves its history (bug 518584, ruby issue 1556)
 
 * Sat Oct 24 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.383-2
-- Restore the previous changes
-
-* Sat Oct 24 2009 Jeroen van Meeuwen <kanarip@fedoraproject.org> - 1.8.6.383-1
 - Update to 1.8.6 patchlevel 383 (bug 520063)
 
-* Wed Oct 14 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-3
+* Wed Oct 14 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-5
 - Much better idea for Patch31 provided by Akira TAGOH <tagoh@redhat.com>
 
-* Wed Oct 14 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-2
+* Wed Oct 14 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-4
 - Fix the search path of ri command for ri manuals installed with gem
   (bug 528787)
+
+* Wed Aug 26 2009 Tomas Mraz <tmraz@redhat.com> - 1.8.6.369-3
+- Rebuild against new openssl
+
+* Thu Jul 23 2009 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.369-2
+- Make sure that readline.so is linked against readline 5 because
+  Ruby is under GPLv2 
 
 * Sat Jun 20 2009  Jeroen van Meeuwen <kanarip@fedoraproject.org> - 1.8.6.369-1
 - New patchlevel fixing CVE-2009-1904
