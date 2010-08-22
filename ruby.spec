@@ -18,7 +18,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	5%{?dist}
+Release:	6%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -95,6 +95,8 @@ Patch37:        ruby-1.8.x-ext_tk-flatten-level-revert.patch
 Patch38:        ruby-1.8.x-null-class-must-be-Qnil.patch
 # Once revert this patch to apply Patch34 cleanly
 Patch39:        ruby-1.8.6-openssl-digest-once-revert-for-simplify-patch.patch
+# From upstream ruby_1_8_6 branch: Patch for CVE-2010-0541
+Patch40:        ruby-1.8.6.x-CVE-2010-0541.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -250,6 +252,7 @@ pushd %{name}-%{arcver}
 %patch36 -p1
 %patch37 -p1
 %patch38 -p1
+%patch40 -p1
 popd
 
 %build
@@ -640,6 +643,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_emacs_sitestartdir}/ruby-mode-init.el
 
 %changelog
+* Mon Aug 23 2010 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.399-6
+- Apply upstream patch for CVE-2010-0541 (bug 587731)
+
 * Wed May 19 2010 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.399-5
 - Retry for bug 559158, Simplify the OpenSSL::Digest class
   pull more change commits from ruby_1_8 branch
