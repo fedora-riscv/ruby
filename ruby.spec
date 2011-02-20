@@ -18,7 +18,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -95,6 +95,12 @@ Patch37:        ruby-1.8.x-ext_tk-flatten-level-revert.patch
 Patch38:        ruby-1.8.x-null-class-must-be-Qnil.patch
 # Once revert this patch to apply Patch34 cleanly
 Patch39:        ruby-1.8.6-openssl-digest-once-revert-for-simplify-patch.patch
+# patch from ruby_1_8_7 branch (between 1.8.7p330 and 1.8.7p334)
+# bug 678913, Symlink race condition in FileUtils.remove_entry_secure
+Patch40:	ruby-1.8.7p334-symlink-race-in-FileUtils-remove_entry_secure.patch
+# Patch from ruby_1_8_7 branch, a bit modified for 1.8.6.x
+# bug 678920, bypass of $SAFE mechanism in Exception#to_s
+Patch41:	ruby-1.8.6.x-untainted_strings_can_be_tainted.patch
 
 Summary:	An interpreter of object-oriented scripting language
 Group:		Development/Languages
@@ -250,6 +256,8 @@ pushd %{name}-%{arcver}
 %patch36 -p1
 %patch37 -p1
 %patch38 -p1
+%patch40 -p1
+%patch41 -p1
 popd
 
 %build
@@ -640,6 +648,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_emacs_sitestartdir}/ruby-mode-init.el
 
 %changelog
+* Mon Feb 21 2011 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.420-2
+- Backport 2 fixes from 1.8.7p420
+  - Symlink race condition in FileUtils.remove_entry_secure (bug 678913)
+  - bypass of $SAFE mechanism in Exception#to_s (bug 678920)
+
 * Sun Dec 26 2010 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.420-1
 - Update to 1.8.6 p420
 
