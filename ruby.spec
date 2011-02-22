@@ -8,7 +8,7 @@
 # This is required to ensure that noarch files puts under /usr/lib/... for
 # multilib because ruby library is installed under /usr/{lib,lib64}/ruby anyway.
 %define	sitedir2	%{_prefix}/lib/ruby/site_ruby
-%define	_normalized_cpu	%(echo `echo %{_target_cpu} | sed 's/^ppc/powerpc/' | sed -e 's|i.86|i386|'`)
+%define        _normalized_cpu %(echo `echo %{_target_cpu} | sed 's/^ppc/powerpc/' | sed -e 's|i.86|i386|'`)
 
 %define       tk_using_svn_number  27738
 
@@ -18,7 +18,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -518,11 +518,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_prefix}/lib/ruby
 %dir %{_prefix}/lib/ruby/%{rubyxver}
 %ifnarch ppc64 s390x sparc64 x86_64
-%if "%{_gnu}" == "-gnueabi"
-%dir %{_prefix}/lib/ruby/%{rubyxver}/%{_normalized_cpu}-%{_target_os}-eabi
-%else
 %dir %{_prefix}/lib/ruby/%{rubyxver}/%{_normalized_cpu}-%{_target_os}
-%endif
 %endif
 %ifarch ppc64 s390x sparc64 x86_64
 %dir %{_libdir}/ruby
@@ -648,6 +644,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_emacs_sitestartdir}/ruby-mode-init.el
 
 %changelog
+* Mon Feb 21 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.6-420-2
+- drop the unneeded -eabi stuff its not used anywhere
+
 * Mon Feb 21 2011 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.6.420-2
 - Backport 2 fixes from 1.8.7p420
   - Symlink race condition in FileUtils.remove_entry_secure (bug 678913)
