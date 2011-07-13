@@ -17,7 +17,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	4%{?dist}
 # Please check if ruby upstream changes this to "Ruby or GPLv2+"
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
@@ -188,6 +188,11 @@ pushd %{name}-%{arcver}
 ) 
 
 popd
+
+# Once fix FTBTS issue (bug 716021). Remove the below
+# when it is no longer needed.
+sed -i.redirect  -e '\@RUBY@s@\.rb >@\.rb | cat >@' %{name}-%{arcver}/ext/dl/depend
+
 
 %build
 pushd %{name}-%{arcver}
@@ -425,7 +430,10 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch ppc64 s390x sparc64 x86_64
 %dir	%{vendorarchbase}
 %dir	%{vendorarchbase}/%{rubyxver}
+%dir	%{vendorarchbase}/%{rubyxver}/%{_normalized_cpu}-%{_target_os}
 %{sitearchbase}
+%else
+%dir	%{vendorlibbase}/%{rubyxver}/%{_normalized_cpu}-%{_target_os}
 %endif
 ## the following files should goes into ruby-tcltk package.
 %exclude	%{vendorlibbase}/%{rubyxver}/*tk.rb
@@ -522,8 +530,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
-* Mon Jul 11 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.7.334-2
-- normalise arm cpu names
+* Thu Jul 14 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.334-4
+- Once fix FTBFS (bug 716021)
+
+* Mon Jul 11 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.7.334-3
+- normalise arm cpus to arm
+
+* Mon May 30 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.334-2
+- Own %%{_normalized_cpu}-%%{_target_os} directory (bug 708816)
 
 * Sat Feb 19 2011 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.7.334-1
 - Update to 1.8.7 p334
