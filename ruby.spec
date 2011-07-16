@@ -1,6 +1,6 @@
 %global	rubyxver	1.8
 %global	rubyver	1.8.7
-%global	_patchlevel	334
+%global	_patchlevel	352
 
 %global	dotpatchlevel	%{?_patchlevel:.%{_patchlevel}}
 %global	patchlevel	%{?_patchlevel:-p%{_patchlevel}}
@@ -12,12 +12,12 @@
 %{!?sitearchbase:	%global sitearchbase	%{vendorarchbase}/site_ruby}
 
 %global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/;s/armv.*/arm/')
-# Sun Dec 25 17:00:00 2010 +0000
-%global	ruby_tk_git_revision	f30eca26639ce538339bc488c7ed1fd397b0c13f
+# Fri Jul 15 21:28:10 2011 +0000
+%global	ruby_tk_git_revision	c2dfaa7d40531aef3706bcc16f38178b0c6633ee
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	1%{?dist}
 # Please check if ruby upstream changes this to "Ruby or GPLv2+"
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
@@ -58,6 +58,9 @@ Patch29:	ruby-1.8.7-always-use-i386.patch
 # Use shared libs as opposed to static for mkmf
 # See bug 428384
 Patch33:	ruby-1.8.7-p249-mkmf-use-shared.patch
+# Remove duplicate path entry
+# bug 718695
+Patch34:	ruby-1.8.7-p352-path-uniq.patch
 # Change ruby load path to conform to Fedora/ruby
 # library placement (various 1.8.6 patches consolidated into this)
 Patch100:	ruby-1.8.7-lib-paths.patch
@@ -178,6 +181,7 @@ pushd %{name}-%{arcver}
 %patch23 -p1
 %patch29 -p1
 %patch33 -p1
+%patch34 -p1
 %patch100 -p1
 
 ( 
@@ -185,9 +189,17 @@ pushd %{name}-%{arcver}
 	rm -rf tk
 	cp -a ../../ext/tk tk
 	find tk -type d -name \.svn | sort -r | xargs rm -rf
+
+# Remove rpath
+	sed -i.rpath -e 's|-Wl,-R|-L|g' tk/extconf.rb
 ) 
 
 popd
+
+# Once fix FTBTS issue (bug 716021). Remove the below
+# when it is no longer needed.
+sed -i.redirect  -e '\@RUBY@s@\.rb >@\.rb | cat >@' %{name}-%{arcver}/ext/dl/depend
+
 
 %build
 pushd %{name}-%{arcver}
@@ -425,7 +437,10 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch ppc64 s390x sparc64 x86_64
 %dir	%{vendorarchbase}
 %dir	%{vendorarchbase}/%{rubyxver}
+%dir	%{vendorarchbase}/%{rubyxver}/%{_normalized_cpu}-%{_target_os}
 %{sitearchbase}
+%else
+%dir	%{vendorlibbase}/%{rubyxver}/%{_normalized_cpu}-%{_target_os}
 %endif
 ## the following files should goes into ruby-tcltk package.
 %exclude	%{vendorlibbase}/%{rubyxver}/*tk.rb
@@ -522,8 +537,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
-* Mon Jul 11 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.7.334-2
-- normalise arm cpu names
+* Sat Jul 16 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-1
+- Update to 1.8.7 p352
+- CVE-2011-2686 is fixed in this version (bug 722415)
+- Update ext/tk to the latest git
+- Remove duplicate path entry (bug 718695)
+
+* Thu Jul 14 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.334-4
+- Once fix FTBFS (bug 716021)
+
+* Mon Jul 11 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.7.334-3
+- normalise arm cpus to arm
+
+* Mon May 30 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.334-2
+- Own %%{_normalized_cpu}-%%{_target_os} directory (bug 708816)
 
 * Sat Feb 19 2011 Mamoru Tasaka <mtasaka@ioa.s.u-tokyo.ac.jp> - 1.8.7.334-1
 - Update to 1.8.7 p334
