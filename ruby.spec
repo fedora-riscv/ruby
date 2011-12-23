@@ -11,13 +11,13 @@
 %{!?sitelibbase:	%global sitelibbase	%{vendorlibbase}/site_ruby}
 %{!?sitearchbase:	%global sitearchbase	%{vendorarchbase}/site_ruby}
 
-%global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/;s/armv.*/arm/')
+%global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 # Fri Jul 15 21:28:10 2011 +0000
 %global	ruby_tk_git_revision	c2dfaa7d40531aef3706bcc16f38178b0c6633ee
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	1%{?dist}
+Release:	2%{?dist}
 # Please check if ruby upstream changes this to "Ruby or GPLv2+"
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
@@ -537,6 +537,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
+* Fri Dec 23 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.7.352-2
+- dont normalise arm cpus to arm
+- there is something weird about how ruby choses where to put bits
+
 * Sat Jul 16 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-1
 - Update to 1.8.7 p352
 - CVE-2011-2686 is fixed in this version (bug 722415)
