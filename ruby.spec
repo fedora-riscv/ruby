@@ -1,6 +1,6 @@
 %global	rubyxver	1.8
 %global	rubyver	1.8.7
-%global	_patchlevel	352
+%global	_patchlevel	357
 
 %global	dotpatchlevel	%{?_patchlevel:.%{_patchlevel}}
 %global	patchlevel	%{?_patchlevel:-p%{_patchlevel}}
@@ -11,7 +11,7 @@
 %{!?sitelibbase:	%global sitelibbase	%{vendorlibbase}/site_ruby}
 %{!?sitearchbase:	%global sitearchbase	%{vendorarchbase}/site_ruby}
 
-%global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/;s/armv.*/arm/')
+%global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 # Fri Jul 15 21:28:10 2011 +0000
 %global	ruby_tk_git_revision	c2dfaa7d40531aef3706bcc16f38178b0c6633ee
 
@@ -24,7 +24,9 @@ URL:		http://www.ruby-lang.org/
 
 BuildRequires:	compat-readline5-devel
 BuildRequires:	db4-devel
+%if 0%{?fedora} < 17
 BuildRequires:	gdbm-devel
+%endif
 BuildRequires:	libX11-devel
 BuildRequires:	ncurses-devel
 BuildRequires:	openssl-devel
@@ -199,6 +201,11 @@ popd
 # Once fix FTBTS issue (bug 716021). Remove the below
 # when it is no longer needed.
 sed -i.redirect  -e '\@RUBY@s@\.rb >@\.rb | cat >@' %{name}-%{arcver}/ext/dl/depend
+
+# Disable gdbm support on F-17 for now
+%if 0%{?fedora} >= 17
+sed -i '\@dblib =@s|gdbm[^ ]*||g' %{name}-%{arcver}/ext/dbm/extconf.rb
+%endif
 
 
 %build
@@ -537,6 +544,20 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
+* Thu Dec 29 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.357-1
+- Update to 1.8.7p352
+- Randomize hash on process startup (CVE-2011-4815, bug 750564)
+
+* Fri Dec 23 2011 Dennis Gilmore <dennis@ausil.us> - 1.8.7.352-2
+- dont normalise arm cpus to arm
+- there is something weird about how ruby choses where to put bits
+
+* Thu Nov 16 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-3
+- F-17: kill gdbm support for now due to licensing compatibility issue
+
+* Sat Oct  1 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-2
+- F-17: rebuild against new gdbm
+
 * Sat Jul 16 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-1
 - Update to 1.8.7 p352
 - CVE-2011-2686 is fixed in this version (bug 722415)
