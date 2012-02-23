@@ -696,6 +696,9 @@ make check TESTS="-v -x test_pathname.rb -x test_drbssl.rb -x test_x509cert.rb"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Thu Feb 23 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-1
+- Upgrade to Ruby 2.0.0 (r34723).
+
 * Mon Feb 20 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.125-1
 - Upgrade to Ruby 1.9.3-p125.
 
