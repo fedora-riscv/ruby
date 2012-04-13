@@ -1,6 +1,6 @@
 %global	rubyxver	1.8
 %global	rubyver	1.8.7
-%global	_patchlevel	357
+%global	_patchlevel	358
 
 %global	dotpatchlevel	%{?_patchlevel:.%{_patchlevel}}
 %global	patchlevel	%{?_patchlevel:-p%{_patchlevel}}
@@ -544,6 +544,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
+* Fri Apr 13 2012 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.358-1
+- Update to 1.8.7p358
+
 * Thu Dec 29 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.357-1
 - Update to 1.8.7p357
 - Randomize hash on process startup (CVE-2011-4815, bug 750564)
