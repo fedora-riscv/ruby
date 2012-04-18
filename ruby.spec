@@ -11,7 +11,13 @@
 # %global ruby_abi %{major_minor_version}.0
 %global ruby_abi 1.9.1
 
-%global ruby_archive %{name}-%{ruby_version}-p%{patch_level}
+# If revision is removed/commented out, the official release build is expected.
+# Keep the revision enabled for pre-releases from SVN.
+%global revision 35368
+
+%global release 1
+
+%global ruby_archive %{name}-%{ruby_version}-%{?revision:r%{revision}}%{!?revision:p%{patch_level}}
 
 %global ruby_libdir %{_datadir}/%{name}
 %global ruby_libarchdir %{_libdir}/%{name}
@@ -45,7 +51,7 @@
 %global rdoc_version 3.9.4
 %global bigdecimal_version 1.1.0
 %global io_console_version 0.3
-%global json_version 1.5.4
+%global json_version 1.6.6
 %global minitest_version 2.8.1
 
 %global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/;s/armv.*/arm/')
@@ -53,7 +59,7 @@
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version_patch_level}
-Release: 1%{?dist}
+Release: %{?revision:0.}%{release}%{?revision:.r%{revision}}%{?dist}
 Group: Development/Languages
 License: Ruby or BSD
 URL: http://ruby-lang.org/
@@ -425,8 +431,13 @@ sed -i '8 a\
 
 %check
 # TODO: Investigate the test failures.
-# https://bugs.ruby-lang.org/issues/6036
-make check TESTS="-v -x test_pathname.rb -x test_drbssl.rb -x test_x509cert.rb"
+# OpenSSL 1.0.1 is breaking the drb test suite.
+# https://bugs.ruby-lang.org/issues/6221
+# TestTimeTZ failures - Resolved by r35377.
+# https://bugs.ruby-lang.org/issues/6318
+# TestWEBrickHTTPRequest and WEBrick::TestFileHandler fail
+# https://bugs.ruby-lang.org/issues/6319
+make check TESTS="-v -x test_drbssl.rb -x test_time_tz.rb -x test_httprequest.rb -x test_filehandler.rb"
 
 %post libs -p /sbin/ldconfig
 
@@ -696,7 +707,10 @@ make check TESTS="-v -x test_pathname.rb -x test_drbssl.rb -x test_x509cert.rb"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Feb 23 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-1
+* Wed Apr 18 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r35368
+- Upgrade to Ruby 2.0.0 (r35368).
+
+* Thu Feb 23 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r34723
 - Upgrade to Ruby 2.0.0 (r34723).
 
 * Mon Feb 20 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.125-1
