@@ -1,7 +1,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 0
+%global patch_level 194
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -25,7 +25,7 @@
 %global ruby_vendorlibdir %{_datadir}/ruby/%{ruby_vendordir}
 %global ruby_vendorarchdir %{_libdir}/ruby/%{ruby_vendordir}
 
-%global rubygems_version 1.8.11
+%global rubygems_version 1.8.23
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -51,7 +51,7 @@
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version_patch_level}
-Release: 9%{?dist}
+Release: 1%{?dist}
 Group: Development/Languages
 License: Ruby or BSD
 URL: http://ruby-lang.org/
@@ -83,12 +83,6 @@ Patch8: ruby-1.9.3-custom-rubygems-location.patch
 # Add support for installing binary extensions according to FHS.
 # https://github.com/rubygems/rubygems/issues/210
 Patch9: rubygems-1.8.11-binary-extensions.patch
-# Fixes segfaults when build with GCC 4.7.
-# http://bugs.ruby-lang.org/issues/5851
-Patch10: ruby-1.9.3-prevent-optimizing-sp.patch
-# Fixes json encoding failures when build with GCC 4.7.
-# http://bugs.ruby-lang.org/issues/5888
-Patch11: ruby-1.9.3-fix-json-parser.patch
 # Make mkmf verbose by default
 Patch12: ruby-1.9.3-mkmf-verbose.patch
 
@@ -316,8 +310,6 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-%patch10
-%patch11 -p1
 %patch12 -p1
 
 %build
@@ -413,35 +405,33 @@ mv %{buildroot}%{ruby_libdir}/minitest %{buildroot}%{gem_dir}/gems/minitest-%{mi
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '2 a\
-  s.require_paths = ["lib"]' %{buildroot}/%{gem_dir}/specifications/rake-%{rake_version}.gemspec
+  s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/rake-%{rake_version}.gemspec
 
 sed -i '2 a\
-  s.require_paths = ["lib"]' %{buildroot}/%{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
-
-sed -i -e '2 a\
-  s.require_paths = ["lib"]' -e '3 a\
-  s.extensions = ["bigdecimal.so"]' %{buildroot}/%{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
-
-sed -i -e '2 a\
-  s.require_paths = ["lib"]' -e '3 a\
-  s.extensions = ["io/console.so"]' %{buildroot}/%{gem_dir}/specifications/io-console-%{io_console_version}.gemspec
-
-sed -i -e '2 a\
-  s.require_paths = ["lib"]' -e '3 a\
-  s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}/%{gem_dir}/specifications/json-%{json_version}.gemspec
+  s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
 
 sed -i '2 a\
-  s.require_paths = ["lib"]' %{buildroot}/%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
+  s.require_paths = ["lib"]\
+  s.extensions = ["bigdecimal.so"]' %{buildroot}%{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
+
+sed -i '2 a\
+  s.require_paths = ["lib"]\
+  s.extensions = ["io/console.so"]' %{buildroot}%{gem_dir}/specifications/io-console-%{io_console_version}.gemspec
+
+sed -i '2 a\
+  s.require_paths = ["lib"]\
+  s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_version}.gemspec
+
+sed -i '2 a\
+  s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
 %check
 # Disable make check on ARM until the bug is fixed
 # https://bugzilla.redhat.com/show_bug.cgi?id=789410
 # https://bugs.ruby-lang.org/issues/6011
-# likewise on ppc(64), RH bugzilla 803698
+# same for ppc(64), RH bugzilla #803698
 %ifnarch %{arm} ppc ppc64
-# TODO: Investigate the test failures.
-# https://bugs.ruby-lang.org/issues/6036
-make check TESTS="-v -x test_pathname.rb -x test_drbssl.rb -x test_parse.rb -x test_x509cert.rb"
+make check TESTS="-v"
 %endif
 
 %post libs -p /sbin/ldconfig
@@ -480,7 +470,7 @@ make check TESTS="-v -x test_pathname.rb -x test_drbssl.rb -x test_parse.rb -x t
 
 %{_includedir}/*
 %{_libdir}/libruby.so
-%{_libdir}/pkgconfig/ruby-1.9.pc
+%{_libdir}/pkgconfig/ruby-%{major_minor_version}.pc
 
 %files libs
 %doc COPYING
@@ -708,11 +698,17 @@ make check TESTS="-v -x test_pathname.rb -x test_drbssl.rb -x test_parse.rb -x t
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Mar 15 2012 Karsten Hopp <karsten@redhat.com> 1.9.3.0-9
-- disable make check on ppc(64), RHBZ 803698
+* Fri Apr 20 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.194-1
+- Update to Ruby 1.9.3-p194.
 
-* Wed Feb 29 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.3.0-8
+* Mon Apr 09 2012 Karsten Hopp <karsten@redhat.com> 1.9.3.125-3
+- disable check on ppc(64), RH bugzilla 803698
+
+* Wed Feb 29 2012 Peter Robinson <pbrobinson@fedoraproject.org> - 1.9.3.125-2
 - Temporarily disable make check on ARM until it's fixed upstream. Tracked in RHBZ 789410
+
+* Mon Feb 20 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.125-1
+- Upgrade to Ruby 1.9.3-p125.
 
 * Sun Jan 29 2012 Mamoru Tasaka <mtasaka@fedoraprpject.org> - 1.9.3.0-7
 - Make mkmf.rb verbose by default
