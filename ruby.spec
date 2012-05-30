@@ -61,7 +61,8 @@ Name: ruby
 Version: %{ruby_version_patch_level}
 Release: %{?revision:0.}%{release}%{?revision:.r%{revision}}%{?dist}
 Group: Development/Languages
-License: Ruby or BSD
+# Public Domain for example for: include/ruby/st.h, strftime.c, ...
+License: (Ruby or BSD) and Public Domain
 URL: http://ruby-lang.org/
 Source0: ftp://ftp.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.gz
 Source1: operating_system.rb
@@ -344,19 +345,19 @@ make install DESTDIR=%{buildroot}
 # Dump the macros into macro.ruby to use them to build other Ruby libraries.
 mkdir -p %{buildroot}%{_sysconfdir}/rpm
 cat >> %{buildroot}%{_sysconfdir}/rpm/macros.ruby << \EOF
-%%ruby_libdir %{_datadir}/%{name}
-%%ruby_libarchdir %{_libdir}/%{name}
+%%ruby_libdir %%{_datadir}/%{name}
+%%ruby_libarchdir %%{_libdir}/%{name}
 
 # This is the local lib/arch and should not be used for packaging.
 %%ruby_sitedir site_ruby
-%%ruby_sitelibdir %{_prefix}/local/share/ruby/%{ruby_sitedir}
-%%ruby_sitearchdir %{_prefix}/local/%{_lib}/ruby/%{ruby_sitedir}
+%%ruby_sitelibdir %%{_prefix}/local/share/%{name}/%%{ruby_sitedir}
+%%ruby_sitearchdir %%{_prefix}/local/%%{_lib}/%{name}/%%{ruby_sitedir}
 
 # This is the general location for libs/archs compatible with all
 # or most of the Ruby versions available in the Fedora repositories.
 %%ruby_vendordir vendor_ruby
-%%ruby_vendorlibdir %{_datadir}/ruby/%{ruby_vendordir}
-%%ruby_vendorarchdir %{_libdir}/ruby/%{ruby_vendordir}
+%%ruby_vendorlibdir %%{ruby_libdir}/%%{ruby_vendordir}
+%%ruby_vendorarchdir %%{ruby_libarchdir}/%%{ruby_vendordir}
 EOF
 
 cat >> %{buildroot}%{_sysconfdir}/rpm/macros.rubygems << \EOF
@@ -707,6 +708,10 @@ make check TESTS="-v -x test_drbssl.rb -x test_time_tz.rb -x test_httprequest.rb
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue May 29 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 2.0.0.0-0.1.r35922
+- Fix license to contain Public Domain.
+- macros.ruby now contains unexpanded macros.
+
 * Wed Apr 18 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r35368
 - Upgrade to Ruby 2.0.0 (r35368).
 
