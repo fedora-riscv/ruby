@@ -54,7 +54,7 @@
 %global json_version 1.7.1
 %global minitest_version 3.0.0
 
-%global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/;s/armv.*/arm/')
+%global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
@@ -441,14 +441,17 @@ sed -i '8 a\
   s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
 %check
-# TODO: Investigate the test failures.
-# OpenSSL 1.0.1 is breaking the drb test suite.
-# https://bugs.ruby-lang.org/issues/6221
-# TestTimeTZ failures - Resolved by r35377.
-# https://bugs.ruby-lang.org/issues/6318
-# TestWEBrickHTTPRequest and WEBrick::TestFileHandler fail
-# https://bugs.ruby-lang.org/issues/6319
-make check TESTS="-v -x test_drbssl.rb -x test_time_tz.rb -x test_httprequest.rb -x test_filehandler.rb"
+DISABLE_TESTS=""
+
+%ifarch armv7l armv7hl armv7hnl
+# test_call_double(DL::TestDL) fails on ARM HardFP
+# http://bugs.ruby-lang.org/issues/6592
+DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
+%endif
+
+%ifnarch ppc ppc64
+make check TESTS="-v $DISABLE_TESTS"
+%endif
 
 %post libs -p /sbin/ldconfig
 
