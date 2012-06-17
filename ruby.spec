@@ -17,7 +17,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	1%{?dist}
+Release:	2%{?dist}
 # Please check if ruby upstream changes this to "Ruby or GPLv2+"
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
@@ -321,7 +321,7 @@ find -type f | xargs chmod 0644
 grep -rl '#![ \t]*%{_prefix}/local/bin' . | \
 	xargs sed -i -e '1s|\(#![ \t]*\)%{_prefix}/local/bin|\1%{_bindir}|'
 grep -rl '#![ \t]*\./ruby' . | \
-	xargs sed -i -e '1s|\(#![ \t]*\)\./ruby|%{_bindir}/ruby|'
+	xargs sed -i -e '1s|\(#![ \t]*\)\./ruby|\1%{_bindir}/ruby|'
 
 # Fix encoding
 # Suppress message
@@ -544,6 +544,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
+* Sun Jun 16 2012 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.358-2
+- Fix sed usage wrt shebang modification
+  (Christian Iseli <Christian.Iseli@unil.ch>)
+
 * Fri Apr 13 2012 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.358-1
 - Update to 1.8.7p358
 
