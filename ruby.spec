@@ -726,7 +726,7 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %changelog
 * Wed Aug 01 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r35922
-- ruby-libs must require rubygems (rhbz#45011).
+- ruby-libs must require rubygems (rhbz#845011).
 
 * Mon Jun 11 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 2.0.0.0-0.1.r35922
 - Make the bigdecimal gem a runtime dependency of Ruby.
