@@ -13,7 +13,7 @@
 
 # If revision is removed/commented out, the official release build is expected.
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 36213
+%global revision 36887
 
 %global release 1
 
@@ -52,7 +52,7 @@
 %global bigdecimal_version 1.1.0
 %global io_console_version 0.3
 %global json_version 1.7.1
-%global minitest_version 3.0.0
+%global minitest_version 3.3.0
 
 %global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 
@@ -89,6 +89,10 @@ Patch8: ruby-1.9.3-custom-rubygems-location.patch
 Patch9: rubygems-1.8.11-binary-extensions.patch
 # Make mkmf verbose by default
 Patch12: ruby-1.9.3-mkmf-verbose.patch
+
+# This patch breaks a test suite, so revert it for now.
+# https://bugs.ruby-lang.org/issues/6971
+Patch100: ruby-2.0-r36832-rb_float_value-optimization.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -322,6 +326,8 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch9 -p1
 %patch12 -p1
 
+%patch100 -p1 -R
+
 %build
 autoconf
 
@@ -536,7 +542,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/ripper
 %{ruby_libdir}/rss
 %{ruby_libdir}/shell
-%{ruby_libdir}/syck
 %{ruby_libdir}/syslog
 %{ruby_libdir}/test
 %exclude %{ruby_libdir}/tk
@@ -645,7 +650,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/socket.so
 %{ruby_libarchdir}/stringio.so
 %{ruby_libarchdir}/strscan.so
-%{ruby_libarchdir}/syck.so
 %{ruby_libarchdir}/syslog.so
 %exclude %{ruby_libarchdir}/tcltklib.so
 %exclude %{ruby_libarchdir}/tkutil.so
@@ -725,6 +729,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Sep 03 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r36887
+- Upgrade to Ruby 2.0.0 (r36887).
+
 * Mon Jun 11 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 2.0.0.0-0.1.r35922
 - Make the bigdecimal gem a runtime dependency of Ruby.
 
