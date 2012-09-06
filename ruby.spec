@@ -215,16 +215,26 @@ Provides:   ri = %{version}-%{release}
 Provides:   rubygem(rdoc) = %{version}-%{release}
 Obsoletes:  ruby-rdoc < %{version}
 Obsoletes:  ruby-ri < %{version}
+BuildArch:  noarch
+
+%description -n rubygem-rdoc
+RDoc produces HTML and command-line documentation for Ruby projects.  RDoc
+includes the 'rdoc' and 'ri' tools for generating and displaying online
+documentation.
+
+
+%package doc
+Summary:    Documentation for %{name}
+Group:      Documentation
+Requires:   %{_bindir}/ri
 # TODO: It seems that ri documentation differs from platform to platform due to
 # some encoding bugs, therefore the documentation should be split out of this gem
 # or kept platform specific.
 # https://github.com/rdoc/rdoc/issues/71
 # BuildArch:  noarch
 
-%description -n rubygem-rdoc
-RDoc produces HTML and command-line documentation for Ruby projects.  RDoc
-includes the 'rdoc' and 'ri' tools for generating and displaying online
-documentation.
+%description doc
+This package contains documentation for %{name}.
 
 
 %package -n rubygem-bigdecimal
@@ -468,14 +478,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %files
 %doc COPYING
 %lang(ja) %doc COPYING.ja
-%doc ChangeLog
 %doc GPL
 %doc LEGAL
-%doc NEWS
-%doc README
-%lang(ja) %doc README.ja
-%doc doc/ChangeLog-*
-%doc doc/NEWS-*
 %{_bindir}/erb
 %{_bindir}/ruby
 %{_bindir}/testrb
@@ -696,6 +700,14 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/rdoc-%{rdoc_version}
 %{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
 %{_mandir}/man1/ri*
+
+%files doc
+%doc NEWS
+%doc README
+%lang(ja) %doc README.ja
+%doc ChangeLog
+%doc doc/ChangeLog-*
+%doc doc/NEWS-*
 %{_datadir}/ri
 
 %files -n rubygem-bigdecimal
@@ -731,8 +743,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Sep 03 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r36887
+* Thu Sep 06 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r36887
 - Upgrade to Ruby 2.0.0 (r36887).
+- Split documentation into -doc subpackage.
 
 * Mon Jun 11 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 2.0.0.0-0.1.r35922
 - Make the bigdecimal gem a runtime dependency of Ruby.
