@@ -745,7 +745,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Thu Sep 06 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r36887
 - Upgrade to Ruby 2.0.0 (r36887).
-- Split documentation into -doc subpackage.
+- Split documentation into -doc subpackage (rhbz#854418).
 
 * Mon Jun 11 2012 Bohuslav Kabrda <bkabrda@redhat.com> - 2.0.0.0-0.1.r35922
 - Make the bigdecimal gem a runtime dependency of Ruby.
