@@ -17,7 +17,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	2%{?dist}
+Release:	3%{?dist}
 # Please check if ruby upstream changes this to "Ruby or GPLv2+"
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
@@ -63,6 +63,8 @@ Patch33:	ruby-1.8.7-p249-mkmf-use-shared.patch
 # Remove duplicate path entry
 # bug 718695
 Patch34:	ruby-1.8.7-p352-path-uniq.patch
+# Backported fix for CVE-2012-4466 on trunk:rev37068 to 1.8.7 branch
+Patch35:	ruby-1.8.7-p358-CVE-2012-4466.patch
 # Change ruby load path to conform to Fedora/ruby
 # library placement (various 1.8.6 patches consolidated into this)
 Patch100:	ruby-1.8.7-lib-paths.patch
@@ -184,6 +186,7 @@ pushd %{name}-%{arcver}
 %patch29 -p1
 %patch33 -p1
 %patch34 -p1
+%patch35 -p1
 %patch100 -p1
 
 ( 
@@ -544,6 +547,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
+* Thu Oct 04 2012 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.358-3
+- Backport fix for CVE-2012-4466 on trunk:rev37068 to 1.8.7 branch
+
 * Sun Jun 16 2012 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.358-2
 - Fix sed usage wrt shebang modification
   (Christian Iseli <Christian.Iseli@unil.ch>)
