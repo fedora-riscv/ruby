@@ -1,6 +1,6 @@
 %global	rubyxver	1.8
 %global	rubyver	1.8.7
-%global	_patchlevel	358
+%global	_patchlevel	371
 
 %global	dotpatchlevel	%{?_patchlevel:.%{_patchlevel}}
 %global	patchlevel	%{?_patchlevel:-p%{_patchlevel}}
@@ -17,7 +17,7 @@
 
 Name:		ruby
 Version:	%{rubyver}%{?dotpatchlevel}
-Release:	4%{?dist}
+Release:	1%{?dist}
 # Please check if ruby upstream changes this to "Ruby or GPLv2+"
 License:	Ruby or GPLv2
 URL:		http://www.ruby-lang.org/
@@ -64,7 +64,7 @@ Patch33:	ruby-1.8.7-p249-mkmf-use-shared.patch
 # bug 718695
 Patch34:	ruby-1.8.7-p352-path-uniq.patch
 # Backported fix for CVE-2012-4466 on trunk:rev37068 to 1.8.7 branch
-Patch35:	ruby-1.8.7-p358-CVE-2012-4464-4466.patch
+#Patch35:	ruby-1.8.7-p358-CVE-2012-4464-4466.patch
 # Change ruby load path to conform to Fedora/ruby
 # library placement (various 1.8.6 patches consolidated into this)
 Patch100:	ruby-1.8.7-lib-paths.patch
@@ -186,7 +186,7 @@ pushd %{name}-%{arcver}
 %patch29 -p1
 %patch33 -p1
 %patch34 -p1
-%patch35 -p1
+#%%patch35 -p1
 %patch100 -p1
 
 ( 
@@ -547,6 +547,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/ri
 
 %changelog
+* Sat Oct 13 2012 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.8.7.371-1
+- Update to 1.8.7 p371
+
 * Fri Oct 04 2012 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.358-4
 - Also backport fix for the left part of CVE-2011-1005 (causing the
   same issue as CVE-2012-4464)
