@@ -513,6 +513,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %doc LEGAL
 %doc README
 %lang(ja) %doc README.ja
+%doc NEWS
+%doc doc/NEWS-*
 # Exclude /usr/local directory since it is supposed to be managed by
 # local system administrator.
 %exclude %{ruby_sitelibdir}
@@ -702,12 +704,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{_mandir}/man1/ri*
 
 %files doc
-%doc NEWS
 %doc README
 %lang(ja) %doc README.ja
 %doc ChangeLog
 %doc doc/ChangeLog-*
-%doc doc/NEWS-*
 %{_datadir}/ri
 
 %files -n rubygem-bigdecimal
