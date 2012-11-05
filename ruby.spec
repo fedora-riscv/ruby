@@ -13,7 +13,7 @@
 
 # If revision is removed/commented out, the official release build is expected.
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 36887
+%global revision 37421
 
 %global release 1
 
@@ -54,7 +54,7 @@
 %global bigdecimal_version 1.1.0
 %global io_console_version 0.3
 %global json_version 1.7.1
-%global minitest_version 3.3.0
+%global minitest_version 3.4.0
 
 %global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 
@@ -91,10 +91,6 @@ Patch8: ruby-1.9.3-custom-rubygems-location.patch
 Patch9: rubygems-1.8.11-binary-extensions.patch
 # Make mkmf verbose by default
 Patch12: ruby-1.9.3-mkmf-verbose.patch
-
-# This patch breaks a test suite, so revert it for now.
-# https://bugs.ruby-lang.org/issues/6971
-Patch100: ruby-2.0-r36832-rb_float_value-optimization.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -316,6 +312,10 @@ output.
 # TODO:
 # %%pacakge -n rubygem-psych
 
+# TODO:
+# %%pacakge -n rubygem-test-unit
+
+
 %package tcltk
 Summary:    Tcl/Tk interface for scripting language Ruby
 Group:      Development/Languages
@@ -337,8 +337,6 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch8 -p1
 %patch9 -p1
 %patch12 -p1
-
-%patch100 -p1 -R
 
 %build
 autoconf
@@ -743,7 +741,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Sep 06 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r36887
+* Mon Nov 05 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37421
+- Upgrade to Ruby 2.0.0 (r37421).
+
+* Thu Sep 06 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r36887
 - Upgrade to Ruby 2.0.0 (r36887).
 - Split documentation into -doc subpackage (rhbz#854418).
 
