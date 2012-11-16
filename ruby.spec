@@ -15,7 +15,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 37421
+%global revision 37589
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -487,7 +487,9 @@ sed -i '8 a\
   s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
 %check
-DISABLE_TESTS=""
+# http://bugs.ruby-lang.org/issues/7298
+# http://bugs.ruby-lang.org/issues/7312
+DISABLE_TESTS="-x test_enumerator.rb -x test_m17n_comb.rb"
 
 %ifarch armv7l armv7hl armv7hnl
 # test_call_double(DL::TestDL) fails on ARM HardFP
@@ -776,6 +778,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri Nov 09 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r37589
+- Upgrade to Ruby 2.0.0 (r37589).
+
 * Mon Nov 05 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37421
 - Upgrade to Ruby 2.0.0 (r37421).
 - Split Psych into rubygem-psych subpackage.
