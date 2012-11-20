@@ -15,7 +15,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 37589
+%global revision 37773
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -57,7 +57,7 @@
 # http://rpm.org/ticket/78
 %global gem_extdir %{_exec_prefix}/lib{,64}/gems
 
-%global rake_version 0.9.2.2
+%global rake_version 0.9.4
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version_patch_level}
@@ -489,9 +489,8 @@ sed -i '8 a\
   s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
 %check
-# http://bugs.ruby-lang.org/issues/7298
-# http://bugs.ruby-lang.org/issues/7312
-DISABLE_TESTS="-x test_enumerator.rb -x test_m17n_comb.rb"
+# https://bugs.ruby-lang.org/issues/7386
+DISABLE_TESTS="-x test_rake_functional.rb"
 
 %ifarch armv7l armv7hl armv7hnl
 # test_call_double(DL::TestDL) fails on ARM HardFP
@@ -780,6 +779,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Nov 20 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37773
+- Upgrade to Ruby 2.0.0 (r37773).
+
 * Fri Nov 09 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r37589
 - Upgrade to Ruby 2.0.0 (r37589).
 
