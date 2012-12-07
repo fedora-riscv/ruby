@@ -218,6 +218,7 @@ License:    GPLv2 and Ruby and MIT
 Requires:   ruby(abi) = %{ruby_abi}
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
+Requires:   rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
 Provides:   ri = %{version}-%{release}
 Provides:   rubygem(rdoc) = %{version}-%{release}
@@ -784,10 +785,14 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri Dec 07 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38260
+- Upgrade to Ruby 2.0.0 (r38260).
+- RDoc now depends on JSON.
+
 * Tue Nov 20 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37773
 - Upgrade to Ruby 2.0.0 (r37773).
 
-* Fri Nov 09 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r37589
+* Fri Nov 09 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37589
 - Upgrade to Ruby 2.0.0 (r37589).
 
 * Mon Nov 05 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37421
