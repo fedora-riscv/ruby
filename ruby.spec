@@ -17,7 +17,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 38184
+%global revision 38260
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -686,6 +686,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/racc/cparse.so
 %{ruby_libarchdir}/rbconfig.rb
 %{ruby_libarchdir}/readline.so
+%{ruby_libarchdir}/refinement.so
 %{ruby_libarchdir}/ripper.so
 %{ruby_libarchdir}/sdbm.so
 %{ruby_libarchdir}/socket.so
