@@ -17,7 +17,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 38260
+%global revision 38297
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -785,8 +785,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Fri Dec 07 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38260
-- Upgrade to Ruby 2.0.0 (r38260).
+* Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38297
+- Upgrade to Ruby 2.0.0 (r38297).
 - RDoc now depends on JSON.
 
 * Tue Nov 20 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37773
