@@ -236,11 +236,7 @@ documentation.
 Summary:    Documentation for %{name}
 Group:      Documentation
 Requires:   %{_bindir}/ri
-# TODO: It seems that ri documentation differs from platform to platform due to
-# some encoding bugs, therefore the documentation should be split out of this gem
-# or kept platform specific.
-# https://github.com/rdoc/rdoc/issues/71
-# BuildArch:  noarch
+BuildArch:  noarch
 
 %description doc
 This package contains documentation for %{name}.
@@ -788,6 +784,9 @@ make check TESTS="-v $DISABLE_TESTS"
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38297
 - Upgrade to Ruby 2.0.0 (r38297).
 - RDoc now depends on JSON.
+- Try to make -doc subpackage noarch again, since the new RDoc should resolve
+  the arch dependent issues (https://github.com/rdoc/rdoc/issues/71).
+
 
 * Tue Nov 20 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37773
 - Upgrade to Ruby 2.0.0 (r37773).
