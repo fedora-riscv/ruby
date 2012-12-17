@@ -122,6 +122,7 @@ BuildRequires: readline-devel
 BuildRequires: tk-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
+BuildRequires: %{_bindir}/dtrace
 
 %description
 Ruby is the interpreted scripting language for quick and easy
@@ -786,7 +787,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - RDoc now depends on JSON.
 - Try to make -doc subpackage noarch again, since the new RDoc should resolve
   the arch dependent issues (https://github.com/rdoc/rdoc/issues/71).
-
+- Enable SystemTap support.
 
 * Tue Nov 20 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r37773
 - Upgrade to Ruby 2.0.0 (r37773).
