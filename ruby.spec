@@ -1,7 +1,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 327
+%global patch_level 362
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -56,7 +56,7 @@ Version: %{ruby_version_patch_level}
 # we cannot reset the release number to 1 even when the main (ruby) version
 # is updated - because it may be that the versions of sub-components don't
 # change.
-Release: 19%{?dist}
+Release: 24%{?dist}
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
@@ -91,6 +91,13 @@ Patch9: rubygems-1.8.11-binary-extensions.patch
 # Let's rescue this
 # Fixed in ruby 1.9.3 p327
 #Patch10: ruby-1.9.3-p286-open-devtty-on-koji.patch
+# On koji, network related tests sometimes cause internal server error,
+# ignore these
+Patch10: ruby-1.9.3-p327-ignore-internal-server-error-on-test.patch
+# http://bugs.ruby-lang.org/issues/show/7312
+# test_str_crypt fails with glibc 2.17
+# Fixed in 1.9.3 p 362
+#Patch11: ruby-1.9.3-p327-crypt-argument-glibc217.patch
 # Make mkmf verbose by default
 Patch12: ruby-1.9.3-mkmf-verbose.patch
 
@@ -332,7 +339,8 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
-#%%patch10 -p1
+%patch10 -p1
+#%%patch11 -p1
 %patch12 -p1
 
 %build
@@ -464,6 +472,12 @@ DISABLE_TESTS="-x test_drbssl.rb $DISABLE_TESTS"
 # test_call_double(DL::TestDL) fails on ARM HardFP
 # http://bugs.ruby-lang.org/issues/6592
 DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
+%endif
+
+%ifarch %{arm}
+# test_parse.rb fails on ARM at line 787
+# http://bugs.ruby-lang.org/issues/6899
+DISABLE_TESTS="-x test_parse.rb $DISABLE_TESTS"
 %endif
 
 %ifnarch ppc ppc64
@@ -739,6 +753,19 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Wed Jan 2 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.362-24
+- Update to 1.9.3.362
+
+* Mon Dec 03 2012 Jaromir Capik <jcapik@redhat.com> - 1.9.3.327-23
+- Skipping test_parse.rb (fails on ARM at line 787)
+- http://bugs.ruby-lang.org/issues/6899
+
+* Sun Nov 11 2012 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.327-23
+- Skip test_str_crypt (on rawhide) for now (upstream bug 7312)
+
+* Sat Nov 10 2012 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.327-22
+- Ignore some network related tests
+
 * Sat Nov 10 2012 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.327-19
 - Update to 1.9.3.327
 - Fix Hash-flooding DoS vulnerability on MurmurHash function
@@ -802,18 +829,18 @@ make check TESTS="-v $DISABLE_TESTS"
 - Create and own RubyGems directories for binary extensions.
 - Fix build with GCC 4.7.
 
-* Wed Jan 16 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-3
+* Mon Jan 16 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-3
 - Fix RHEL build.
 - Fixed directory ownership.
 - Verose build output.
 
-* Wed Jan 15 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-2
+* Sun Jan 15 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-2
 - Install RubyGems outside of Ruby directory structure.
 - RubyGems has not its own -devel subpackage.
 - Enhanced macros.ruby and macros.rubygems.
 - All tests are green now (bkabrda).
 
-* Tue Jan 14 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-1
+* Sat Jan 14 2012 Vít Ondruch <vondruch@redhat.com> - 1.9.3.0-1
 - Initial package
 
 * Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.8.7.357-2
@@ -827,7 +854,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - dont normalise arm cpus to arm
 - there is something weird about how ruby choses where to put bits
 
-* Thu Nov 16 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-3
+* Thu Nov 17 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-3
 - F-17: kill gdbm support for now due to licensing compatibility issue
 
 * Sat Oct  1 2011 Mamoru Tasaka <mtasaka@fedoraproject.org> - 1.8.7.352-2
@@ -1112,11 +1139,11 @@ make check TESTS="-v $DISABLE_TESTS"
 * Fri Aug 10 2007 Akira TAGOH <tagoh@redhat.com>
 - Update License tag.
 
-* Mon Jul 25 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-3
+* Mon Jun 25 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-3
 - ruby-r12567.patch: backport patch from upstream svn to get rid of
   the unnecessary declarations. (#245446)
 
-* Wed Jul 20 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-2
+* Wed Jun 20 2007 Akira TAGOH <tagoh@redhat.com> - 1.8.6.36-2
 - New upstream release.
   - Fix Etc::getgrgid to get the correct gid as requested. (#236647)
 
@@ -1580,7 +1607,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Removed ruby_cvs.2000092718.patch and added ruby_cvs.2000100218.patch
   (upgraded ruby to latest cvs version).
 
-* Thu Sep 27 2000 akira yamada <akira@vinelinux.org>
+* Wed Sep 27 2000 akira yamada <akira@vinelinux.org>
 - Updated to upstream version 1.6.1.
 - Removed ruby_cvs.2000082901.patch and added ruby_cvs.2000092718.patch
   (upgraded ruby to latest cvs version).
@@ -1612,7 +1639,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Removed ruby-list.23190.patch(included into ruby_cvs.patch).
 - Added ruby-dev.10054.patch.
 
-* Tue Jun 15 2000 akira yamada <akira@redhat.com>
+* Thu Jun 15 2000 akira yamada <akira@redhat.com>
 - Updated to version 1.4.4(06/12/2000 CVS).
 - Added manuals and FAQs.
 - Split into ruby, ruby-devel, ruby-tcltk, ruby-docs, irb.
@@ -1658,7 +1685,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Fri Nov 13 1998 Toru Hoshina <hoshina@best.com>
 - Version up.
 
-* Mon Sep 22 1998 Toru Hoshina <hoshina@best.com>
+* Tue Sep 22 1998 Toru Hoshina <hoshina@best.com>
 - To make a libruby.so.
 
 * Mon Sep 21 1998 Toru Hoshina <hoshina@best.com>
