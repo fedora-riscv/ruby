@@ -13,7 +13,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 38732
+%global revision 38848
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -797,8 +797,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Jan 07 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38732
-- Upgrade to Ruby 2.0.0 (r38732).
+* Wed Jan 16 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
+- Upgrade to Ruby 2.0.0 (r38848).
 - Move native extensions from exts to ruby directory.
 
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38422
