@@ -379,6 +379,7 @@ autoconf
         --with-vendorarchdir='%{ruby_vendorarchdir}' \
         --with-rubyhdrdir='%{_includedir}' \
         --with-rubygemsdir='%{rubygems_dir}' \
+        --with-ruby-pc='%{name}.pc' \
         --disable-rpath \
         --enable-shared \
         --disable-versioned-paths
@@ -550,7 +551,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{_includedir}/%{_normalized_cpu}-%{_target_os}/ruby
 
 %{_libdir}/libruby.so
-%{_libdir}/pkgconfig/ruby-%{major_minor_version}.pc
+%{_libdir}/pkgconfig/%{name}.pc
 
 %files libs
 %doc COPYING
@@ -797,8 +798,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Jan 16 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
+* Thu Jan 17 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
 - Upgrade to Ruby 2.0.0 (r38848).
+- Provide nonversioned packageconfig (rhbz#789532).
 - Move native extensions from exts to ruby directory.
 
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38422
