@@ -105,6 +105,9 @@ Patch8: ruby-1.9.3-custom-rubygems-location.patch
 # Add support for installing binary extensions according to FHS.
 # https://github.com/rubygems/rubygems/issues/210
 Patch9: rubygems-1.8.11-binary-extensions.patch
+# Fixes issues mentioned in rhbz#789532, comment 8.
+# TODO: Should be probably upstreamed with #5281.
+Patch10: ruby-2.0.0-Expand-ruby.pc-variable-by-configuration-process.patch
 # Make mkmf verbose by default
 Patch12: ruby-1.9.3-mkmf-verbose.patch
 
@@ -362,6 +365,7 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch4 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 %patch12 -p1
 
 # Provide an example of usage of the tapset:
@@ -801,7 +805,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Fri Jan 18 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
 - Upgrade to Ruby 2.0.0 (r38848).
 - Build against libdb instead of libdb4 (rhbz#894022).
-- Provide nonversioned packageconfig (rhbz#789532).
+- Provide nonversioned packageconfig (rhbz#789532) and fix provided variables.
 - Move native extensions from exts to ruby directory.
 
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38422
