@@ -119,7 +119,7 @@ Requires: rubygem(bigdecimal) >= %{bigdecimal_version}
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
 BuildRequires: ncurses-devel
-BuildRequires: db4-devel
+BuildRequires: libdb-devel
 BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
@@ -798,8 +798,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Jan 17 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
+* Fri Jan 18 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
 - Upgrade to Ruby 2.0.0 (r38848).
+- Build against libdb instead of libdb4 (rhbz#894022).
 - Provide nonversioned packageconfig (rhbz#789532).
 - Move native extensions from exts to ruby directory.
 
