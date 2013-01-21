@@ -518,9 +518,19 @@ DISABLE_TESTS=""
 DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
 %endif
 
-%ifnarch ppc ppc64
-make check TESTS="-v $DISABLE_TESTS"
+%ifarch ppc ppc64
+# test_ioctl_linux(TestIO) fails with #<Errno::EINVAL: Invalid argument - /dev/urandom>.
+# https://bugs.ruby-lang.org/issues/7718
+DISABLE_TESTS="-x test_io.rb $DISABLE_TESTS"
 %endif
+
+%ifarch ppc
+# test_stack_size(TestFiber) fails.
+# https://bugs.ruby-lang.org/issues/7719
+DISABLE_TESTS="-x test_fiber.rb $DISABLE_TESTS"
+%endif
+
+make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
 
@@ -802,11 +812,12 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Fri Jan 18 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
+* Mon Jan 21 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
 - Upgrade to Ruby 2.0.0 (r38848).
 - Build against libdb instead of libdb4 (rhbz#894022).
 - Provide nonversioned packageconfig (rhbz#789532) and fix provided variables.
 - Move native extensions from exts to ruby directory.
+- Enable most of the PPC test suite.
 
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38422
 - Upgrade to Ruby 2.0.0 (r38422).
