@@ -13,7 +13,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 38848
+%global revision 38894
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -524,12 +524,6 @@ DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
 DISABLE_TESTS="-x test_io.rb $DISABLE_TESTS"
 %endif
 
-%ifarch ppc
-# test_stack_size(TestFiber) fails.
-# https://bugs.ruby-lang.org/issues/7719
-DISABLE_TESTS="-x test_fiber.rb $DISABLE_TESTS"
-%endif
-
 make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
@@ -812,8 +806,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Jan 21 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38848
-- Upgrade to Ruby 2.0.0 (r38848).
+* Mon Jan 21 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38894
+- Upgrade to Ruby 2.0.0 (r38894).
 - Build against libdb instead of libdb4 (rhbz#894022).
 - Provide nonversioned packageconfig (rhbz#789532) and fix provided variables.
 - Move native extensions from exts to ruby directory.
