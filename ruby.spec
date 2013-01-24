@@ -13,7 +13,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 38894
+%global revision 38929
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -809,8 +809,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Jan 24 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38894
-- Upgrade to Ruby 2.0.0 (r38894).
+* Thu Jan 24 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38929
+- Upgrade to Ruby 2.0.0 (r38929).
 - Build against libdb instead of libdb4 (rhbz#894022).
 - Provide nonversioned packageconfig (rhbz#789532) and fix provided variables.
 - Move native extensions from exts to ruby directory.
