@@ -397,6 +397,9 @@ make %{?_smp_mflags} COPY="cp -p" Q=
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
 
+# Rename the ruby executable. It is replaced by RubyPick.
+mv %{buildroot}%{_bindir}/%{name}{,-mri}
+
 # Dump the macros into macro.ruby to use them to build other Ruby libraries.
 mkdir -p %{buildroot}%{_sysconfdir}/rpm
 cat >> %{buildroot}%{_sysconfdir}/rpm/macros.ruby << \EOF
@@ -536,7 +539,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %doc GPL
 %doc LEGAL
 %{_bindir}/erb
-%{_bindir}/ruby
+%{_bindir}/%{name}-mri
 %{_bindir}/testrb
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
@@ -813,6 +816,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Move native extensions from exts to ruby directory.
 - Enable most of the PPC test suite.
 - Change ruby(abi) -> ruby(release).
+- Rename ruby executable to ruby-mri, to be prepared for RubyPick.
 
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38422
 - Upgrade to Ruby 2.0.0 (r38422).
