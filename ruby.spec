@@ -132,6 +132,10 @@ BuildRequires: tk-devel
 BuildRequires: procps
 BuildRequires: %{_bindir}/dtrace
 
+# This package provides %%{_bindir}/ruby-mri therefore it is marked by this
+# virtual provide. It can be installed as dependency of rubypick.
+Provides: ruby(runtime_executable) = %{ruby_release}
+
 %description
 Ruby is the interpreted scripting language for quick and easy
 object-oriented programming.  It has many features to process text
@@ -817,6 +821,8 @@ make check TESTS="-v $DISABLE_TESTS"
 - Enable most of the PPC test suite.
 - Change ruby(abi) -> ruby(release).
 - Rename ruby executable to ruby-mri, to be prepared for RubyPick.
+- Add ruby(runtime_executable) virtual provide, which is later used
+  by RubyPick.
 
 * Mon Dec 10 2012 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38422
 - Upgrade to Ruby 2.0.0 (r38422).
