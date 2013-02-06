@@ -13,7 +13,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 38929
+%global revision 39070
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -42,7 +42,7 @@
 %global ruby_vendorlibdir %{_datadir}/ruby/%{ruby_vendordir}
 %global ruby_vendorarchdir %{_libdir}/ruby/%{ruby_vendordir}
 
-%global rubygems_version 2.0.0.preview3.1
+%global rubygems_version 2.0.0.rc.2
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -61,7 +61,7 @@
 %global irb_version %{ruby_version_patch_level}
 %global rdoc_version 4.0.0.preview3.1
 %global bigdecimal_version 1.1.0
-%global io_console_version 0.3
+%global io_console_version 0.4.1
 %global json_version 1.7.5
 %global minitest_version 4.3.2
 %global psych_version 2.0.0
@@ -809,8 +809,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Jan 24 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r38929
-- Upgrade to Ruby 2.0.0 (r38929).
+* Tue Feb 05 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r39070
+- Upgrade to Ruby 2.0.0 (r39070).
 - Build against libdb instead of libdb4 (rhbz#894022).
 - Provide nonversioned packageconfig (rhbz#789532) and fix provided variables.
 - Move native extensions from exts to ruby directory.
