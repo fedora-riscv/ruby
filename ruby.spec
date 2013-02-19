@@ -443,6 +443,19 @@ cat >> %{buildroot}%{_sysconfdir}/rpm/macros.rubygems << \EOF
 %%gem_cache %%{gem_dir}/cache/%%{gem_name}-%%{version}.gem
 %%gem_spec %%{gem_dir}/specifications/%%{gem_name}-%%{version}.gemspec
 %%gem_docdir %%{gem_dir}/doc/%%{gem_name}-%%{version}
+
+# Install gem into appropriate directory.
+# -n<name>      Allows to override gem for installation.
+%%gem_install(n:) \
+CONFIGURE_ARGS="--with-cflags='%%{optflags}' $CONFIGURE_ARGS" \\\
+gem install \\\
+        -V \\\
+        --local \\\
+        --install-dir .%{gem_dir} \\\
+        --bindir .%{_bindir} \\\
+        --force \\\
+        --document=ri,rdoc \\\
+        %%{-n*}%%{!?-n:%{gem_name}-%{version}.gem}
 EOF
 
 # Install custom operating_system.rb.
@@ -825,6 +838,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Wed Feb 13 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r39237
 - Upgrade to Ruby 2.0.0 (r39237).
+- Introduce %%gem_install macro.
 
 * Tue Feb 05 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.rc2
 - Upgrade to Ruby 2.0.0 (rc2).
