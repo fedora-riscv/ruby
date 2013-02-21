@@ -13,7 +13,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 39237
+%global revision 39357
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -42,7 +42,7 @@
 %global ruby_vendorlibdir %{_datadir}/ruby/%{ruby_vendordir}
 %global ruby_vendorarchdir %{_libdir}/ruby/%{ruby_vendordir}
 
-%global rubygems_version 2.0.0.rc.2
+%global rubygems_version 2.0.0
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -59,7 +59,7 @@
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version_patch_level}
-%global rdoc_version 4.0.0.rc.2.1
+%global rdoc_version 4.0.0
 %global bigdecimal_version 1.1.0
 %global io_console_version 0.4.1
 %global json_version 1.7.7
@@ -557,6 +557,10 @@ DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
 DISABLE_TESTS="-x test_io.rb $DISABLE_TESTS"
 %endif
 
+# The TestRbConfig errors, which does not respect configuration options.
+# http://bugs.ruby-lang.org/issues/7902
+DISABLE_TESTS="-x test_rbconfig.rb $DISABLE_TESTS"
+
 make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
@@ -839,8 +843,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Feb 13 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.2.r39237
-- Upgrade to Ruby 2.0.0 (r39237).
+* Thu Feb 21 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r39357
+- Upgrade to Ruby 2.0.0 (r39357).
 - Introduce %%gem_install macro.
 
 * Tue Feb 05 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.rc2
