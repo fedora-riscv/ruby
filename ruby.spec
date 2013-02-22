@@ -13,7 +13,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 39357
+%global revision 39387
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -851,8 +851,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Feb 21 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r39357
-- Upgrade to Ruby 2.0.0 (r39357).
+* Thu Feb 21 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.r39387
+- Upgrade to Ruby 2.0.0 (r39387).
 - Introduce %%gem_install macro.
 
 * Tue Feb 05 2013 Vít Ondruch <vondruch@redhat.com> - 2.0.0.0-0.1.rc2
