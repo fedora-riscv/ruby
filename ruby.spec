@@ -1,7 +1,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 385
+%global patch_level 392
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -43,7 +43,7 @@
 %global rdoc_version 3.9.5
 %global bigdecimal_version 1.1.0
 %global io_console_version 0.3
-%global json_version 1.5.4
+%global json_version 1.5.5
 %global minitest_version 2.5.1
 
 %global	_normalized_cpu	%(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
@@ -56,7 +56,7 @@ Version: %{ruby_version_patch_level}
 # we cannot reset the release number to 1 even when the main (ruby) version
 # is updated - because it may be that the versions of sub-components don't
 # change.
-Release: 28%{?dist}
+Release: 29%{?dist}
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
@@ -778,6 +778,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Feb 25 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.392-29
+- Update to 1.9.3 p392
+- Fix entity expansion DoS vulnerability in REXML (bug 914716)
+
 * Mon Feb 11 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.385-28
 - Update to 1.9.3 p385
 
