@@ -1,7 +1,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 392
+%global patch_level 429
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -56,7 +56,7 @@ Version: %{ruby_version_patch_level}
 # we cannot reset the release number to 1 even when the main (ruby) version
 # is updated - because it may be that the versions of sub-components don't
 # change.
-Release: 29%{?dist}
+Release: 30%{?dist}
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
@@ -78,9 +78,6 @@ Patch4: ruby-1.9.3-fix-s390x-build.patch
 # Fix the uninstaller, so that it doesn't say that gem doesn't exist
 # when it exists outside of the GEM_HOME (already fixed in the upstream)
 Patch5: ruby-1.9.3-rubygems-1.8.11-uninstaller.patch
-# Already fixed upstream:
-# https://github.com/ruby/ruby/commit/f212df564a4e1025f9fb019ce727022a97bfff53
-Patch7: ruby-1.9.3-bignum-test-fix.patch
 # Allows to install RubyGems into custom directory, outside of Ruby's tree.
 # http://redmine.ruby-lang.org/issues/5617
 Patch8: ruby-1.9.3-custom-rubygems-location.patch
@@ -348,7 +345,6 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
-%patch7 -p1
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
@@ -361,6 +357,7 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 autoconf
 
 %configure \
+        --disable-werror \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archdir='%{ruby_libarchdir}' \
         --with-sitedir='%{ruby_sitelibdir}' \
@@ -778,6 +775,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Thu May 16 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.429-30
+- Update to 1.9.3 p429
+- Fix object taint bypassing in DL and Fiddle (CVE-2013-2065)
+
 * Mon Feb 25 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.392-29
 - Update to 1.9.3 p392
 - Fix entity expansion DoS vulnerability in REXML (bug 914716)
