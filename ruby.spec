@@ -1,7 +1,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 429
+%global patch_level 448
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -56,7 +56,7 @@ Version: %{ruby_version_patch_level}
 # we cannot reset the release number to 1 even when the main (ruby) version
 # is updated - because it may be that the versions of sub-components don't
 # change.
-Release: 30%{?dist}
+Release: 31%{?dist}
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
@@ -74,7 +74,8 @@ Patch2: ruby-1.9.3-added-site-and-vendor-arch-flags.patch
 # some differencies in build between Fedora and RHEL.
 Patch3: ruby-1.9.3-always-use-i386.patch
 # http://redmine.ruby-lang.org/issues/5465
-Patch4: ruby-1.9.3-fix-s390x-build.patch
+# Fixed in 1.9.3 p448
+#Patch4: ruby-1.9.3-fix-s390x-build.patch
 # Fix the uninstaller, so that it doesn't say that gem doesn't exist
 # when it exists outside of the GEM_HOME (already fixed in the upstream)
 Patch5: ruby-1.9.3-rubygems-1.8.11-uninstaller.patch
@@ -343,7 +344,7 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
+#%%patch4 -p1
 %patch5 -p1
 %patch8 -p1
 %patch9 -p1
@@ -775,6 +776,11 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Jul  1 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.448-31
+- Update to 1.9.3 p448
+- Fix hostname check bypassing vulnerability in SSL client
+  (CVE-2013-4073)
+
 * Thu May 16 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.429-30
 - Update to 1.9.3 p429
 - Fix object taint bypassing in DL and Fiddle (CVE-2013-2065)
