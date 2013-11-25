@@ -1,7 +1,7 @@
 %global major_version 1
 %global minor_version 9
 %global teeny_version 3
-%global patch_level 448
+%global patch_level 484
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -56,7 +56,7 @@ Version: %{ruby_version_patch_level}
 # we cannot reset the release number to 1 even when the main (ruby) version
 # is updated - because it may be that the versions of sub-components don't
 # change.
-Release: 31%{?dist}
+Release: 32%{?dist}
 Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
@@ -776,6 +776,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Nov 25 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.484-32
+- Update to 1.9.3 p484
+- Fix heap overflow in floating point parsing (CVE-2013-4164)
+
 * Mon Jul  1 2013 Mamoru TASAKA <mtasaka@fedoraproject.org> - 1.9.3.448-31
 - Update to 1.9.3 p448
 - Fix hostname check bypassing vulnerability in SSL client
