@@ -26,7 +26,7 @@
 %endif
 
 
-%global release 17
+%global release 18
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.0.14
@@ -661,7 +661,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/dl
 %{ruby_libdir}/drb
 %{ruby_libdir}/fiddle
-%exclude %{ruby_libdir}/gems
 %exclude %{ruby_libdir}/irb
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
@@ -891,6 +890,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue May 06 2014 Vít Ondruch <vondruch@redhat.com> - 2.0.0.353-18
+- Remove useless exclude (rhbz#1065897).
+
 * Fri Jan 03 2014 Vít Ondruch <vondruch@redhat.com> - 2.0.0.353-17
 - Fix RubyGems version (rhbz#1036708).
 - Fix FTBFS due to expired certificate for IMAP test case.
