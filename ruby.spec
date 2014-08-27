@@ -1,6 +1,6 @@
 %global major_version 2
-%global minor_version 1
-%global teeny_version 2
+%global minor_version 2
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 44362
+%global revision 47288
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -34,12 +34,12 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.2.4
+%global bigdecimal_version 1.2.5
 %global io_console_version 0.4.2
 %global json_version 1.8.1
-%global minitest_version 4.7.5
+%global minitest_version 5.4.0
 %global psych_version 2.0.5
-%global rake_version 10.1.0
+%global rake_version 10.3.2
 %global rdoc_version 4.1.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -94,11 +94,8 @@ Patch1: ruby-2.1.0-Enable-configuration-of-archlibdir.patch
 # Force multiarch directories for i.86 to be always named i386. This solves
 # some differencies in build between Fedora and RHEL.
 Patch2: ruby-2.1.0-always-use-i386.patch
-# Fixes random WEBRick test failures.
-# https://bugs.ruby-lang.org/issues/6573.
-Patch3: ruby-1.9.3.p195-fix-webrick-tests.patch
 # Allows to install RubyGems into custom directory, outside of Ruby's tree.
-# http://redmine.ruby-lang.org/issues/5617
+# http://bugs.ruby-lang.org/issues/5617
 Patch4: ruby-2.1.0-custom-rubygems-location.patch
 # Make mkmf verbose by default
 Patch5: ruby-1.9.3-mkmf-verbose.patch
@@ -106,9 +103,6 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Fix build with libffi 3.1
-# https://bugs.ruby-lang.org/issues/9897
-Patch7: ruby-r46485-libffi31.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -346,9 +340,6 @@ libyaml[http://pyyaml.org/wiki/LibYAML] for its YAML parsing and emitting
 capabilities. In addition to wrapping libyaml, Psych also knows how to
 serialize and de-serialize most Ruby objects to and from the YAML format.
 
-# TODO:
-# %%pacakge -n rubygem-test-unit
-
 
 %package tcltk
 Summary:    Tcl/Tk interface for scripting language Ruby
@@ -365,11 +356,9 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p0
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -492,10 +481,6 @@ mv %{buildroot}%{ruby_libdir}/json* %{buildroot}%{gem_dir}/gems/json-%{json_vers
 mv %{buildroot}%{ruby_libarchdir}/json/ %{buildroot}%{_libdir}/gems/%{name}/json-%{json_version}/
 mv %{buildroot}%{gem_dir}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
-mkdir -p %{buildroot}%{gem_dir}/gems/minitest-%{minitest_version}/lib
-mv %{buildroot}%{ruby_libdir}/minitest %{buildroot}%{gem_dir}/gems/minitest-%{minitest_version}/lib
-mv %{buildroot}%{gem_dir}/specifications/default/minitest-%{minitest_version}.gemspec %{buildroot}%{gem_dir}/specifications
-
 mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}
 mv %{buildroot}%{ruby_libdir}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
@@ -577,13 +562,13 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %postun libs -p /sbin/ldconfig
 
 %files
+%doc BSDL
 %doc COPYING
 %lang(ja) %doc COPYING.ja
 %doc GPL
 %doc LEGAL
 %{_bindir}/erb
 %{_bindir}/%{name}%{?with_rubypick:-mri}
-%{_bindir}/testrb
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
 
@@ -591,7 +576,9 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %exclude %{_libdir}/libruby-static.a
 
 %files devel
-%doc COPYING*
+%doc BSDL
+%doc COPYING
+%lang(ja) %doc COPYING.ja
 %doc GPL
 %doc LEGAL
 %doc README.EXT
@@ -608,8 +595,8 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %lang(ja) %doc COPYING.ja
 %doc GPL
 %doc LEGAL
-%doc README
-%lang(ja) %doc README.ja
+%doc README.md
+%lang(ja) %doc README.ja.md
 %doc NEWS
 %doc doc/NEWS-*
 # Exclude /usr/local directory since it is supposed to be managed by
@@ -628,7 +615,6 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %exclude %{ruby_libdir}/tcltk.rb
 %exclude %{ruby_libdir}/tk*.rb
 %{ruby_libdir}/cgi
-%{ruby_libdir}/date
 %{ruby_libdir}/digest
 %{ruby_libdir}/dl
 %{ruby_libdir}/drb
@@ -646,7 +632,6 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/rss
 %{ruby_libdir}/shell
 %{ruby_libdir}/syslog
-%{ruby_libdir}/test
 %exclude %{ruby_libdir}/tk
 %exclude %{ruby_libdir}/tkextlib
 %{ruby_libdir}/uri
@@ -760,15 +745,6 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 
 %{tapset_root}
 
-# TODO rubygems 2.0.0 does not create test-unit gemspec
-# TODO for now put this in ruby-libs rpm
-# TODO check if the following can be removed after
-# TODO test-unit rebuild
-%dir %{gem_dir}
-%dir %{gem_dir}/specifications
-%dir %{gem_dir}/specifications/default
-%{gem_dir}/specifications/default/test-unit-*.gemspec
-
 %files -n rubygems
 %{_bindir}/gem
 %{rubygems_dir}
@@ -788,9 +764,6 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %exclude %{gem_dir}/specifications/rake-%{rake_version}.gemspec
 %exclude %{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
 %exclude %{gem_dir}/specifications/psych-%{psych_version}.gemspec
-# TODO rubygems 2.0.0 does not create test-unit gemspec
-# TODO where to put test-unit-*.gemspec??
-%exclude %{gem_dir}/specifications/default/test-unit-*.gemspec
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -818,8 +791,8 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %{_mandir}/man1/ri*
 
 %files doc
-%doc README
-%lang(ja) %doc README.ja
+%doc README.md
+%lang(ja) %doc README.ja.md
 %doc ChangeLog
 %doc doc/ChangeLog-*
 %doc ruby-exercise.stp
@@ -866,6 +839,9 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47288
+- Upgrade to Ruby 2.2.0 (r47288).
+
 * Mon Aug 25 2014 Vít Ondruch <vondruch@redhat.com> - 2.1.2-24
 - Use load macro introduced in RPM 4.12.
 
