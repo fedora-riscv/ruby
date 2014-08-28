@@ -588,9 +588,7 @@ sed -i "/^  gem 'minitest', '~> 4.0'/ s/^/#/" lib/rubygems/test_case.rb
 # https://bugs.ruby-lang.org/issues/9198
 sed -i '/^  def test_machine_stackoverflow/,/^  end/ s/^/#/' test/ruby/test_exception.rb
 
-# Allow MD5 in OpenSSL.
-# https://bugs.ruby-lang.org/issues/9154
-OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
+make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
 
