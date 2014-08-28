@@ -38,9 +38,11 @@
 %global io_console_version 0.4.2
 %global json_version 1.8.1
 %global minitest_version 5.4.0
+%global power_assert_version 0.1.3
 %global psych_version 2.0.5
 %global rake_version 10.3.2
 %global rdoc_version 4.1.0
+%global test_unit_version 3.0.0
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -325,6 +327,22 @@ minitest/pride shows pride in testing and adds coloring to your test
 output.
 
 
+# The Summary/Description fields are rather poor.
+# https://github.com/k-tsj/power_assert/issues/3
+%package -n rubygem-power_assert
+Summary:    Power Assert for Ruby
+Version:    %{power_assert_version}
+Group:      Development/Libraries
+License:    Ruby or BSD
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(power_assert) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-power_assert
+Power Assert for Ruby.
+
+
 %package -n rubygem-psych
 Summary:    A libyaml wrapper for Ruby
 Version:    %{psych_version}
@@ -339,6 +357,26 @@ Psych is a YAML parser and emitter. Psych leverages
 libyaml[http://pyyaml.org/wiki/LibYAML] for its YAML parsing and emitting
 capabilities. In addition to wrapping libyaml, Psych also knows how to
 serialize and de-serialize most Ruby objects to and from the YAML format.
+
+
+# The Summary/Description fields are rather poor.
+# https://github.com/test-unit/test-unit/issues/73
+%package -n rubygem-test-unit
+Summary:    Improved version of Test::Unit bundled in Ruby 1.8.x
+Version:    %{test_unit_version}
+Group:      Development/Libraries
+# lib/test/unit/diff.rb is a double license of the Ruby license and PSF license.
+# lib/test-unit.rb is a dual license of the Ruby license and LGPLv2.1 or later.
+License:    (Ruby or BSD) and (Ruby or BSD or Python) and (Ruby or BSD or LGPLv2+)
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(test-unit) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-test-unit
+Ruby 1.9.x bundles minitest not Test::Unit. Test::Unit
+bundled in Ruby 1.8.x had not been improved but unbundled
+Test::Unit (test-unit) is improved actively.
 
 
 %package tcltk
@@ -512,9 +550,6 @@ sed -i '/^end$/ i\
 sed -i '/^end$/ i\
   s.require_paths = ["lib"]\
   s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_version}.gemspec
-
-sed -i '/^end$/ i\
-  s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
 # Install a tapset and fix up the path to the library.
 mkdir -p %{buildroot}%{tapset_dir}
@@ -748,22 +783,21 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %files -n rubygems
 %{_bindir}/gem
 %{rubygems_dir}
-%{gem_dir}
-%exclude %{gem_dir}/gems/*
-%{_exec_prefix}/lib*/gems
-%exclude %{_exec_prefix}/lib*/gems/%{name}/bigdecimal-%{bigdecimal_version}
-%exclude %{_exec_prefix}/lib*/gems/%{name}/io-console-%{io_console_version}
-%exclude %{_exec_prefix}/lib*/gems/%{name}/json-%{json_version}
-%exclude %{_exec_prefix}/lib*/gems/%{name}/psych-%{psych_version}
-%exclude %{gem_dir}/gems/rake-%{rake_version}
-%exclude %{gem_dir}/gems/rdoc-%{rdoc_version}
-%exclude %{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
-%exclude %{gem_dir}/specifications/io-console-%{io_console_version}.gemspec
-%exclude %{gem_dir}/specifications/json-%{json_version}.gemspec
-%exclude %{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
-%exclude %{gem_dir}/specifications/rake-%{rake_version}.gemspec
-%exclude %{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
-%exclude %{gem_dir}/specifications/psych-%{psych_version}.gemspec
+
+# Explicitly include only RubyGems directory strucure to avoid accidentally
+# packaged content.
+%dir %{gem_dir}
+%dir %{gem_dir}/build_info
+%dir %{gem_dir}/cache
+%dir %{gem_dir}/doc
+%dir %{gem_dir}/extensions
+%dir %{gem_dir}/gems
+%dir %{gem_dir}/specifications
+%dir %{gem_dir}/specifications/default
+%dir %{_exec_prefix}/lib*/gems
+%dir %{_exec_prefix}/lib*/gems/ruby
+
+%exclude %{gem_dir}/cache/*
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -821,6 +855,10 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/minitest-%{minitest_version}
 %{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
+%files -n rubygem-power_assert
+%{gem_dir}/gems/power_assert-%{power_assert_version}
+%{gem_dir}/specifications/power_assert-%{power_assert_version}.gemspec
+
 %files -n rubygem-psych
 %{ruby_vendorlibdir}/psych
 %{ruby_vendorlibdir}/psych.rb
@@ -828,6 +866,10 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %{_libdir}/gems/%{name}/psych-%{psych_version}
 %{gem_dir}/gems/psych-%{psych_version}
 %{gem_dir}/specifications/psych-%{psych_version}.gemspec
+
+%files -n rubygem-test-unit
+%{gem_dir}/gems/test-unit-%{test_unit_version}
+%{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
 
 %files tcltk
 %{ruby_libdir}/*-tk.rb
@@ -841,6 +883,8 @@ OPENSSL_ENABLE_MD5_VERIFY=1 make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47288
 - Upgrade to Ruby 2.2.0 (r47288).
+- Explicitly list RubyGems directories to avoid accidentaly packaged content.
+- Split test-unit and power_assert gems into separate sub-packages.
 
 * Mon Aug 25 2014 Vít Ondruch <vondruch@redhat.com> - 2.1.2-24
 - Use load macro introduced in RPM 4.12.
