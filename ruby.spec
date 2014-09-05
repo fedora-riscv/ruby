@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 47288
+%global revision 47372
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -105,6 +105,9 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+# TestBenchmark#test_realtime_output breaks on ARM.
+# https://bugs.ruby-lang.org/issues/10202
+Patch7: ruby-2.2.0-Revert-Ruby-can-delay-arbitrarily-because-Ruby-is-no.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -397,6 +400,7 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -565,28 +569,20 @@ DISABLE_TESTS=""
 # test_call_double(DL::TestDL) fails on ARM HardFP
 # http://bugs.ruby-lang.org/issues/6592
 DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
+%endif
 
-# Workaround OpenSSL::TestPKeyRSA#test_sign_verify_memory_leak timeouts on ARM.
-# https://bugs.ruby-lang.org/issues/9984
-sed -i -e 's|20_000|10_000|g' test/openssl/test_pkey_rsa.rb
+%ifarch i686
+# TestSprintf#test_float fails on i686
+# https://bugs.ruby-lang.org/issues/10120
+# https://bugzilla.redhat.com/show_bug.cgi?id=1101811
+sed -i "/assert_equal(\"0x1p+2\",   sprintf('%.0a', Float('0x1.fp+1')),   \"\[ruby-dev:42551\]\")/ s/^/#/" test/ruby/test_sprintf.rb
+sed -i "/assert_equal(\"-0x1.0p+2\", sprintf('%.1a', Float('-0x1.ffp+1')), \"\[ruby-dev:42551\]\")/ s/^/#/" test/ruby/test_sprintf.rb
 %endif
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
 touch abrt.rb
-
-# TestSignal#test_hup_me hangs up the test suite.
-# http://bugs.ruby-lang.org/issues/8997
-sed -i '/def test_hup_me/,/end if Process.respond_to/ s/^/#/' test/ruby/test_signal.rb
-
-# Fix "Could not find 'minitest'" error.
-# http://bugs.ruby-lang.org/issues/9259
-sed -i "/^  gem 'minitest', '~> 4.0'/ s/^/#/" lib/rubygems/test_case.rb
-
-# Segmentation fault.
-# https://bugs.ruby-lang.org/issues/9198
-sed -i '/^  def test_machine_stackoverflow/,/^  end/ s/^/#/' test/ruby/test_exception.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -879,8 +875,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47288
-- Upgrade to Ruby 2.2.0 (r47288).
+* Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47372
+- Upgrade to Ruby 2.2.0 (r47372).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
