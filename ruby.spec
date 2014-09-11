@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 47372
+%global revision 47525
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -41,7 +41,7 @@
 %global power_assert_version 0.1.3
 %global psych_version 2.0.5
 %global rake_version 10.3.2
-%global rdoc_version 4.1.0
+%global rdoc_version 4.2.0.alpha
 %global test_unit_version 3.0.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -584,6 +584,12 @@ sed -i "/assert_equal(\"-0x1.0p+2\", sprintf('%.1a', Float('-0x1.ffp+1')), \"\[r
 # the test suite).
 touch abrt.rb
 
+# Don't test wrap ciphers to prevent "OpenSSL::Cipher::CipherError: wrap mode
+# not allowed" error.
+# https://bugs.ruby-lang.org/issues/10229
+sed -i '/assert(OpenSSL::Cipher::Cipher.new(name).is_a?(OpenSSL::Cipher::Cipher))/i \
+        next if /wrap/ =~ name' test/openssl/test_cipher.rb
+
 make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
@@ -875,8 +881,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47372
-- Upgrade to Ruby 2.2.0 (r47372).
+* Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47525
+- Upgrade to Ruby 2.2.0 (r47525).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
