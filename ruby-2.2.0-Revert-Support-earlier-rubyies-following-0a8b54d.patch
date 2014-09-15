@@ -1,0 +1,57 @@
+From 29603663ca4aa9abfc2c9be02db11b08fcccea89 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Mon, 15 Sep 2014 12:48:05 +0200
+Subject: [PATCH] Revert "Support earlier rubyies following @0a8b54d"
+
+This reverts commit 1a7a043e242374c87e5b7c731480446037a344a5.
+---
+ lib/rubygems.rb            | 4 ++--
+ lib/rubygems/name_tuple.rb | 2 +-
+ lib/rubygems/source.rb     | 2 --
+ 3 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/lib/rubygems.rb b/lib/rubygems.rb
+index 4535206..fc11724 100644
+--- a/lib/rubygems.rb
++++ b/lib/rubygems.rb
+@@ -546,9 +546,9 @@ module Gem
+   #   Fetching: minitest-3.0.1.gem (100%)
+   #   => [#<Gem::Specification:0x1013b4528 @name="minitest", ...>]
+ 
+-  def self.install name, version = Gem::Requirement.default, *options
++  def self.install name, version = Gem::Requirement.default, **options
+     require "rubygems/dependency_installer"
+-    inst = Gem::DependencyInstaller.new(*options)
++    inst = Gem::DependencyInstaller.new(**options)
+     inst.install name, version
+     inst.installed_gems
+   end
+diff --git a/lib/rubygems/name_tuple.rb b/lib/rubygems/name_tuple.rb
+index 60323db..357aa40 100644
+--- a/lib/rubygems/name_tuple.rb
++++ b/lib/rubygems/name_tuple.rb
+@@ -53,7 +53,7 @@ class Gem::NameTuple
+       "#{@name}-#{@version}"
+     else
+       "#{@name}-#{@version}-#{@platform}"
+-    end.untaint
++    end
+   end
+ 
+   ##
+diff --git a/lib/rubygems/source.rb b/lib/rubygems/source.rb
+index 4858ffb..21c6559 100644
+--- a/lib/rubygems/source.rb
++++ b/lib/rubygems/source.rb
+@@ -106,8 +106,6 @@ class Gem::Source
+   def cache_dir(uri)
+     # Correct for windows paths
+     escaped_path = uri.path.sub(/^\/([a-z]):\//i, '/\\1-/')
+-    escaped_path.untaint
+-
+     File.join Gem.spec_cache_dir, "#{uri.host}%#{uri.port}", File.dirname(escaped_path)
+   end
+ 
+-- 
+1.9.3
+
