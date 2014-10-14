@@ -634,8 +634,8 @@ make check TESTS="-v $DISABLE_TESTS"
 # local system administrator.
 %exclude %{ruby_sitelibdir}
 %exclude %{ruby_sitearchdir}
-%{ruby_vendorlibdir}
-%{ruby_vendorarchdir}
+%dir %{ruby_vendorlibdir}
+%dir %{ruby_vendorarchdir}
 
 # List all these files explicitly to prevent surprises
 # Platform independent libraries.
