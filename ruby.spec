@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 47594
+%global revision 47902
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -24,7 +24,7 @@
 %global release 24
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
-%global rubygems_version 2.4.1
+%global rubygems_version 2.4.2
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -38,7 +38,7 @@
 %global io_console_version 0.4.2
 %global json_version 1.8.1
 %global minitest_version 5.4.1
-%global power_assert_version 0.1.3
+%global power_assert_version 0.1.4
 %global psych_version 2.0.6
 %global rake_version 10.3.2
 %global rdoc_version 4.2.0.alpha
@@ -105,9 +105,6 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Prevents 'make install' error during installation of bundled gems.
-# https://github.com/rubygems/rubygems/issues/1013
-Patch7: ruby-2.2.0-Revert-Support-earlier-rubyies-following-0a8b54d.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -400,7 +397,6 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -589,11 +585,6 @@ touch abrt.rb
 # https://bugs.ruby-lang.org/issues/10229
 sed -i '/assert(OpenSSL::Cipher::Cipher.new(name).is_a?(OpenSSL::Cipher::Cipher))/i \
         next if /wrap/ =~ name' test/openssl/test_cipher.rb
-
-# Disable failing TestTimeTZ#test_gen_Europe_Lisbon_111 for now. Lest blame
-# tzdata-2014g-1.fc22 for now, since it works with older versions.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1141775
-sed -i '/^Europe\/Lisbon/ s/^/#/' test/ruby/test_time_tz.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -886,8 +877,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Aug 27 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47594
-- Upgrade to Ruby 2.2.0 (r47594).
+* Tue Oct 14 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47902
+- Upgrade to Ruby 2.2.0 (r47902).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
