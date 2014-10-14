@@ -632,8 +632,8 @@ make check TESTS="-v $DISABLE_TESTS"
 # local system administrator.
 %exclude %{ruby_sitelibdir}
 %exclude %{ruby_sitearchdir}
-%{ruby_vendorlibdir}
-%{ruby_vendorarchdir}
+%dir %{ruby_vendorlibdir}
+%dir %{ruby_vendorarchdir}
 
 # List all these files explicitly to prevent surprises
 # Platform independent libraries.
@@ -880,6 +880,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Tue Apr 14 2015 Josef Stribny <jstribny@redhat.com> - 2.0.0.645-19
 - Update to 2.0.0.645
+
+* Thu Oct 30 2014 Vít Ondruch <vondruch@redhat.com> - 2.0.0.353-18
+- Include only vendor directories, not their content (rhbz#1114071).
 
 * Tue May 06 2014 Vít Ondruch <vondruch@redhat.com> - 2.0.0.353-18
 - Remove useless exclude (rhbz#1065897).
