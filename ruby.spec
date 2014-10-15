@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 47902
+%global revision 47940
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -879,8 +879,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Oct 14 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47902
-- Upgrade to Ruby 2.2.0 (r47902).
+* Wed Oct 15 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47940
+- Upgrade to Ruby 2.2.0 (r47940).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
