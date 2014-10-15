@@ -849,10 +849,12 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %files -n rubygem-minitest
 %{gem_dir}/gems/minitest-%{minitest_version}
+%exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
 %{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
 %files -n rubygem-power_assert
 %{gem_dir}/gems/power_assert-%{power_assert_version}
+%exclude %{gem_dir}/gems/power_assert-%{power_assert_version}/.*
 %{gem_dir}/specifications/power_assert-%{power_assert_version}.gemspec
 
 %files -n rubygem-psych
