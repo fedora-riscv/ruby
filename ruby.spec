@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 47940
+%global revision 48365
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -37,12 +37,12 @@
 %global bigdecimal_version 1.2.5
 %global io_console_version 0.4.2
 %global json_version 1.8.1
-%global minitest_version 5.4.1
-%global power_assert_version 0.1.4
+%global minitest_version 5.4.2
+%global power_assert_version 0.2.0
 %global psych_version 2.0.6
 %global rake_version 10.3.2
 %global rdoc_version 4.2.0.alpha
-%global test_unit_version 3.0.1
+%global test_unit_version 3.0.5
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -561,12 +561,6 @@ sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{r
 %check
 DISABLE_TESTS=""
 
-%ifarch armv7l armv7hl armv7hnl
-# test_call_double(DL::TestDL) fails on ARM HardFP
-# http://bugs.ruby-lang.org/issues/6592
-DISABLE_TESTS="-x test_dl2.rb $DISABLE_TESTS"
-%endif
-
 %ifarch i686
 # TestSprintf#test_float fails on i686
 # https://bugs.ruby-lang.org/issues/10120
@@ -647,7 +641,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %exclude %{ruby_libdir}/tk*.rb
 %{ruby_libdir}/cgi
 %{ruby_libdir}/digest
-%{ruby_libdir}/dl
 %{ruby_libdir}/drb
 %{ruby_libdir}/fiddle
 %exclude %{ruby_libdir}/irb
@@ -665,6 +658,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/syslog
 %exclude %{ruby_libdir}/tk
 %exclude %{ruby_libdir}/tkextlib
+%{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
 %{ruby_libdir}/webrick
 %{ruby_libdir}/xmlrpc
@@ -684,9 +678,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/digest/rmd160.so
 %{ruby_libarchdir}/digest/sha1.so
 %{ruby_libarchdir}/digest/sha2.so
-%dir %{ruby_libarchdir}/dl
-%{ruby_libarchdir}/dl.so
-%{ruby_libarchdir}/dl/callback.so
 %dir %{ruby_libarchdir}/enc
 %{ruby_libarchdir}/enc/big5.so
 %{ruby_libarchdir}/enc/cp949.so
@@ -879,8 +870,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Oct 15 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r47940
-- Upgrade to Ruby 2.2.0 (r47940).
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.25.r48365
+- Upgrade to Ruby 2.2.0 (r48365).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
