@@ -870,7 +870,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.25.r48365
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r48365
 - Upgrade to Ruby 2.2.0 (r48365).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
