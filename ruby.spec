@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview2
+%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 48476
+#%%global revision 48629
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -38,11 +38,11 @@
 %global io_console_version 0.4.2
 %global json_version 1.8.1
 %global minitest_version 5.4.3
-%global power_assert_version 0.2.0
+%global power_assert_version 0.2.2
 %global psych_version 2.0.6
-%global rake_version 10.3.2
+%global rake_version 10.4.0
 %global rdoc_version 4.2.0.alpha
-%global test_unit_version 3.0.6
+%global test_unit_version 3.0.7
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -430,6 +430,13 @@ autoconf
         --enable-multiarch \
         --with-prelude=./abrt_prelude.rb \
 
+# Avoid regeneration of prelude.c due to patch6 applied to common.mk.
+# https://bugs.ruby-lang.org/issues/10554
+# TODO: Alternative solution might be to remove the path6 entirely and go
+# ahead with the following proposal:
+# https://bugs.ruby-lang.org/issues/8566#note-3
+touch prelude.c
+
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
 make %{?_smp_mflags} COPY="cp -p" Q=
@@ -581,6 +588,11 @@ touch abrt.rb
 # https://bugs.ruby-lang.org/issues/10229
 sed -i '/assert(OpenSSL::Cipher::Cipher.new(name).is_a?(OpenSSL::Cipher::Cipher))/i \
         next if /wrap/ =~ name' test/openssl/test_cipher.rb
+
+# Test is broken due to SSLv3 disabled in Fedora.
+# https://bugs.ruby-lang.org/issues/10046
+sed -i '/def test_ctx_client_session_cb$/,/^  end$/ s/^/#/' test/openssl/test_ssl_session.rb
+sed -i '/def test_ctx_server_session_cb$/,/^  end$/ s/^/#/' test/openssl/test_ssl_session.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -872,8 +884,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r48476
-- Upgrade to Ruby 2.2.0 (r48476).
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.preview2
+- Upgrade to Ruby 2.2.0-preview2.
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
