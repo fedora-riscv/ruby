@@ -39,7 +39,7 @@ index 17ed3ed..5843651 100644
 +    unset ruby_version_suffix
 +    AC_DEFINE(RUBY_LIB_VERSION_BLANK, 1)
  else
-     RUBY_LIB_VERSION="\"${ruby_version}\""
+     RUBY_LIB_VERSION="${ruby_version}"
  fi
  AC_SUBST(RUBY_LIB_VERSION_STYLE)
  AC_SUBST(RUBY_LIB_VERSION)

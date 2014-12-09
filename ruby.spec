@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview2
+#%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 48629
+%global revision 48741
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -39,9 +39,9 @@
 %global json_version 1.8.1
 %global minitest_version 5.4.3
 %global power_assert_version 0.2.2
-%global psych_version 2.0.6
-%global rake_version 10.4.0
-%global rdoc_version 4.2.0.alpha
+%global psych_version 2.0.8
+%global rake_version 10.4.2
+%global rdoc_version 4.2.0
 %global test_unit_version 3.0.7
 
 # Might not be needed in the future, if we are lucky enough.
@@ -884,8 +884,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.preview2
-- Upgrade to Ruby 2.2.0-preview2.
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r48741
+- Upgrade to Ruby 2.2.0 (r48741).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
