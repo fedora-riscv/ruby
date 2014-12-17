@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 48741
+%global revision 48879
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 24
+%global release 1
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.4.4
@@ -35,14 +35,14 @@
 %global irb_version %{ruby_version}
 
 %global bigdecimal_version 1.2.5
-%global io_console_version 0.4.2
+%global io_console_version 0.4.3
 %global json_version 1.8.1
 %global minitest_version 5.4.3
 %global power_assert_version 0.2.2
 %global psych_version 2.0.8
 %global rake_version 10.4.2
 %global rdoc_version 4.2.0
-%global test_unit_version 3.0.7
+%global test_unit_version 3.0.8
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -469,7 +469,7 @@ do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
 done
 
-# Move macros file insto proper place and replace the %%{name} macro, since it
+# Move macros file into proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
 mkdir -p %{buildroot}%{_rpmconfigdir}/macros.d
 install -m 644 %{SOURCE4} %{buildroot}%{_rpmconfigdir}/macros.d/macros.ruby
@@ -884,8 +884,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.24.r48741
-- Upgrade to Ruby 2.2.0 (r48741).
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.1.r48879
+- Upgrade to Ruby 2.2.0 (r48879).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 
