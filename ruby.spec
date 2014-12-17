@@ -81,6 +81,8 @@ Source7: config.h
 Source8: rubygems.attr
 Source9: rubygems.req
 Source10: rubygems.prov
+# SystemTap sanity test case.
+Source11: test_systemtap.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
@@ -570,6 +572,9 @@ sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{ruby_version}|" \
 sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{ruby_version}.stp
 
 %check
+# Sanity check that SystemTap (dtrace) was detected.
+make runruby TESTRUN_SCRIPT=%{SOURCE11} || exit 1
+
 DISABLE_TESTS=""
 
 %ifarch i686
