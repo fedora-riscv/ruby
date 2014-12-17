@@ -116,7 +116,6 @@ Requires: rubygem(bigdecimal) >= %{bigdecimal_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
-BuildRequires: libdb-devel
 BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
@@ -888,6 +887,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Upgrade to Ruby 2.2.0 (r48879).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
+- Drop libdb dependency in favor of gdbm.
 
 * Mon Aug 25 2014 Vít Ondruch <vondruch@redhat.com> - 2.1.2-24
 - Use load macro introduced in RPM 4.12.
