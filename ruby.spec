@@ -537,13 +537,9 @@ mkdir -p %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}
 mv %{buildroot}%{ruby_libdir}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/psych.so %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}/
 mv %{buildroot}%{gem_dir}/specifications/default/psych-%{psych_version}.gemspec %{buildroot}%{gem_dir}/specifications
-# The links should replace directory, which RPM cannot handle and it is causing
-# issues during upgrade from F18 to F19. As a workaround the links are placed
-# into vendor direcories. This could be changed back as soon as F18 is EOLed.
-# https://bugzilla.redhat.com/show_bug.cgi?id=988490
-ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_vendorlibdir}/psych
-ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_vendorlibdir}/psych.rb
-ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_vendorarchdir}/psych.so
+ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir}/psych
+ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
+ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/lib/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
@@ -652,6 +648,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %exclude %{ruby_libdir}/irb.rb
 %exclude %{ruby_libdir}/tcltk.rb
 %exclude %{ruby_libdir}/tk*.rb
+%exclude %{ruby_libdir}/psych.rb
 %{ruby_libdir}/cgi
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
@@ -862,9 +859,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/power_assert-%{power_assert_version}.gemspec
 
 %files -n rubygem-psych
-%{ruby_vendorlibdir}/psych
-%{ruby_vendorlibdir}/psych.rb
-%{ruby_vendorarchdir}/psych.so
+%{ruby_libdir}/psych
+%{ruby_libdir}/psych.rb
+%{ruby_libarchdir}/psych.so
 %{_libdir}/gems/%{name}/psych-%{psych_version}
 %{gem_dir}/gems/psych-%{psych_version}
 %{gem_dir}/specifications/psych-%{psych_version}.gemspec
