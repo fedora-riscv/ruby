@@ -577,14 +577,6 @@ make runruby TESTRUN_SCRIPT=%{SOURCE11} || exit 1
 
 DISABLE_TESTS=""
 
-%ifarch i686
-# TestSprintf#test_float fails on i686
-# https://bugs.ruby-lang.org/issues/10120
-# https://bugzilla.redhat.com/show_bug.cgi?id=1101811
-sed -i "/assert_equal(\"0x1p+2\",   sprintf('%.0a', Float('0x1.fp+1')),   \"\[ruby-dev:42551\]\")/ s/^/#/" test/ruby/test_sprintf.rb
-sed -i "/assert_equal(\"-0x1.0p+2\", sprintf('%.1a', Float('-0x1.ffp+1')), \"\[ruby-dev:42551\]\")/ s/^/#/" test/ruby/test_sprintf.rb
-%endif
-
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
