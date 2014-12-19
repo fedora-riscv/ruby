@@ -7,7 +7,7 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview2
+%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
 %global revision 48879
@@ -64,7 +64,7 @@ Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, ...
 License: (Ruby or BSD) and Public Domain
 URL: http://ruby-lang.org/
-Source0: ftp://ftp.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.bz2
+Source0: ftp://ftp.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
 Source1: operating_system.rb
 # TODO: Try to push SystemTap support upstream.
 Source2: libruby.stp
@@ -107,6 +107,12 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+# Fix TestRubyOptions#test_version failure for RC1.
+# https://github.com/ruby/ruby/commit/a7fe780482b42b31c725f6c54bb1c27909714ab3
+Patch7: ruby-2.2.0-test-ruby-test_rubyoptions.rb-TestRubyOptions-test_v.patch
+# Fix TestWeakRef#test_repeated_object_leak failure on ARM.
+# https://bugs.ruby-lang.org/issues/10618
+Patch8: ruby-2.2.0-Extend-weak-ref-test-timeout.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -401,6 +407,8 @@ rm -rf ext/psych/yaml
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -880,8 +888,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.1.r48879
-- Upgrade to Ruby 2.2.0 (r48879).
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.1.rc1
+- Upgrade to Ruby 2.2.0 (rc1).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 - Drop libdb dependency in favor of gdbm.

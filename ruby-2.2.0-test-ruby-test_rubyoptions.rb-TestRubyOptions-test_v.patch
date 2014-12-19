@@ -1,0 +1,36 @@
+From a7fe780482b42b31c725f6c54bb1c27909714ab3 Mon Sep 17 00:00:00 2001
+From: usa <usa@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Fri, 19 Dec 2014 02:52:17 +0000
+Subject: [PATCH] * test/ruby/test_rubyoptions.rb
+ (TestRubyOptions#test_version): should support   rc :-P
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@48888 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ test/ruby/test_rubyoptions.rb | 4 +-
+ 1 file changed, 2 insertion(+), 2 deletion(-)
+
+diff --git a/test/ruby/test_rubyoptions.rb b/test/ruby/test_rubyoptions.rb
+index 9150806..2bd1a30 100644
+--- a/test/ruby/test_rubyoptions.rb
++++ b/test/ruby/test_rubyoptions.rb
+@@ -85,7 +85,7 @@ class TestRubyOptions < Test::Unit::TestCase
+ 
+   def test_verbose
+     assert_in_out_err(["-vve", ""]) do |r, e|
+-      assert_match(/^ruby #{RUBY_VERSION}(?:[p ]|dev).*? \[#{RUBY_PLATFORM}\]$/, r.join)
++      assert_match(/^ruby #{RUBY_VERSION}(?:[p ]|dev|rc).*? \[#{RUBY_PLATFORM}\]$/, r.join)
+       assert_equal RUBY_DESCRIPTION, r.join.chomp
+       assert_equal([], e)
+     end
+@@ -139,7 +139,7 @@ class TestRubyOptions < Test::Unit::TestCase
+ 
+   def test_version
+     assert_in_out_err(%w(--version)) do |r, e|
+-      assert_match(/^ruby #{RUBY_VERSION}(?:[p ]|dev).*? \[#{RUBY_PLATFORM}\]$/, r.join)
++      assert_match(/^ruby #{RUBY_VERSION}(?:[p ]|dev|rc).*? \[#{RUBY_PLATFORM}\]$/, r.join)
+       assert_equal RUBY_DESCRIPTION, r.join.chomp
+       assert_equal([], e)
+     end
+-- 
+2.1.0
+
