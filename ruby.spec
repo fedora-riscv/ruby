@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone rc1
+#%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 48879
+%global revision 48899
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -34,7 +34,7 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.2.5
+%global bigdecimal_version 1.2.6
 %global io_console_version 0.4.3
 %global json_version 1.8.1
 %global minitest_version 5.4.3
@@ -107,9 +107,6 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Fix TestRubyOptions#test_version failure for RC1.
-# https://github.com/ruby/ruby/commit/a7fe780482b42b31c725f6c54bb1c27909714ab3
-Patch7: ruby-2.2.0-test-ruby-test_rubyoptions.rb-TestRubyOptions-test_v.patch
 # Fix TestWeakRef#test_repeated_object_leak failure on ARM.
 # https://bugs.ruby-lang.org/issues/10618
 Patch8: ruby-2.2.0-Extend-weak-ref-test-timeout.patch
@@ -407,7 +404,6 @@ rm -rf ext/psych/yaml
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 %patch8 -p1
 
 # Provide an example of usage of the tapset:
@@ -888,8 +884,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.1.rc1
-- Upgrade to Ruby 2.2.0 (rc1).
+* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.1.r48899
+- Upgrade to Ruby 2.2.0 (r48899).
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 - Drop libdb dependency in favor of gdbm.
