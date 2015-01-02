@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 48899
+#%%global revision 48936
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -107,9 +107,6 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Fix TestWeakRef#test_repeated_object_leak failure on ARM.
-# https://bugs.ruby-lang.org/issues/10618
-Patch8: ruby-2.2.0-Extend-weak-ref-test-timeout.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -172,6 +169,8 @@ Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
 Requires:   rubygem(rdoc) >= %{rdoc_version}
+# TODO: This seems to be optional now.
+# https://github.com/rubygems/rubygems/commit/68da16dd7508c5c4010bfe32f99422568d3d582f
 Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
@@ -404,7 +403,6 @@ rm -rf ext/psych/yaml
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch8 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -440,9 +438,6 @@ autoconf
 
 # Avoid regeneration of prelude.c due to patch6 applied to common.mk.
 # https://bugs.ruby-lang.org/issues/10554
-# TODO: Alternative solution might be to remove the path6 entirely and go
-# ahead with the following proposal:
-# https://bugs.ruby-lang.org/issues/8566#note-3
 touch prelude.c
 
 # Q= makes the build output more verbose and allows to check Fedora
@@ -884,8 +879,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Mon Nov 10 2014 Vít Ondruch <vondruch@redhat.com> - 2.2.0-0.1.r48899
-- Upgrade to Ruby 2.2.0 (r48899).
+* Fri Jan 02 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-1
+- Upgrade to Ruby 2.2.0.
 - Explicitly list RubyGems directories to avoid accidentaly packaged content.
 - Split test-unit and power_assert gems into separate sub-packages.
 - Drop libdb dependency in favor of gdbm.
