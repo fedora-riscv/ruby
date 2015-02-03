@@ -1,5 +1,5 @@
 %global major_version 2
-%global minor_version 2
+%global minor_version 3
 %global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 48936
+%global revision 49485
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -34,15 +34,15 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.2.6
+%global bigdecimal_version 1.2.7
 %global io_console_version 0.4.3
 %global json_version 1.8.1
 %global minitest_version 5.4.3
 %global power_assert_version 0.2.2
-%global psych_version 2.0.8
+%global psych_version 2.0.12
 %global rake_version 10.4.2
 %global rdoc_version 4.2.0
-%global test_unit_version 3.0.8
+%global test_unit_version 3.0.9
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -107,6 +107,9 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+# Temporary revert, since this breaks test suite.
+# https://bugs.ruby-lang.org/issues/10765
+Patch7: ruby-2.3.0-Revert-raise-NameError-when-refined-method-is-removed.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -405,6 +408,7 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -891,6 +895,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49485
+- Upgrade to Ruby 2.3.0 (r49485).
+
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
 - Add RubyGems stub headers for bundled gems.
