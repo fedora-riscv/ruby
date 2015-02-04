@@ -897,6 +897,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49485
 - Upgrade to Ruby 2.3.0 (r49485).
+- Initialize all load paths in operating_system.rb.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
