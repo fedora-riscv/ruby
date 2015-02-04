@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 49485
+%global revision 49495
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -107,9 +107,6 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Temporary revert, since this breaks test suite.
-# https://bugs.ruby-lang.org/issues/10765
-Patch7: ruby-2.3.0-Revert-raise-NameError-when-refined-method-is-removed.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -408,7 +405,6 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -895,8 +891,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49485
-- Upgrade to Ruby 2.3.0 (r49485).
+* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49495
+- Upgrade to Ruby 2.3.0 (r49495).
 - Initialize all load paths in operating_system.rb.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
