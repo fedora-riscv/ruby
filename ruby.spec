@@ -772,6 +772,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/pty.so
 %dir %{ruby_libarchdir}/racc
 %{ruby_libarchdir}/racc/cparse.so
+%dir %{ruby_libarchdir}/rbconfig
 %{ruby_libarchdir}/rbconfig.rb
 %{ruby_libarchdir}/rbconfig/sizeof.so
 %{ruby_libarchdir}/readline.so
@@ -894,6 +895,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49495
 - Upgrade to Ruby 2.3.0 (r49495).
 - Initialize all load paths in operating_system.rb.
+- Fix directory ownership.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
