@@ -134,8 +134,6 @@ BuildRequires: %{_bindir}/cmake
 # virtual provide. It can be installed as dependency of rubypick.
 Provides: ruby(runtime_executable) = %{ruby_release}
 
-%global __provides_exclude_from ^(%{ruby_libarchdir}|%{gem_archdir})/.*\\.so$
-
 %description
 Ruby is the interpreted scripting language for quick and easy
 object-oriented programming.  It has many features to process text
