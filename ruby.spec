@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 49495
+%global revision 49705
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -39,7 +39,7 @@
 %global json_version 1.8.1
 %global minitest_version 5.4.3
 %global power_assert_version 0.2.2
-%global psych_version 2.0.12
+%global psych_version 2.0.13
 %global rake_version 10.4.2
 %global rdoc_version 4.2.0
 %global test_unit_version 3.0.9
@@ -589,15 +589,8 @@ DISABLE_TESTS=""
 # the test suite).
 touch abrt.rb
 
-# Don't test wrap ciphers to prevent "OpenSSL::Cipher::CipherError: wrap mode
-# not allowed" error.
-# https://bugs.ruby-lang.org/issues/10229
-sed -i '/assert(OpenSSL::Cipher::Cipher.new(name).is_a?(OpenSSL::Cipher::Cipher))/i \
-        next if /wrap/ =~ name' test/openssl/test_cipher.rb
-
 # Test is broken due to SSLv3 disabled in Fedora.
 # https://bugs.ruby-lang.org/issues/10046
-sed -i '/def test_ctx_client_session_cb$/,/^  end$/ s/^/#/' test/openssl/test_ssl_session.rb
 sed -i '/def test_ctx_server_session_cb$/,/^  end$/ s/^/#/' test/openssl/test_ssl_session.rb
 
 make check TESTS="-v $DISABLE_TESTS"
@@ -892,8 +885,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49495
-- Upgrade to Ruby 2.3.0 (r49495).
+* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49705
+- Upgrade to Ruby 2.3.0 (r49705).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 
