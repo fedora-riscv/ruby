@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 27
+%global release 28
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.2.2
@@ -533,10 +533,10 @@ sed -i '/^end$/ i\
 
 # Install a tapset and fix up the path to the library.
 mkdir -p %{buildroot}%{tapset_dir}
-sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{ruby_version}|" \
-  %{SOURCE2} > %{buildroot}%{tapset_dir}/libruby.so.%{ruby_version}.stp
+sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
+  %{SOURCE2} > %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
 # Escape '*/' in comment.
-sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{ruby_version}.stp
+sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
 
 %check
 DISABLE_TESTS=""
@@ -870,6 +870,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon May 04 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.6-28
+- Fix libruby.so versions in SystemTap scripts (rhbz#1218274).
+
 * Tue Apr 14 2015 Josef Stribny <jstribny@redhat.com> - 2.1.6-27
 - Update to 2.1.6
 
