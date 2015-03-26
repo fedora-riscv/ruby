@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 50089
+%global revision 50092
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -494,7 +494,8 @@ mkdir -p %{buildroot}%{rubygems_dir}/rubygems/defaults
 cp %{SOURCE1} %{buildroot}%{rubygems_dir}/rubygems/defaults
 
 # Move gems root into common direcotry, out of Ruby directory structure.
-mv %{buildroot}%{ruby_libdir}/gems %{buildroot}%{gem_dir}
+mv %{buildroot}%{ruby_libdir}/gems/%{ruby_version} %{buildroot}%{gem_dir}
+rm -r %{buildroot}%{ruby_libdir}/gems
 
 # Create folders for gem binary extensions.
 # TODO: These folders should go into rubygem-filesystem but how to achieve it,
@@ -879,8 +880,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r50089
-- Upgrade to Ruby 2.3.0 (r50089).
+* Thu Mar 26 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r50092
+- Upgrade to Ruby 2.3.0 (r50092).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 
