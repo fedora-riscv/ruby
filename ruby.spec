@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 49705
+%global revision 50089
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -888,8 +888,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r49705
-- Upgrade to Ruby 2.3.0 (r49705).
+* Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r50089
+- Upgrade to Ruby 2.3.0 (r50089).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 

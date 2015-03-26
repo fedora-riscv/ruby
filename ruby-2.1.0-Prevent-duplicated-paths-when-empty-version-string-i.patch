@@ -14,7 +14,7 @@ diff --git a/configure.in b/configure.in
 index 17ed3ed..5843651 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -3966,8 +3966,6 @@ AS_CASE(["$target_os"],
+@@ -4004,8 +4004,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -23,7 +23,7 @@ index 17ed3ed..5843651 100644
  
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
-@@ -3997,6 +3995,7 @@ AC_ARG_WITH(ruby-version,
+@@ -4035,6 +4033,7 @@ AC_ARG_WITH(ruby-version,
              [ruby_version=full])
  unset RUBY_LIB_VERSION
  unset RUBY_LIB_VERSION_STYLE
@@ -31,7 +31,7 @@ index 17ed3ed..5843651 100644
  AS_CASE(["$ruby_version"],
    [full],  [RUBY_LIB_VERSION_STYLE='3	/* full */'],
    [minor], [RUBY_LIB_VERSION_STYLE='2	/* minor */'])
-@@ -4013,30 +4012,34 @@ if test ${RUBY_LIB_VERSION_STYLE+set}; then
+@@ -4051,30 +4050,34 @@ if test ${RUBY_LIB_VERSION_STYLE+set}; then
      ruby_version="`$CPP -I. -I"${srcdir}" -I"${srcdir}/include" conftest.c | sed '/^ruby_version=/!d;s/ //g'`"
      eval $ruby_version
  elif test -z "${ruby_version}"; then
@@ -113,7 +113,7 @@ diff --git a/tool/mkconfig.rb b/tool/mkconfig.rb
 index 07076d4..35e6c3c 100755
 --- a/tool/mkconfig.rb
 +++ b/tool/mkconfig.rb
-@@ -123,7 +123,7 @@ File.foreach "config.status" do |line|
+@@ -117,7 +117,7 @@ File.foreach "config.status" do |line|
      val = val.gsub(/\$(?:\$|\{?(\w+)\}?)/) {$1 ? "$(#{$1})" : $&}.dump
      case name
      when /^prefix$/
