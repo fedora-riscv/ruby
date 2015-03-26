@@ -617,8 +617,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %lang(ja) %doc COPYING.ja
 %doc GPL
 %doc LEGAL
-%doc README.EXT
-%lang(ja) %doc README.EXT.ja
 
 %{_rpmconfigdir}/macros.d/macros.ruby
 
@@ -632,9 +630,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %doc GPL
 %doc LEGAL
 %doc README.md
-%lang(ja) %doc README.ja.md
 %doc NEWS
-%doc doc/NEWS-*
 # Exclude /usr/local directory since it is supposed to be managed by
 # local system administrator.
 %exclude %{ruby_sitelibdir}
@@ -826,9 +822,9 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %files doc
 %doc README.md
-%lang(ja) %doc README.ja.md
 %doc ChangeLog
-%doc doc/ChangeLog-*
+%doc doc/*
+%lang(ja) %doc doc/*.ja*
 %doc ruby-exercise.stp
 %{_datadir}/ri
 
