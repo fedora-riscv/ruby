@@ -90,15 +90,18 @@ Source10: rubygems.prov
 %{?load:%{SOURCE4}}
 %{?load:%{SOURCE5}}
 
+# Fix ruby_version abuse.
+# https://bugs.ruby-lang.org/issues/11002
+Patch0: ruby-2.3.0-ruby_version.patch
 # http://bugs.ruby-lang.org/issues/7807
-Patch0: ruby-2.1.0-Prevent-duplicated-paths-when-empty-version-string-i.patch
+Patch1: ruby-2.1.0-Prevent-duplicated-paths-when-empty-version-string-i.patch
 # Allows to override libruby.so placement. Hopefully we will be able to return
 # to plain --with-rubyarchprefix.
 # http://bugs.ruby-lang.org/issues/8973
-Patch1: ruby-2.1.0-Enable-configuration-of-archlibdir.patch
+Patch2: ruby-2.1.0-Enable-configuration-of-archlibdir.patch
 # Force multiarch directories for i.86 to be always named i386. This solves
 # some differencies in build between Fedora and RHEL.
-Patch2: ruby-2.1.0-always-use-i386.patch
+Patch3: ruby-2.1.0-always-use-i386.patch
 # Allows to install RubyGems into custom directory, outside of Ruby's tree.
 # http://bugs.ruby-lang.org/issues/5617
 Patch4: ruby-2.1.0-custom-rubygems-location.patch
@@ -403,6 +406,7 @@ rm -rf ext/fiddle/libffi*
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
@@ -494,8 +498,7 @@ mkdir -p %{buildroot}%{rubygems_dir}/rubygems/defaults
 cp %{SOURCE1} %{buildroot}%{rubygems_dir}/rubygems/defaults
 
 # Move gems root into common direcotry, out of Ruby directory structure.
-mv %{buildroot}%{ruby_libdir}/gems/%{ruby_version} %{buildroot}%{gem_dir}
-rm -r %{buildroot}%{ruby_libdir}/gems
+mv %{buildroot}%{ruby_libdir}/gems %{buildroot}%{gem_dir}
 
 # Create folders for gem binary extensions.
 # TODO: These folders should go into rubygem-filesystem but how to achieve it,

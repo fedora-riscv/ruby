@@ -5,114 +5,25 @@ Subject: [PATCH] Prevent duplicated paths when empty version string is
  configured.
 
 ---
- configure.in     | 15 +++++++++------
+ configure.in     |  3 ++-
  loadpath.c       | 12 ++++++++++++
  tool/mkconfig.rb |  2 +-
- 3 files changed, 22 insertions(+), 7 deletions(-)
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
 diff --git a/configure.in b/configure.in
-index db37cd6..5f39a70 100644
+index db37cd6..ce8d149 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4004,9 +4004,6 @@ AS_CASE(["$target_os"],
-     rubyw_install_name='$(RUBYW_INSTALL_NAME)'
-     ])
+@@ -4055,7 +4055,8 @@ AS_CASE(["$ruby_version_dir_name"],
+ ruby_version_dir=/'${ruby_version_dir_name}'
  
--rubylibdir='${rubylibprefix}/${ruby_version}'
--rubyarchdir=${multiarch+'${rubyarchprefix}/${ruby_version}'}${multiarch-'${rubylibdir}/${arch}'}
--
- rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
- AC_ARG_WITH(rubyarchprefix,
- 	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4031,56 +4028,62 @@ AC_SUBST(RI_BASE_NAME)
- 
- AC_ARG_WITH(ruby-version,
- 	    AS_HELP_STRING([--with-ruby-version=STR], [ruby version string for version specific directories [[full]] (full|minor|STR)]),
--            [ruby_version=$withval],
--            [ruby_version=full])
-+            [ruby_version_dir_name=$withval],
-+            [ruby_version_dir_name=full])
- unset RUBY_LIB_VERSION
- unset RUBY_LIB_VERSION_STYLE
--AS_CASE(["$ruby_version"],
--  [full],  [RUBY_LIB_VERSION_STYLE='3	/* full */'],
--  [minor], [RUBY_LIB_VERSION_STYLE='2	/* minor */'])
--if test ${RUBY_LIB_VERSION_STYLE+set}; then
--    {
--    echo "#define RUBY_LIB_VERSION_STYLE $RUBY_LIB_VERSION_STYLE"
--    echo '#define STRINGIZE(x) x'
--    test -f revision.h -o -f "${srcdir}/revision.h" || echo '#define RUBY_REVISION 0'
--    echo '#include "verconf.h"'
--    echo '#include "version.h"'
--    echo 'ruby_version=RUBY_LIB_VERSION'
--    } > conftest.c
--    test -f verconf.h || > verconf.h
--    ruby_version="`$CPP -I. -I"${srcdir}" -I"${srcdir}/include" conftest.c | sed '/^ruby_version=/!d;s/ //g'`"
--    eval $ruby_version
--elif test -z "${ruby_version}"; then
+ if test -z "${ruby_version_dir_name}"; then
 -    AC_MSG_ERROR([No ruby version, No place for bundled libraries])
--else
--    RUBY_LIB_VERSION="${ruby_version}"
--fi
-+AS_CASE(["$ruby_version_dir_name"],
-+  [minor], [RUBY_LIB_VERSION_STYLE='2	/* minor */'],
-+  [RUBY_LIB_VERSION_STYLE='3	/* full */'])
-+{
-+echo "#define RUBY_LIB_VERSION_STYLE $RUBY_LIB_VERSION_STYLE"
-+echo '#define STRINGIZE(x) x'
-+test -f revision.h -o -f "${srcdir}/revision.h" || echo '#define RUBY_REVISION 0'
-+echo '#include "verconf.h"'
-+echo '#include "version.h"'
-+echo 'ruby_version=RUBY_LIB_VERSION'
-+} > conftest.c
-+test -f verconf.h || > verconf.h
-+ruby_version="`$CPP -I. -I"${srcdir}" -I"${srcdir}/include" conftest.c | sed '/^ruby_version=/!d;s/ //g'`"
-+eval $ruby_version
-+
-+RUBY_LIB_VERSION="${ruby_version}"
-+
- AC_SUBST(RUBY_LIB_VERSION_STYLE)
- AC_SUBST(RUBY_LIB_VERSION)
- 
-+ruby_version_dir=/'${ruby_version_dir_name}'
-+if test -z "${ruby_version_dir_name}"; then
 +    unset ruby_version_dir
 +    AC_DEFINE(RUBY_LIB_VERSION_BLANK, 1)
-+fi
-+
-+rubylibdir='${rubylibprefix}'${ruby_version_dir}
-+rubyarchdir=${multiarch+'${rubyarchprefix}'${ruby_version_dir}}${multiarch-'${rubylibdir}/${arch}'}
-+
- AC_ARG_WITH(sitedir,
- 	    AS_HELP_STRING([--with-sitedir=DIR], [site libraries in DIR [[RUBY_LIB_PREFIX/site_ruby]], "no" to disable site directory]),
-             [sitedir=$withval],
-             [sitedir='${rubylibprefix}/site_ruby'])
--sitelibdir='${sitedir}/${ruby_version}'
-+sitelibdir='${sitedir}'${ruby_version_dir}
+ fi
  
- AC_ARG_WITH(sitearchdir,
- 	    AS_HELP_STRING([--with-sitearchdir=DIR],
- 			   [architecture dependent site libraries in DIR [[SITEDIR/SITEARCH]], "no" to disable site directory]),
-             [sitearchdir=$withval],
--            [sitearchdir=${multiarch+'${rubysitearchprefix}/site_ruby/${ruby_version}'}${multiarch-'${sitelibdir}/${sitearch}'}])
-+            [sitearchdir=${multiarch+'${rubysitearchprefix}/site_ruby'${ruby_version_dir}}${multiarch-'${sitelibdir}/${sitearch}'}])
- 
- AC_ARG_WITH(vendordir,
- 	    AS_HELP_STRING([--with-vendordir=DIR], [vendor libraries in DIR [[RUBY_LIB_PREFIX/vendor_ruby]], "no" to disable vendor directory]),
-             [vendordir=$withval],
-             [vendordir='${rubylibprefix}/vendor_ruby'])
--vendorlibdir='${vendordir}/${ruby_version}'
-+vendorlibdir='${vendordir}'${ruby_version_dir}
- 
- AC_ARG_WITH(vendorarchdir,
- 	    AS_HELP_STRING([--with-vendorarchdir=DIR],
- 			   [architecture dependent vendor libraries in DIR [[VENDORDIR/SITEARCH]], "no" to disable vendor directory]),
-             [vendorarchdir=$withval],
--            [vendorarchdir=${multiarch+'${rubysitearchprefix}/vendor_ruby/${ruby_version}'}${multiarch-'${vendorlibdir}/${sitearch}'}])
-+            [vendorarchdir=${multiarch+'${rubysitearchprefix}/vendor_ruby'${ruby_version_dir}}${multiarch-'${vendorlibdir}/${sitearch}'}])
- 
- if test "${LOAD_RELATIVE+set}"; then
-     AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
+ rubylibdir='${rubylibprefix}'${ruby_version_dir}
 diff --git a/loadpath.c b/loadpath.c
 index 9160031..0d4d953 100644
 --- a/loadpath.c
