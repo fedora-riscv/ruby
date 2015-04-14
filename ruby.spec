@@ -1,7 +1,7 @@
 %global major_version 2
 %global minor_version 0
 %global teeny_version 0
-%global patch_level 353
+%global patch_level 645
 
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -26,7 +26,7 @@
 %endif
 
 
-%global release 18
+%global release 19
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.0.14
@@ -149,15 +149,6 @@ Patch16: ruby-2.0.0-p195-aarch64.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch17: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Fixes issues with DESTDIR.
-# https://bugs.ruby-lang.org/issues/8115
-Patch18: ruby-2.0.0-p247-Revert-mkmf.rb-prefix-install_dirs-only-with-DESTDIR.patch
-# Fixes multilib conlicts of .gemspec files.
-# https://bugs.ruby-lang.org/issues/8623
-Patch19: ruby-2.0.0-p247-Make-stable-Gem-Specification.files-in-default-.gems.patch
-# Backport regenerated certificates for IMAP tests.
-# http://bugs.ruby-lang.org/issues/9341
-Patch20: ruby-2.1.1-fix-test-failures-due-to-expired-certs.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -424,9 +415,6 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch14 -p1
 %patch16 -p1
 %patch17 -p1
-%patch18 -p1
-%patch19 -p1
-%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -890,6 +878,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Apr 14 2015 Josef Stribny <jstribny@redhat.com> - 2.0.0.645-19
+- Update to 2.0.0.645
+
 * Tue May 06 2014 Vít Ondruch <vondruch@redhat.com> - 2.0.0.353-18
 - Remove useless exclude (rhbz#1065897).
 
