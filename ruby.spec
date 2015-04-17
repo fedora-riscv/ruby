@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 50153
+%global revision 50329
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -36,7 +36,7 @@
 
 %global bigdecimal_version 1.2.7
 %global io_console_version 0.4.3
-%global json_version 1.8.1
+%global json_version 1.8.2
 %global minitest_version 5.4.3
 %global power_assert_version 0.2.2
 %global psych_version 2.0.13
@@ -508,10 +508,6 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{name}
 
 # Move bundled rubygems to %%gem_dir and %%gem_extdir_mri
 # make symlinks for io-console and bigdecimal, which are considered to be part of stdlib by other Gems
-mkdir -p %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/lib
-mv %{buildroot}%{ruby_libdir}/rake* %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/lib
-mv %{buildroot}%{gem_dir}/specifications/default/rake-%{rake_version}.gemspec %{buildroot}%{gem_dir}/specifications
-
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{ruby_libdir}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
@@ -549,9 +545,6 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
-  s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/rake-%{rake_version}.gemspec
-
-sed -i '/^end$/ i\
   s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
 
 sed -i '/^end$/ i\
@@ -569,7 +562,7 @@ sed -i '/^end$/ i\
 # Push the .gemspecs through the RubyGems to let them write the stub headers.
 # This speeds up loading of libraries and avoids warnings in Spring:
 # https://github.com/rubygems/rubygems/pull/694
-for s in rake-%{rake_version}.gemspec rdoc-%{rdoc_version}.gemspec json-%{json_version}.gemspec; do
+for s in rdoc-%{rdoc_version}.gemspec json-%{json_version}.gemspec; do
   s="%{buildroot}%{gem_dir}/specifications/$s"
   make runruby TESTRUN_SCRIPT="-rubygems \
    -e \"spec = Gem::Specification.load(%{$s})\" \
@@ -883,8 +876,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Mar 26 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.5.r50153
-- Upgrade to Ruby 2.3.0 (r50153).
+* Thu Apr 16 2015 <vondruch@redhat.com> - 2.3.0-0.5.r50329
+- Upgrade to Ruby 2.3.0 (r50329).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 
