@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 28
+%global release 29
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.2.2
@@ -109,6 +109,9 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Test are broken due to SSLv3 disabled in Fedora.
 # https://bugs.ruby-lang.org/issues/10046
 Patch7: ruby-2.2.0-Don-t-use-obsolete-SSLv3-for-tests.patch
+# Fix compatibility with Tcl/Tk 8.6.
+# https://bugs.ruby-lang.org/issues/8000
+Patch8: ruby-2.2.0-Support-tcl-tk-8.6.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -370,6 +373,7 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -396,7 +400,6 @@ autoconf
         --with-vendorarchhdrdir='$(vendorhdrdir)/$(arch)' \
         --with-rubygemsdir='%{rubygems_dir}' \
         --with-ruby-pc='%{name}.pc' \
-        --with-tcltkversion=8.6 \
         --disable-rpath \
         --enable-shared \
         --with-ruby-version='' \
@@ -870,6 +873,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Thu May 07 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.6-29
+- Fix compatibility issues with Tcl/Tk 8.6 (rhbz#1181160).
+
 * Mon May 04 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.6-28
 - Fix libruby.so versions in SystemTap scripts (rhbz#1218274).
 
