@@ -436,7 +436,6 @@ autoconf
         --with-vendorarchhdrdir='$(vendorhdrdir)/$(arch)' \
         --with-rubygemsdir='%{rubygems_dir}' \
         --with-ruby-pc='%{name}.pc' \
-        --with-tcltkversion=8.6 \
         --disable-rpath \
         --enable-shared \
         --with-ruby-version='' \
