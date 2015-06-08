@@ -21,10 +21,10 @@
 %endif
 
 
-%global release 29
+%global release 30
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
-%global rubygems_version 2.2.2
+%global rubygems_version 2.2.3
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -873,6 +873,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Jun 08 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.6-30
+- Fix the RubyGems version (rhbz#1226679).
+
 * Thu May 07 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.6-29
 - Fix compatibility issues with Tcl/Tk 8.6 (rhbz#1181160).
 
