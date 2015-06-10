@@ -131,7 +131,7 @@ BuildRequires: tk-devel
 BuildRequires: procps
 BuildRequires: %{_bindir}/dtrace
 # RubyGems test suite optional dependencies.
-BuildRequires: %{_bindir}/git
+BuildRequires: git
 BuildRequires: %{_bindir}/cmake
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
@@ -879,6 +879,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Upgrade to Ruby 2.3.0 (r50427).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
+- Fix the git BR following the git package split.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
