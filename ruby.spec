@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 50427
+%global revision 50815
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -37,12 +37,13 @@
 %global bigdecimal_version 1.2.7
 %global io_console_version 0.4.3
 %global json_version 1.8.2
-%global minitest_version 5.4.3
-%global power_assert_version 0.2.2
+%global minitest_version 5.7.0
+%global power_assert_version 0.2.3
 %global psych_version 2.0.13
 %global rake_version 10.4.2
 %global rdoc_version 4.2.0
-%global test_unit_version 3.0.9
+%global net_telnet_version 0.1.1
+%global test_unit_version 3.1.1
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -111,6 +112,9 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+# Fix require paths for BigDecimal and io-console.
+# https://bugs.ruby-lang.org/issues/11249
+Patch7: ruby-2.3.0-Fix-require-paths-for-BigDecimal-and-io-console.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -334,8 +338,6 @@ minitest/pride shows pride in testing and adds coloring to your test
 output.
 
 
-# The Summary/Description fields are rather poor.
-# https://github.com/k-tsj/power_assert/issues/3
 %package -n rubygem-power_assert
 Summary:    Power Assert for Ruby
 Version:    %{power_assert_version}
@@ -347,7 +349,9 @@ Provides:   rubygem(power_assert) = %{version}-%{release}
 BuildArch:  noarch
 
 %description -n rubygem-power_assert
-Power Assert for Ruby.
+Power Assert shows each value of variables and method calls in the expression.
+It is useful for testing, providing which value wasn't correct when the
+condition is not satisfied.
 
 
 %package -n rubygem-psych
@@ -364,6 +368,25 @@ Psych is a YAML parser and emitter. Psych leverages
 libyaml[http://pyyaml.org/wiki/LibYAML] for its YAML parsing and emitting
 capabilities. In addition to wrapping libyaml, Psych also knows how to
 serialize and de-serialize most Ruby objects to and from the YAML format.
+
+
+%package -n rubygem-net-telnet
+Summary:    Provides telnet client functionality
+Version:    %{net_telnet_version}
+Group:      Development/Libraries
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(net-telnet) = %{version}-%{release}
+
+%description -n rubygem-net-telnet
+Provides telnet client functionality.
+
+This class also has, through delegation, all the methods of a socket object
+(by default, a TCPSocket, but can be set by the Proxy option to new()). This
+provides methods such as close() to end the session and sysread() to read data
+directly from the host, instead of via the waitfor() mechanism. Note that if
+you do use sysread() directly when in telnet mode, you should probably pass
+the output through preprocess() to extract telnet command sequences.
 
 
 # The Summary/Description fields are rather poor.
@@ -410,6 +433,7 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -544,29 +568,10 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
-  s.require_paths = ["lib"]' %{buildroot}%{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
-
-sed -i '/^end$/ i\
-  s.require_paths = ["lib"]\
-  s.extensions = ["bigdecimal.so"]' %{buildroot}%{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
-
-sed -i '/^end$/ i\
-  s.require_paths = ["lib"]\
-  s.extensions = ["io/console.so"]' %{buildroot}%{gem_dir}/specifications/io-console-%{io_console_version}.gemspec
-
-sed -i '/^end$/ i\
-  s.require_paths = ["lib"]\
   s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_version}.gemspec
 
-# Push the .gemspecs through the RubyGems to let them write the stub headers.
-# This speeds up loading of libraries and avoids warnings in Spring:
-# https://github.com/rubygems/rubygems/pull/694
-for s in rdoc-%{rdoc_version}.gemspec json-%{json_version}.gemspec; do
-  s="%{buildroot}%{gem_dir}/specifications/$s"
-  make runruby TESTRUN_SCRIPT="-rubygems \
-   -e \"spec = Gem::Specification.load(%{$s})\" \
-   -e \"File.write %{$s}, spec.to_ruby\""
-done
+# Move man pages into proper location
+mv %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
 
 # Install a tapset and fix up the path to the library.
 mkdir -p %{buildroot}%{tapset_dir}
@@ -861,6 +866,11 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/psych-%{psych_version}
 %{gem_dir}/specifications/psych-%{psych_version}.gemspec
 
+%files -n rubygem-net-telnet
+%{gem_dir}/gems/net-telnet-%{net_telnet_version}
+%exclude %{gem_dir}/gems/net-telnet-%{net_telnet_version}/.*
+%{gem_dir}/specifications/net-telnet-%{net_telnet_version}.gemspec
+
 %files -n rubygem-test-unit
 %{gem_dir}/gems/test-unit-%{test_unit_version}
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
@@ -875,11 +885,12 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r50427
-- Upgrade to Ruby 2.3.0 (r50427).
+* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r50815
+- Upgrade to Ruby 2.3.0 (r50815).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.
+- Move gemified net-telnet into subpackage.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
