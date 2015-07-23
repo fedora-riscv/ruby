@@ -20,7 +20,7 @@ diff --git a/configure.in b/configure.in
 index db37cd6..6e73fae 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4006,9 +4006,6 @@ AS_CASE(["$target_os"],
+@@ -4010,9 +4010,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index db37cd6..6e73fae 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4031,58 +4028,64 @@ AC_ARG_WITH(ridir,
+@@ -4035,58 +4032,64 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -124,7 +124,7 @@ index db37cd6..6e73fae 100644
  
  if test "${LOAD_RELATIVE+set}"; then
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4099,6 +4102,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4103,6 +4106,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -249,7 +249,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index 0428bea..b6e090e 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -925,7 +925,8 @@ class TestGem < Gem::TestCase
+@@ -962,7 +962,8 @@ class TestGem < Gem::TestCase
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -259,7 +259,7 @@ index 0428bea..b6e090e 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1052,7 +1053,7 @@ class TestGem < Gem::TestCase
+@@ -1089,7 +1090,7 @@ class TestGem < Gem::TestCase
    def test_self_vendor_dir
      expected =
        File.join RbConfig::CONFIG['vendordir'], 'gems',

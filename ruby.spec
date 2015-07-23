@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 50909
+%global revision 51358
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -24,7 +24,7 @@
 %global release 5
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
-%global rubygems_version 2.4.5
+%global rubygems_version 2.5.0
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -883,8 +883,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r50909
-- Upgrade to Ruby 2.3.0 (r50909).
+* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r51358
+- Upgrade to Ruby 2.3.0 (r51358).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.
