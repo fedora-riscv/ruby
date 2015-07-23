@@ -112,6 +112,10 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+# Don't use SSLv3 for tests.
+# https://bugs.ruby-lang.org/issues/10046
+Patch10: ruby-2.3.0-Don-t-force-SSLv3-in-test-as-it-is-insecure-and-may-.patch
+Patch11: ruby-2.3.0-Use-OP_NO_TICKET-when-testing-SSL-session-cache-call.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -430,6 +434,8 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch10
+%patch11
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -583,10 +589,6 @@ DISABLE_TESTS=""
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
 touch abrt.rb
-
-# Test is broken due to SSLv3 disabled in Fedora.
-# https://bugs.ruby-lang.org/issues/10046
-sed -i '/def test_ctx_server_session_cb$/,/^  end$/ s/^/#/' test/openssl/test_ssl_session.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
