@@ -582,6 +582,18 @@ sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
 # Escape '*/' in comment.
 sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
 
+# Prepare -doc subpackage file lists.
+find doc -maxdepth 1 -type f ! -name '.*' ! -name '*.ja*' > .ruby-doc.en
+echo 'doc/images' >> .ruby-doc.en
+echo 'doc/syntax' >> .ruby-doc.en
+
+find doc -maxdepth 1 -type f -name '*.ja*' > .ruby-doc.ja
+echo 'doc/irb' >> .ruby-doc.ja
+echo 'doc/pty' >> .ruby-doc.ja
+
+sed -i 's/^/%doc /' .ruby-doc.*
+sed -i 's/^/%lang(ja) /' .ruby-doc.ja
+
 %check
 DISABLE_TESTS=""
 
@@ -819,11 +831,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/rdoc-%{rdoc_version}.gemspec
 %{_mandir}/man1/ri*
 
-%files doc
+%files doc -f .ruby-doc.en -f .ruby-doc.ja
 %doc README.md
 %doc ChangeLog
-%doc doc/*
-%lang(ja) %doc doc/*.ja*
 %doc ruby-exercise.stp
 %{_datadir}/ri
 
