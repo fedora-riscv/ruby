@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 1
-%global teeny_version 6
+%global teeny_version 7
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,10 +21,10 @@
 %endif
 
 
-%global release 30
+%global release 31
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
-%global rubygems_version 2.2.3
+%global rubygems_version 2.2.5
 
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
@@ -109,9 +109,6 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Test are broken due to SSLv3 disabled in Fedora.
 # https://bugs.ruby-lang.org/issues/10046
 Patch7: ruby-2.2.0-Don-t-use-obsolete-SSLv3-for-tests.patch
-# Fix compatibility with Tcl/Tk 8.6.
-# https://bugs.ruby-lang.org/issues/8000
-Patch8: ruby-2.2.0-Support-tcl-tk-8.6.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -373,7 +370,6 @@ Tcl/Tk interface for the object-oriented scripting language Ruby.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -873,6 +869,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Wed Sep 02 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.7-31
+- Update to Ruby 2.1.7.
+
 * Mon Jun 08 2015 Vít Ondruch <vondruch@redhat.com> - 2.1.6-30
 - Fix the RubyGems version (rhbz#1226679).
 
