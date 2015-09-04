@@ -893,6 +893,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Fix directory ownership.
 - Fix the git BR following the git package split.
 - Move gemified net-telnet into subpackage.
+- Add support for MIPS architecture to config.h
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
