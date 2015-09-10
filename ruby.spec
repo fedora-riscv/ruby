@@ -135,6 +135,13 @@ BuildRequires: %{_bindir}/dtrace
 BuildRequires: git
 BuildRequires: %{_bindir}/cmake
 
+# Virtual provides for CCAN copylibs.
+# https://fedorahosted.org/fpc/ticket/364
+Provides: bundled(ccan-build_assert)
+Provides: bundled(ccan-check_type)
+Provides: bundled(ccan-container_of)
+Provides: bundled(ccan-list)
+
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
 Provides: ruby(runtime_executable) = %{ruby_release}
@@ -893,7 +900,8 @@ make check TESTS="-v $DISABLE_TESTS"
 - Fix directory ownership.
 - Fix the git BR following the git package split.
 - Move gemified net-telnet into subpackage.
-- Add support for MIPS architecture to config.h
+- Add support for MIPS architecture to config.h.
+- Add virtual provides for CCAN copylibs.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
