@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 51741
+%global revision 51856
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -35,6 +35,7 @@
 %global irb_version %{ruby_version}
 
 %global bigdecimal_version 1.2.7
+%global did_you_mean_version 1.0.0.beta2
 %global io_console_version 0.4.3
 %global json_version 1.8.2
 %global minitest_version 5.8.0
@@ -285,6 +286,20 @@ point numbers. Decimal arithmetic is also useful for general calculation,
 because it provides the correct answers people expect–whereas normal binary
 floating point arithmetic often introduces subtle errors because of the
 conversion between base 10 and base 2.
+
+
+%package -n rubygem-did_you_mean
+Summary:    "Did you mean?" experience in Ruby
+Version:    %{did_you_mean_version}
+Group:      Development/Libraries
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(did_you_mean) = %{version}-%{release}
+
+%description -n rubygem-did_you_mean
+"did you mean?" experience in Ruby: the error message will tell you the right
+one when you misspelled something.
 
 
 %package -n rubygem-io-console
@@ -845,6 +860,11 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
 
+%files -n rubygem-did_you_mean
+%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}
+%exclude %{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/.*
+%{gem_dir}/specifications/did_you_mean-%{did_you_mean_version}.gemspec
+
 %files -n rubygem-io-console
 %{ruby_libdir}/io
 %{ruby_libarchdir}/io/console.so
@@ -894,12 +914,13 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r51741
-- Upgrade to Ruby 2.3.0 (r51741).
+* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r51856
+- Upgrade to Ruby 2.3.0 (r51856).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.
 - Move gemified net-telnet into subpackage.
+- Add did_you_mean subpackage.
 - Add support for MIPS architecture to config.h.
 - Add virtual provides for CCAN copylibs.
 
