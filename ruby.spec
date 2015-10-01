@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 51856
+%global revision 51990
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -38,7 +38,7 @@
 %global did_you_mean_version 1.0.0.beta2
 %global io_console_version 0.4.3
 %global json_version 1.8.2
-%global minitest_version 5.8.0
+%global minitest_version 5.8.1
 %global power_assert_version 0.2.4
 %global psych_version 2.0.14
 %global rake_version 10.4.2
@@ -914,8 +914,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r51856
-- Upgrade to Ruby 2.3.0 (r51856).
+* Tue May 05 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r51990
+- Upgrade to Ruby 2.3.0 (r51990).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.
