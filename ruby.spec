@@ -186,6 +186,9 @@ Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
+# https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
+Provides:   bundled(rubygem(molinillo)) = 0.3.0
+Provides:   bundled(rubygem-molinillo) = 0.3.0
 BuildArch:  noarch
 
 %description -n rubygems
