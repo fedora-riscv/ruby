@@ -614,6 +614,9 @@ sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
+# Check RubyGems package version is correctness.
+[ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
+
 DISABLE_TESTS=""
 
 # These tests keeps failing due to
