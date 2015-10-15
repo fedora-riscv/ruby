@@ -115,12 +115,10 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
-Requires: ruby(rubygems) >= %{rubygems_version}
-# Make the bigdecimal gem a runtime dependency of Ruby to avoid problems
-# with user-installed gems, that don't require it in gemspec/Gemfile
-# See https://bugzilla.redhat.com/show_bug.cgi?id=829209
-# and http://bugs.ruby-lang.org/issues/6123
-Requires: rubygem(bigdecimal) >= %{bigdecimal_version}
+Suggests: rubypick
+Recommends: ruby(rubygems) >= %{rubygems_version}
+Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
+Recommends: rubygem(did_you_mean) >= %{did_you_mean_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
@@ -179,10 +177,8 @@ Version:    %{rubygems_version}
 Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
-Requires:   rubygem(rdoc) >= %{rdoc_version}
-# TODO: This seems to be optional now.
-# https://github.com/rubygems/rubygems/commit/68da16dd7508c5c4010bfe32f99422568d3d582f
-Requires:   rubygem(io-console) >= %{io_console_version}
+Recommends: rubygem(rdoc) >= %{rdoc_version}
+Recommends: rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
@@ -202,6 +198,8 @@ Version:    %{rubygems_version}
 Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(rubygems) = %{version}-%{release}
+# Needed for RDoc documentation format generation.
+Requires:   rubygem(json) >= %{json_version}
 BuildArch:  noarch
 
 %description -n rubygems-devel
@@ -247,7 +245,7 @@ License:    GPLv2 and Ruby and MIT and SIL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
-Requires:   rubygem(json) >= %{json_version}
+Recommends: rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
 Provides:   ri = %{version}-%{release}
 Provides:   rubygem(rdoc) = %{version}-%{release}
@@ -933,6 +931,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Add did_you_mean subpackage.
 - Add support for MIPS architecture to config.h.
 - Add virtual provides for CCAN copylibs.
+- Use weak dependencies.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
