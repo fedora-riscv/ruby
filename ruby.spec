@@ -134,13 +134,6 @@ BuildRequires: %{_bindir}/dtrace
 BuildRequires: git
 BuildRequires: %{_bindir}/cmake
 
-# Virtual provides for CCAN copylibs.
-# https://fedorahosted.org/fpc/ticket/364
-Provides: bundled(ccan-build_assert)
-Provides: bundled(ccan-check_type)
-Provides: bundled(ccan-container_of)
-Provides: bundled(ccan-list)
-
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
 Provides: ruby(runtime_executable) = %{ruby_release}
@@ -167,8 +160,16 @@ Group:      Development/Libraries
 License:    Ruby or BSD
 Provides:   ruby(release) = %{ruby_release}
 
+# Virtual provides for CCAN copylibs.
+# https://fedorahosted.org/fpc/ticket/364
+Provides: bundled(ccan-build_assert)
+Provides: bundled(ccan-check_type)
+Provides: bundled(ccan-container_of)
+Provides: bundled(ccan-list)
+
 %description libs
 This package includes the libruby, necessary to run Ruby.
+
 
 # TODO: Rename or not rename to ruby-rubygems?
 %package -n rubygems
