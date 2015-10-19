@@ -24,11 +24,13 @@
 %global release 5
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
-%global rubygems_version 2.5.0
-
 # The RubyGems library has to stay out of Ruby directory three, since the
 # RubyGems should be share by all Ruby implementations.
 %global rubygems_dir %{_datadir}/rubygems
+
+# Bundled libraries versions
+%global rubygems_version 2.5.0
+%global molinillo_version 0.3.0
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
@@ -184,8 +186,8 @@ Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
-Provides:   bundled(rubygem(molinillo)) = 0.3.0
-Provides:   bundled(rubygem-molinillo) = 0.3.0
+Provides:   bundled(rubygem(molinillo)) = %{molinillo_version}
+Provides:   bundled(rubygem-molinillo) = %{molinillo_version}
 BuildArch:  noarch
 
 %description -n rubygems
@@ -613,8 +615,11 @@ sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
-# Check RubyGems package version is correctness.
+# Check RubyGems version correctness.
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
+# Check Molinillo version correctness.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
+  == '%{molinillo_version}' ]
 
 DISABLE_TESTS=""
 
