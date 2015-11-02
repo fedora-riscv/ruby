@@ -623,10 +623,6 @@ sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 DISABLE_TESTS=""
 
-# These tests keeps failing due to
-# https://bugzilla.redhat.com/show_bug.cgi?id=1229659
-DISABLE_TESTS="-x test_settracefunc.rb $DISABLE_TESTS"
-
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
