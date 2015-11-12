@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone rc1
+%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 52392
+%global revision 52539
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 5
+%global release 6
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -37,11 +37,11 @@
 %global irb_version %{ruby_version}
 
 %global bigdecimal_version 1.2.7
-%global did_you_mean_version 1.0.0.beta2
+%global did_you_mean_version 1.0.0.beta3
 %global io_console_version 0.4.3
 %global json_version 1.8.2
 %global minitest_version 5.8.2
-%global power_assert_version 0.2.4
+%global power_assert_version 0.2.6
 %global psych_version 2.0.14
 %global rake_version 10.4.2
 %global rdoc_version 4.2.0
@@ -924,8 +924,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Fri Oct 30 2015 Vít Ondruch <vondruch@rehdat.com> - 2.3.0-0.5.r52392
-- Upgrade to Ruby 2.3.0 (r52392).
+* Thu Nov 12 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.6.preview1
+- Upgrade to Ruby 2.3.0 preview1 (r52539).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.
