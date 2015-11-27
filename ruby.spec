@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview1
+#%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 52539
+%global revision 52759
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,7 +30,7 @@
 
 # Bundled libraries versions
 %global rubygems_version 2.5.0
-%global molinillo_version 0.3.0
+%global molinillo_version 0.4.0
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
@@ -40,9 +40,9 @@
 %global did_you_mean_version 1.0.0.beta3
 %global io_console_version 0.4.3
 %global json_version 1.8.2
-%global minitest_version 5.8.2
+%global minitest_version 5.8.3
 %global power_assert_version 0.2.6
-%global psych_version 2.0.14
+%global psych_version 2.0.15
 %global rake_version 10.4.2
 %global rdoc_version 4.2.0
 %global net_telnet_version 0.1.1
@@ -924,8 +924,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Nov 12 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.6.preview1
-- Upgrade to Ruby 2.3.0 preview1 (r52539).
+* Thu Nov 26 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.6.r52759
+- Upgrade to Ruby 2.3.0 preview1 (r52759).
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.

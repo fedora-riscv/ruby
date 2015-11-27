@@ -20,7 +20,7 @@ diff --git a/configure.in b/configure.in
 index db37cd6..6e73fae 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4071,9 +4071,6 @@ AS_CASE(["$target_os"],
+@@ -4122,9 +4122,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index db37cd6..6e73fae 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4096,58 +4093,64 @@ AC_ARG_WITH(ridir,
+@@ -4147,58 +4144,64 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -124,7 +124,7 @@ index db37cd6..6e73fae 100644
  
  if test "${LOAD_RELATIVE+set}"; then
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4164,6 +4167,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4215,6 +4218,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -175,7 +175,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index d4c110e..d39c9a6 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -406,7 +406,7 @@ end
+@@ -406,7 +406,7 @@ def CONFIG.[](name, mandatory = false)
  
  install?(:doc, :rdoc) do
    if $rdocdir
@@ -202,7 +202,7 @@ diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
 index 55ca080..75eea2b 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
-@@ -31,20 +31,20 @@ module Gem
+@@ -31,20 +31,20 @@ def self.default_dir
               [
                 File.dirname(RbConfig::CONFIG['sitedir']),
                 'Gems',
@@ -226,7 +226,7 @@ index 55ca080..75eea2b 100644
               ]
             end
  
-@@ -74,7 +74,8 @@ module Gem
+@@ -74,7 +74,8 @@ def self.default_rubygems_dirs
  
    def self.user_dir
      parts = [Gem.user_home, '.gem', ruby_engine]
@@ -236,7 +236,7 @@ index 55ca080..75eea2b 100644
      File.join parts
    end
  
-@@ -171,7 +172,7 @@ module Gem
+@@ -171,7 +172,7 @@ def self.vendor_dir # :nodoc:
      return nil unless RbConfig::CONFIG.key? 'vendordir'
  
      File.join RbConfig::CONFIG['vendordir'], 'gems',
@@ -249,7 +249,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index 0428bea..b6e090e 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -962,7 +962,8 @@ class TestGem < Gem::TestCase
+@@ -962,7 +962,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -259,7 +259,7 @@ index 0428bea..b6e090e 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1089,7 +1090,7 @@ class TestGem < Gem::TestCase
+@@ -1089,7 +1090,7 @@ def test_self_user_home_user_drive_and_path
    def test_self_vendor_dir
      expected =
        File.join RbConfig::CONFIG['vendordir'], 'gems',
@@ -286,7 +286,7 @@ diff --git a/configure.in b/configure.in
 index 6e73fae..c842725 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -270,7 +270,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -274,7 +274,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)
