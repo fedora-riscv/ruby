@@ -115,6 +115,9 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # in support for ABRT.
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
+# Use miniruby to regenerate prelude.c.
+# https://bugs.ruby-lang.org/issues/10554
+Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -456,6 +459,7 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -487,10 +491,6 @@ autoconf
         --with-ruby-version='' \
         --enable-multiarch \
         --with-prelude=./abrt_prelude.rb \
-
-# Avoid regeneration of prelude.c due to patch6 applied to common.mk.
-# https://bugs.ruby-lang.org/issues/10554
-touch prelude.c
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
@@ -924,8 +924,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Thu Nov 26 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.6.r52759
+* Thu Dec 10 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.6.r52759
 - Upgrade to Ruby 2.3.0 preview1 (r52759).
+- Fix ABRT hook autoloading.
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
 - Fix the git BR following the git package split.
