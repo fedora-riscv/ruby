@@ -621,6 +621,9 @@ sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
 
+# Check if abrt hook is required.
+LD_LIBRARY_PATH=. RUBYOPT=-I.:lib:.ext/x86_64-linux/ ./ruby -d -e '' |& grep abrt
+
 DISABLE_TESTS=""
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
