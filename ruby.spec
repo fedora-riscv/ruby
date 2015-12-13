@@ -88,6 +88,8 @@ Source7: config.h
 Source8: rubygems.attr
 Source9: rubygems.req
 Source10: rubygems.prov
+# ABRT hoook test case.
+Source12: test_abrt.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
@@ -621,15 +623,15 @@ sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
 
-# Check if abrt hook is required.
-LD_LIBRARY_PATH=. RUBYOPT=-I.:lib:.ext/x86_64-linux/ ./ruby -d -e '' |& grep abrt
-
-DISABLE_TESTS=""
-
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
 touch abrt.rb
+
+# Check if abrt hook is required.
+make runruby TESTRUN_SCRIPT=%{SOURCE12}
+
+DISABLE_TESTS=""
 
 make check TESTS="-v $DISABLE_TESTS"
 
