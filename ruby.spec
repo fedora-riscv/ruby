@@ -90,6 +90,8 @@ Source9: rubygems.req
 Source10: rubygems.prov
 # ABRT hoook test case.
 Source12: test_abrt.rb
+# SystemTap tests.
+Source13: test_systemtap.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
@@ -631,6 +633,9 @@ touch abrt.rb
 # Check if abrt hook is required.
 make runruby TESTRUN_SCRIPT=%{SOURCE12}
 
+# Check if systemtap is supported.
+make runruby TESTRUN_SCRIPT=%{SOURCE13}
+
 DISABLE_TESTS=""
 
 make check TESTS="-v $DISABLE_TESTS"
@@ -929,6 +934,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Dec 22 2015 Pavel Valena <pvalena@redhat.com> - 2.3.0-0.7.preview2
+- Add systemtap tests.
+
 * Thu Dec 10 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.7.preview2
 - Upgrade to Ruby 2.3.0 preview2 (r53111).
 - Fix ABRT hook autoloading.
