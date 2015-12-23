@@ -1,39 +1,64 @@
+require 'set'
 
-def error(msg = 'SystemTap (dtrace) support was not detected.')
-  puts "ERROR: #{msg}."
+LIBRUBY_SO = 'libruby.so'
+PROBES_D = 'probes.d'
+
+###
+# Detect SystemTap section headers presence.
+
+stap_headers = [
+  '\.stapsdt\.base',
+  '\.note\.stapsdt'
+]
+
+header_regexp = %r{ (#{stap_headers.join('|')}) }
+
+section_headers = `readelf -S "#{LIBRUBY_SO}"`
+detected_stap_headers = section_headers.scan(header_regexp).flatten
+
+# Assume there are both headers until this is proven wrong ;)
+unless detected_stap_headers.size == 2
+  puts 'ERROR: SystemTap (DTrace) headers were not detected in resulting library.'
   exit false
 end
 
-probes_d = 'probes.d'
-libruby_so = 'libruby.so.2.3'
+###
+# Find if every declared probe is propagated to resulting library.
 
-error unless `readelf -S "#{libruby_so}"`.lines.detect do |x|
-  x.lstrip!
-  x[0] == '[' && x =~ / \.stapsdt\.base /
-
-end
-
-missing = ['insn', 'insn__operand']
-
+# Colect probes specified in probes.d file.
 probes = []
 
-File.open(probes_d) do |file|
+File.open(PROBES_D) do |file|
   file.each_line do |line|
-    line.lstrip!
-    probes << line.split[1].split('(')[0] if line =~ /^probe \S+\(/
+    if probe = line[/probe (\S+)\(.*\);/, 1]
+      probes << probe
+    end
   end
 end
 
-probes = probes.uniq.sort
+probes = Set.new probes
 
-error "Missing probes in file '#{probes_d}'" unless (missing - probes).empty?
+# These probes are excluded by VM_COLLECT_USAGE_DETAILS ifdef.
+EXCLUDE_PROBES = Set.new %w(insn insn__operand)
+unless EXCLUDE_PROBES.subset? probes
+  puts 'ERROR: Change in SystemTap (DTrace) probes definition file detected.'
+  exit false
+end
 
-regex = /\n  stapsdt              0x\S+\tNT_STAPSDT \(SystemTap probe descriptors\)\n    Provider: ruby\n    Name: (\S+)\n/
+probes -= EXCLUDE_PROBES
 
-taps = `readelf -n "#{libruby_so}"`.scan(regex).flatten.uniq
+# Detect probes in resulting library.
+probe_regexp = %r{
+^\s*stapsdt\s*0[xX][0-9a-fA-F]+\tNT_STAPSDT \(SystemTap probe descriptors\)$
+^\s*Provider: ruby$
+^\s*Name: (\S+)$
+}
 
-probes -= taps
+notes = `readelf -n "#{LIBRUBY_SO}"`
+detected_probes = Set.new notes.scan(probe_regexp).flatten
 
-error unless probes.eql?(missing)
-
-exit true
+# Both sets must be equal, otherwise something is wrong.
+unless probes == detected_probes
+  puts 'ERROR: SystemTap (DTrace) probes were not correctly propagated into resulting library.'
+  exit false
+end
