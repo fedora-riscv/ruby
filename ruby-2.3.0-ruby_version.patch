@@ -20,7 +20,7 @@ diff --git a/configure.in b/configure.in
 index db37cd6..6e73fae 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4134,9 +4134,6 @@ AS_CASE(["$target_os"],
+@@ -4137,9 +4137,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index db37cd6..6e73fae 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4159,58 +4156,64 @@ AC_ARG_WITH(ridir,
+@@ -4162,58 +4159,64 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -124,7 +124,7 @@ index db37cd6..6e73fae 100644
  
  if test "${LOAD_RELATIVE+set}"; then
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4227,6 +4230,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4230,6 +4233,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -162,7 +162,7 @@ diff --git a/lib/rdoc/ri/paths.rb b/lib/rdoc/ri/paths.rb
 index 970cb91..5bf8230 100644
 --- a/lib/rdoc/ri/paths.rb
 +++ b/lib/rdoc/ri/paths.rb
-@@ -9,7 +9,7 @@ module RDoc::RI::Paths
+@@ -10,7 +10,7 @@ module RDoc::RI::Paths
    #:stopdoc:
    require 'rbconfig'
  
@@ -202,7 +202,7 @@ diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
 index 55ca080..75eea2b 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
-@@ -31,20 +31,20 @@ def self.default_dir
+@@ -32,20 +32,20 @@ def self.default_dir
               [
                 File.dirname(RbConfig::CONFIG['sitedir']),
                 'Gems',
@@ -226,7 +226,7 @@ index 55ca080..75eea2b 100644
               ]
             end
  
-@@ -74,7 +74,8 @@ def self.default_rubygems_dirs
+@@ -75,7 +75,8 @@ def self.default_rubygems_dirs
  
    def self.user_dir
      parts = [Gem.user_home, '.gem', ruby_engine]
@@ -236,7 +236,7 @@ index 55ca080..75eea2b 100644
      File.join parts
    end
  
-@@ -171,7 +172,7 @@ def self.vendor_dir # :nodoc:
+@@ -172,7 +173,7 @@ def self.vendor_dir # :nodoc:
      return nil unless RbConfig::CONFIG.key? 'vendordir'
  
      File.join RbConfig::CONFIG['vendordir'], 'gems',
@@ -249,7 +249,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index 0428bea..b6e090e 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -962,7 +962,8 @@ def test_self_use_paths
+@@ -963,7 +963,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -259,7 +259,7 @@ index 0428bea..b6e090e 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1089,7 +1090,7 @@ def test_self_user_home_user_drive_and_path
+@@ -1090,7 +1091,7 @@ def test_self_user_home_user_drive_and_path
    def test_self_vendor_dir
      expected =
        File.join RbConfig::CONFIG['vendordir'], 'gems',

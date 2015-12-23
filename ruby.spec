@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview2
+#%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 52759
+%global revision 53264
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,22 +29,22 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.5.0
+%global rubygems_version 2.5.1
 %global molinillo_version 0.4.0
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.2.7
-%global did_you_mean_version 1.0.0.rc1
-%global io_console_version 0.4.3
+%global bigdecimal_version 1.2.8
+%global did_you_mean_version 1.0.0
+%global io_console_version 0.4.4
 %global json_version 1.8.3
 %global minitest_version 5.8.3
 %global power_assert_version 0.2.6
-%global psych_version 2.0.16
+%global psych_version 2.0.17
 %global rake_version 10.4.2
-%global rdoc_version 4.2.0
+%global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
 %global test_unit_version 3.1.5
 
@@ -722,6 +722,8 @@ make check TESTS="-v $DISABLE_TESTS"
 # Platform specific libraries.
 %{_libdir}/libruby.so.*
 %dir %{ruby_libarchdir}
+%dir %{ruby_libarchdir}/cgi
+%{ruby_libarchdir}/cgi/escape.so
 %{ruby_libarchdir}/continuation.so
 %{ruby_libarchdir}/coverage.so
 %{ruby_libarchdir}/date_core.so
@@ -765,6 +767,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %dir %{ruby_libarchdir}/enc/trans
 %{ruby_libarchdir}/enc/trans/big5.so
 %{ruby_libarchdir}/enc/trans/chinese.so
+%{ruby_libarchdir}/enc/trans/ebcdic.so
 %{ruby_libarchdir}/enc/trans/emoji.so
 %{ruby_libarchdir}/enc/trans/emoji_iso2022_kddi.so
 %{ruby_libarchdir}/enc/trans/emoji_sjis_docomo.so
@@ -786,7 +789,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/enc/utf_16le.so
 %{ruby_libarchdir}/enc/utf_32be.so
 %{ruby_libarchdir}/enc/utf_32le.so
+%{ruby_libarchdir}/enc/windows_1250.so
 %{ruby_libarchdir}/enc/windows_1251.so
+%{ruby_libarchdir}/enc/windows_1252.so
 %{ruby_libarchdir}/enc/windows_31j.so
 %{ruby_libarchdir}/etc.so
 %{ruby_libarchdir}/fcntl.so
@@ -934,11 +939,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Dec 22 2015 Pavel Valena <pvalena@redhat.com> - 2.3.0-0.7.preview2
-- Add systemtap tests.
-
-* Thu Dec 10 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.7.preview2
-- Upgrade to Ruby 2.3.0 preview2 (r53111).
+* Wed Dec 23 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.7.r53264
+- Upgrade to Ruby 2.3.0 (r53264).
 - Fix ABRT hook autoloading.
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
@@ -948,6 +950,9 @@ make check TESTS="-v $DISABLE_TESTS"
 - Add support for MIPS architecture to config.h.
 - Add virtual provides for CCAN copylibs.
 - Use weak dependencies.
+
+* Tue Dec 22 2015 Pavel Valena <pvalena@redhat.com> - 2.3.0-0.7.preview2
+- Add systemtap tests.
 
 * Tue Feb 03 2015 Vít Ondruch <vondruch@redhat.com> - 2.2.0-5
 - Make operating_system.rb more robust.
