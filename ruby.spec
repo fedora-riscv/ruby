@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 53264
+#%%global revision 53264
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 7
+%global release 50
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -38,7 +38,7 @@
 
 %global bigdecimal_version 1.2.8
 %global did_you_mean_version 1.0.0
-%global io_console_version 0.4.4
+%global io_console_version 0.4.5
 %global json_version 1.8.3
 %global minitest_version 5.8.3
 %global power_assert_version 0.2.6
@@ -939,8 +939,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Wed Dec 23 2015 Vít Ondruch <vondruch@redhat.com> - 2.3.0-0.7.r53264
-- Upgrade to Ruby 2.3.0 (r53264).
+* Mon Jan 04 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.0-50
+- Upgrade to Ruby 2.3.0.
 - Fix ABRT hook autoloading.
 - Initialize all load paths in operating_system.rb.
 - Fix directory ownership.
