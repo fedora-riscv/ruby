@@ -118,6 +118,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # Ignore Europe/Moscow TZ test, which fails due to change in tzdata.
 # https://github.com/ruby/ruby/commit/d16ff5c412b90b2766be97a5d3d689c5a18528d3
 Patch8: ruby-2.2.6-Tests-depends-on-Europe-Moscow-removed.patch
+# Fixes random TestRubyOptimization#test_tailcall_inhibited_by_rescue test
+# suite failures.
+# https://github.com/ruby/ruby/commit/cf23ad429da3213fd3b1261c546dfa08e7dba2bf
+Patch9: ruby-2.2.6-Fix-random-test-failure-introduced-by-r54698.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -420,6 +424,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
