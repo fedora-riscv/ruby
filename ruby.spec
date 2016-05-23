@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 55
+%global release 56
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -261,7 +261,9 @@ License:    GPLv2 and Ruby and MIT and SIL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
-Recommends: rubygem(json) >= %{json_version}
+# Hardcode the dependency to keep it compatible with dependencies of the
+# official rubygem-rdoc gem.
+Requires:   rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
 Provides:   ri = %{version}-%{release}
 Provides:   rubygem(rdoc) = %{version}-%{release}
@@ -951,6 +953,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
+- Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
+
 * Fri Apr 29 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-55
 - Update to Ruby 2.3.1.
 
