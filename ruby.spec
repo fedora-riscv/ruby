@@ -1,6 +1,6 @@
 %global major_version 2
-%global minor_version 3
-%global teeny_version 1
+%global minor_version 4
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 53264
+%global revision 55184
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 56
+%global release 1
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,8 +29,8 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.5.1
-%global molinillo_version 0.4.0
+%global rubygems_version 2.6.4
+%global molinillo_version 0.4.3
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
@@ -38,15 +38,16 @@
 
 %global bigdecimal_version 1.2.8
 %global did_you_mean_version 1.0.0
-%global io_console_version 0.4.5
+%global io_console_version 0.4.6
 %global json_version 1.8.3
-%global minitest_version 5.8.3
-%global power_assert_version 0.2.6
+%global minitest_version 5.8.4
+%global power_assert_version 0.2.7
 %global psych_version 2.0.17
-%global rake_version 10.4.2
+%global rake_version 11.1.2
 %global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
-%global test_unit_version 3.1.5
+%global test_unit_version 3.1.8
+%global xmlrpc_version 0.1.1
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -122,9 +123,6 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
 # https://bugs.ruby-lang.org/issues/10554
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
-# Prevent test failures on ARM.
-# https://bugs.ruby-lang.org/issues/12331
-Patch8: ruby-2.4.0-increase-timeout-for-ARMv7.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -427,10 +425,8 @@ you do use sysread() directly when in telnet mode, you should probably pass
 the output through preprocess() to extract telnet command sequences.
 
 
-# The Summary/Description fields are rather poor.
-# https://github.com/test-unit/test-unit/issues/73
 %package -n rubygem-test-unit
-Summary:    Improved version of Test::Unit bundled in Ruby 1.8.x
+Summary:    An xUnit family unit testing framework for Ruby
 Version:    %{test_unit_version}
 Group:      Development/Libraries
 # lib/test/unit/diff.rb is a double license of the Ruby license and PSF license.
@@ -443,9 +439,25 @@ Provides:   rubygem(test-unit) = %{version}-%{release}
 BuildArch:  noarch
 
 %description -n rubygem-test-unit
-Ruby 1.9.x bundles minitest not Test::Unit. Test::Unit
-bundled in Ruby 1.8.x had not been improved but unbundled
-Test::Unit (test-unit) is improved actively.
+Test::Unit (test-unit) is unit testing framework for Ruby, based on xUnit
+principles. These were originally designed by Kent Beck, creator of extreme
+programming software development methodology, for Smalltalk's SUnit. It allows
+writing tests, checking results and automated testing in Ruby.
+
+
+%package -n rubygem-xmlrpc
+Summary:    XMLRPC is a lightweight protocol that enables remote procedure calls over HTTP
+Version:    %{xmlrpc_version}
+Group:      Development/Libraries
+License:    Ruby or BSD
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(xmlrpc) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-xmlrpc
+XMLRPC is a lightweight protocol that enables remote procedure calls over
+HTTP.
 
 
 %package tcltk
@@ -472,7 +484,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -527,14 +538,12 @@ sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_li
 
 # Kill bundled certificates, as they should be part of ca-certificates.
 for cert in \
-  Class3PublicPrimaryCertificationAuthority.pem \
-  DigiCertHighAssuranceEVRootCA.pem \
-  EntrustnetSecureServerCertificationAuthority.pem \
-  GeoTrustGlobalCA.pem \
-  AddTrustExternalCARoot.pem \
-  AddTrustExternalCARoot-2048.pem
+  rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem \
+  rubygems.org/AddTrustExternalCARoot-2048.pem \
+  index.rubygems.org/GlobalSignRoot.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
+  rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
 done
 
 # Move macros file into proper place and replace the %%{name} macro, since it
@@ -652,6 +661,9 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
+# https://bugs.ruby-lang.org/issues/12433
+DISABLE_TESTS="$DISABLE_TESTS -x test_case_comprehensive.rb"
+
 make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
@@ -730,7 +742,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
 %{ruby_libdir}/webrick
-%{ruby_libdir}/xmlrpc
 %{ruby_libdir}/yaml
 
 # Platform specific libraries.
@@ -836,7 +847,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/strscan.so
 %{ruby_libarchdir}/syslog.so
 %exclude %{ruby_libarchdir}/tcltklib.so
-%{ruby_libarchdir}/thread.so
 %exclude %{ruby_libarchdir}/tkutil.so
 %{ruby_libarchdir}/zlib.so
 
@@ -943,6 +953,11 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/test-unit-%{test_unit_version}
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
 
+%files -n rubygem-xmlrpc
+%license %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}
+%{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
+
 %files tcltk
 %{ruby_libdir}/*-tk.rb
 %{ruby_libdir}/tcltk.rb
@@ -953,6 +968,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r55184
+- Upgrade to Ruby 2.4.0 (r55184).
+- Add xmlrpc subpackage.
+
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
 - Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
 
