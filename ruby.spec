@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview1
+#%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 55184
+%global revision 55513
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.4
+%global rubygems_version 2.6.6
 %global molinillo_version 0.5.0
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -42,7 +42,7 @@
 %global json_version 1.8.3
 %global minitest_version 5.9.0
 %global power_assert_version 0.3.0
-%global psych_version 2.0.17
+%global psych_version 2.1.0
 %global rake_version 11.1.2
 %global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
@@ -969,8 +969,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.preview1
-- Upgrade to Ruby 2.4.0-preview1 (r55466).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r55513
+- Upgrade to Ruby 2.4.0 (r55513).
 - Add xmlrpc subpackage.
 
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56

@@ -11,7 +11,7 @@ diff --git a/common.mk b/common.mk
 index 168dc52..20c218a 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -851,9 +851,9 @@ $(MINIPRELUDE_C): $(COMPILE_PRELUDE)
+@@ -852,9 +852,9 @@ $(MINIPRELUDE_C): $(COMPILE_PRELUDE)
  $(PRELUDE_C): $(COMPILE_PRELUDE) \
  	   {$(srcdir)}lib/rubygems/defaults.rb \
  	   {$(srcdir)}lib/rubygems/core_ext/kernel_gem.rb \
