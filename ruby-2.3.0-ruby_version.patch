@@ -20,7 +20,7 @@ diff --git a/configure.in b/configure.in
 index db37cd6..6e73fae 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4279,9 +4279,6 @@ AS_CASE(["$target_os"],
+@@ -4300,9 +4300,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index db37cd6..6e73fae 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4304,56 +4301,62 @@ AC_ARG_WITH(ridir,
+@@ -4325,56 +4322,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index db37cd6..6e73fae 100644
  
  if test "${LOAD_RELATIVE+set}"; then
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4370,6 +4373,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4391,6 +4394,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -282,7 +282,7 @@ diff --git a/configure.in b/configure.in
 index 6e73fae..c842725 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -281,7 +281,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -271,7 +271,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)

@@ -14,7 +14,7 @@ diff --git a/configure.in b/configure.in
 index db37cd6..ce8d149 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4328,7 +4328,8 @@ AS_CASE(["$ruby_version_dir_name"],
+@@ -4349,7 +4349,8 @@ AS_CASE(["$ruby_version_dir_name"],
  ruby_version_dir=/'${ruby_version_dir_name}'
  
  if test -z "${ruby_version_dir_name}"; then
@@ -67,7 +67,7 @@ diff --git a/tool/mkconfig.rb b/tool/mkconfig.rb
 index 07076d4..35e6c3c 100755
 --- a/tool/mkconfig.rb
 +++ b/tool/mkconfig.rb
-@@ -123,7 +123,7 @@ def config.write(arg)
+@@ -113,7 +113,7 @@
      val = val.gsub(/\$(?:\$|\{?(\w+)\}?)/) {$1 ? "$(#{$1})" : $&}.dump
      case name
      when /^prefix$/

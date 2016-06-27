@@ -7,7 +7,7 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview2
+%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
 %global revision 55184
@@ -30,23 +30,23 @@
 
 # Bundled libraries versions
 %global rubygems_version 2.6.4
-%global molinillo_version 0.4.3
+%global molinillo_version 0.5.0
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
 %global bigdecimal_version 1.2.8
-%global did_you_mean_version 1.0.0
+%global did_you_mean_version 1.0.1
 %global io_console_version 0.4.6
 %global json_version 1.8.3
-%global minitest_version 5.8.4
-%global power_assert_version 0.2.7
+%global minitest_version 5.9.0
+%global power_assert_version 0.3.0
 %global psych_version 2.0.17
 %global rake_version 11.1.2
 %global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
-%global test_unit_version 3.1.8
+%global test_unit_version 3.1.9
 %global xmlrpc_version 0.1.1
 
 # Might not be needed in the future, if we are lucky enough.
@@ -539,8 +539,8 @@ sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_li
 # Kill bundled certificates, as they should be part of ca-certificates.
 for cert in \
   rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem \
-  rubygems.org/AddTrustExternalCARoot-2048.pem \
-  index.rubygems.org/GlobalSignRoot.pem
+  rubygems.org/AddTrustExternalCARoot.pem \
+  index.rubygems.org/GlobalSignRootCA.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
   rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
@@ -663,6 +663,7 @@ DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
 # https://bugs.ruby-lang.org/issues/12433
 DISABLE_TESTS="$DISABLE_TESTS -x test_case_comprehensive.rb"
+DISABLE_TESTS="$DISABLE_TESTS -x test_unicode_normalize.rb"
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -968,8 +969,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r55184
-- Upgrade to Ruby 2.4.0 (r55184).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.preview1
+- Upgrade to Ruby 2.4.0-preview1 (r55466).
 - Add xmlrpc subpackage.
 
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
