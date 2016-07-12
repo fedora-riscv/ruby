@@ -600,6 +600,9 @@ mkdir -p %{buildroot}%{_libdir}/gems/%{name}/json-%{json_version}
 mv %{buildroot}%{ruby_libdir}/json* %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/json/ %{buildroot}%{_libdir}/gems/%{name}/json-%{json_version}/
 mv %{buildroot}%{gem_dir}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
+ln -s %{gem_dir}/gems/json-%{json_version}/lib/json.rb %{buildroot}%{ruby_libdir}/json.rb
+ln -s %{gem_dir}/gems/json-%{json_version}/lib/json %{buildroot}%{ruby_libdir}/json
+ln -s %{_libdir}/gems/%{name}/json-%{json_version}/json/ %{buildroot}%{ruby_libarchdir}/json
 
 mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}
@@ -923,6 +926,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/io-console-%{io_console_version}.gemspec
 
 %files -n rubygem-json
+%{ruby_libdir}/json*
+%{ruby_libarchdir}/json*
 %{_libdir}/gems/%{name}/json-%{json_version}
 %{gem_dir}/gems/json-%{json_version}
 %{gem_dir}/specifications/json-%{json_version}.gemspec
@@ -972,6 +977,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r55513
 - Upgrade to Ruby 2.4.0 (r55513).
 - Add xmlrpc subpackage.
+- Make symlinks for json gem.
 
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
 - Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
