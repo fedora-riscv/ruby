@@ -1020,6 +1020,9 @@ make check TESTS="-v $DISABLE_TESTS"
 - Harden package.
 - Extend 'gem_' macros for pre-release version support.
 
+* Tue Jul 19 2016 Pavel Valena <pvalena@redhat.com> - 2.3.1-56
+- Fix and enhance systemtap tests
+
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
 - Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
 
