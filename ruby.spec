@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 57
+%global release 58
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -125,6 +125,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # Prevent test failures on ARM.
 # https://bugs.ruby-lang.org/issues/12331
 Patch8: ruby-2.4.0-increase-timeout-for-ARMv7.patch
+# Workaround "an invalid stdio handle" error on PPC, due to recently introduced
+# hardening features of glibc (rhbz#1361037).
+# https://bugs.ruby-lang.org/issues/12666
+Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -473,6 +477,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -958,6 +963,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Wed Aug 10 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-58
+- Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
+
 * Tue Jul 12 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-57
 - Make symlinks for json gem.
 
