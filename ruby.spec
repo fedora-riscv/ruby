@@ -124,6 +124,10 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
 # https://bugs.ruby-lang.org/issues/10554
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
+# Workaround "an invalid stdio handle" error on PPC, due to recently introduced
+# hardening features of glibc (rhbz#1361037).
+# https://bugs.ruby-lang.org/issues/12666
+Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -498,6 +502,7 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch9 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1003,6 +1008,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56558
 - Upgrade to Ruby 2.4.0 (r56558).
+- Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
 - Move gemified openssl into subpackage.
