@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 56029
+%global revision 56050
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -125,9 +125,6 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
 # https://bugs.ruby-lang.org/issues/10554
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
-# There are some issues with placement of binary extensions of bundled gems.
-# https://bugs.ruby-lang.org/issues/12681
-Patch8: ruby-2.4.0-Revert-extmk.rb-makefiles-for-gems.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -511,7 +508,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1041,8 +1037,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/tk-%{tk_version}.gemspec
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56029
-- Upgrade to Ruby 2.4.0 (r56029).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56050
+- Upgrade to Ruby 2.4.0 (r56050).
 - Move gemified xmlrpc into subpackage.
 - Move gemified tcltk into subpackage.
 - Move gemified openssl into subpackage.
