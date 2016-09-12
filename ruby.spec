@@ -7,7 +7,7 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview1
+%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
 %global revision 56050
@@ -41,14 +41,13 @@
 %global io_console_version 0.4.6
 %global json_version 2.0.2
 %global minitest_version 5.9.0
-%global openssl_version 2.0.0.beta.1
-%global power_assert_version 0.3.0
-%global psych_version 2.1.0
+%global openssl_version 2.0.0.beta.2
+%global power_assert_version 0.3.1
+%global psych_version 2.1.1
 %global rake_version 11.2.2
-%global rdoc_version 4.2.1
+%global rdoc_version 5.0.0.beta2
 %global net_telnet_version 0.1.1
 %global test_unit_version 3.2.1
-%global tk_version 0.1.1
 %global xmlrpc_version 0.1.1
 
 # Might not be needed in the future, if we are lucky enough.
@@ -139,7 +138,6 @@ BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
-BuildRequires: tk-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
 BuildRequires: %{_bindir}/dtrace
@@ -181,6 +179,13 @@ Provides: bundled(ccan-build_assert)
 Provides: bundled(ccan-check_type)
 Provides: bundled(ccan-container_of)
 Provides: bundled(ccan-list)
+
+# Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe
+# so lets obsolete it. This is not the best place, but we don't have
+# better, unless https://fedorahosted.org/fpc/ticket/645 provides some
+# generic solution.
+Obsoletes: ruby-tcltk < 2.4.0
+
 
 %description libs
 This package includes the libruby, necessary to run Ruby.
@@ -478,21 +483,6 @@ XMLRPC is a lightweight protocol that enables remote procedure calls over
 HTTP.
 
 
-%package -n rubygem-tk
-Summary:    Tcl/Tk interface for scripting language Ruby
-Version:    %{tk_version}
-Group:      Development/Languages
-License:    Ruby or BSD
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(tk) = %{version}-%{release}
-# This was renamed from ruby-tclkt to rubygem-tk at F26 timeframe.
-Provides:   ruby(tcltk) = %{ruby_version}-%{release}
-Obsoletes:  ruby-tcltk < %{ruby_version}-%{release}
-
-%description -n rubygem-tk
-Tcl/Tk interface for the object-oriented scripting language Ruby.
-
 %prep
 %setup -q -n %{ruby_archive}
 
@@ -646,9 +636,11 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
-# Move the binary extensions into proper place.
+# Move the binary extensions into proper place (if no gem has binary extension,
+# the extensions directory might be empty).
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
-  -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \;
+  -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \; \
+  || echo "No gem binary extensions to move."
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
@@ -704,11 +696,6 @@ DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 # https://bugs.ruby-lang.org/issues/12433
 DISABLE_TESTS="$DISABLE_TESTS -x test_case_comprehensive.rb"
 DISABLE_TESTS="$DISABLE_TESTS -x test_unicode_normalize.rb"
-
-# This seems to be due to Linux 4.7+ regression.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1365940
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_udp_recv_nonblock/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_udp_recvfrom_nonblock/"
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -1013,36 +1000,13 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/lib
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
-%files -n rubygem-tk
-%license %{gem_dir}/gems/tk-%{tk_version}/BSDL
-%license %{gem_dir}/gems/tk-%{tk_version}/LICENSE.txt
-%{gem_dir}/gems/tk-%{tk_version}/Gemfile
-%doc %{gem_dir}/gems/tk-%{tk_version}/ChangeLog.tkextlib
-%doc %{gem_dir}/gems/tk-%{tk_version}/MANUAL_tcltklib.eng
-%lang(ja) %doc %{gem_dir}/gems/tk-%{tk_version}/MANUAL_tcltklib.ja
-%lang(ja) %doc %{gem_dir}/gems/tk-%{tk_version}/old-README.tcltklib.ja
-%{gem_dir}/gems/tk-%{tk_version}/Rakefile
-%doc %{gem_dir}/gems/tk-%{tk_version}/README.1st
-%doc %{gem_dir}/gems/tk-%{tk_version}/README.ActiveTcl
-%doc %{gem_dir}/gems/tk-%{tk_version}/README.fork
-%doc %{gem_dir}/gems/tk-%{tk_version}/README.macosx-aqua
-%doc %{gem_dir}/gems/tk-%{tk_version}/README.md
-%doc %{gem_dir}/gems/tk-%{tk_version}/README.tcltklib
-%dir %{gem_dir}/gems/tk-%{tk_version}
-%{gem_dir}/gems/tk-%{tk_version}/bin
-%exclude %{gem_dir}/gems/tk-%{tk_version}/ext
-%{gem_dir}/gems/tk-%{tk_version}/lib
-%{gem_dir}/gems/tk-%{tk_version}/sample
-%{_libdir}/gems/%{name}/tk-%{tk_version}
-%{gem_dir}/specifications/tk-%{tk_version}.gemspec
-
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56050
-- Upgrade to Ruby 2.4.0 (r56050).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.preview2
+- Upgrade to Ruby 2.4.0-preview2 (r56129).
 - Move gemified xmlrpc into subpackage.
-- Move gemified tcltk into subpackage.
 - Move gemified openssl into subpackage.
 - Make symlinks for json gem.
+- Tk is removed from stdlib.
 
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
 - Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
