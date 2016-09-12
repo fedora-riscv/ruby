@@ -693,10 +693,6 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
-# https://bugs.ruby-lang.org/issues/12433
-DISABLE_TESTS="$DISABLE_TESTS -x test_case_comprehensive.rb"
-DISABLE_TESTS="$DISABLE_TESTS -x test_unicode_normalize.rb"
-
 make check TESTS="-v $DISABLE_TESTS"
 
 %post libs -p /sbin/ldconfig
