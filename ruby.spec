@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview2
+#%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 56050
+%global revision 56256
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -40,13 +40,13 @@
 %global did_you_mean_version 1.0.2
 %global io_console_version 0.4.6
 %global json_version 2.0.2
-%global minitest_version 5.9.0
+%global minitest_version 5.9.1
+%global net_telnet_version 0.1.1
 %global openssl_version 2.0.0.beta.2
 %global power_assert_version 0.3.1
 %global psych_version 2.1.1
-%global rake_version 11.2.2
+%global rake_version 11.3.0
 %global rdoc_version 5.0.0.beta2
-%global net_telnet_version 0.1.1
 %global test_unit_version 3.2.1
 %global xmlrpc_version 0.1.1
 
@@ -997,8 +997,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.preview2
-- Upgrade to Ruby 2.4.0-preview2 (r56129).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56256
+- Upgrade to Ruby 2.4.0 (r56256).
 - Move gemified xmlrpc into subpackage.
 - Move gemified openssl into subpackage.
 - Make symlinks for json gem.
