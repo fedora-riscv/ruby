@@ -52,6 +52,8 @@
 #include "ruby/config-mipsel.h"
 #elif defined(__mips)
 #include "ruby/config-mips.h"
+#elif defined(__riscv64)
+#include "ruby/config-riscv64.h"
 #else
 #error "The ruby-devel package is not usable with the architecture."
 #endif
