@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 56436
+%global revision 56450
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -997,8 +997,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56436
-- Upgrade to Ruby 2.4.0 (r56436).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56450
+- Upgrade to Ruby 2.4.0 (r56450).
 - Move gemified xmlrpc into subpackage.
 - Move gemified openssl into subpackage.
 - Make symlinks for json gem.
