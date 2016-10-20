@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 58
+%global release 60
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -963,6 +963,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri Oct 21 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-60
+- Add gemspec_add_dep and gemspec_remove_dep macros.
+
 * Wed Aug 10 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-58
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 
