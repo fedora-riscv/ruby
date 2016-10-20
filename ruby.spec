@@ -1003,6 +1003,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56450
 - Upgrade to Ruby 2.4.0 (r56450).
+- Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
 - Move gemified openssl into subpackage.
 - Make symlinks for json gem.
