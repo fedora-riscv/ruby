@@ -35,3 +35,81 @@ gem install \\\
 %rubygems_default_filter %{expand: \
 %global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_extdir_mri}/.*\\\\.so$ \
 }
+
+# The 'read' command in gemspec_add _depand gemspec_remove_dep macros is not
+# essential, but it is usefull to make the sript appear in build log.
+
+# Add dependency named gem with version requirements to .gemspec. It adds
+# runtime dependency by default.
+# -g<gem>            Specifies name of the gem dependency.
+# -s<gemspec_file>   Overrides the default .gemspec location.
+# -d                 Add development dependecy.
+#
+# The remaining arguments are expected to be version requirements and should
+# be valid Ruby code.
+%gemspec_add_dep(g:s:d) \
+read -d '' gemspec_add_dep_script << 'EOR' || : \
+  gemspec_file = '%{-s*}%{!?-s:./%{gem_name}.gemspec}' \
+  \
+  name = '%{-g*}' \
+  requirements = %{*}%{!?1:nil} \
+  \
+  type = :%{!?-d:runtime}%{?-d:development} \
+  \
+  spec = Gem::Specification.load(gemspec_file) \
+  abort("#{gemspec_file} is not accessible.") unless spec \
+  \
+  dep = spec.dependencies.detect { |d| d.type == type && d.name == name } \
+  if dep \
+    dep.requirement.concat requirements \
+  else \
+    spec.public_send "add_#{type}_dependency", name, requirements \
+  end \
+  File.write gemspec_file, spec.to_ruby \
+EOR\
+echo "$gemspec_add_dep_script" | ruby \
+unset -v gemspec_add_dep_script \
+%{nil}
+
+# Remove dependency named gem with version requirements to .gemspec. It
+# removes runtime dependency by default.
+# -g<gem>            Specifies name of the gem dependency.
+# -s<gemspec_file>   Overrides the default .gemspec location.
+# -d                 Remove development dependecy.
+#
+# The remaining arguments are expected to be version requirements and should
+# be valid Ruby code. The macro fails if these specific requirements can't be
+# removed.
+%gemspec_remove_dep(g:s:d) \
+read -d '' gemspec_remove_dep_script << 'EOR' || : \
+  gemspec_file = '%{-s*}%{!?-s:./%{gem_name}.gemspec}' \
+  \
+  name = '%{-g*}' \
+  requirements = %{*}%{!?1:nil} \
+  \
+  type = :%{!?-d:runtime}%{?-d:development} \
+  \
+  spec = Gem::Specification.load(gemspec_file) \
+  abort("#{gemspec_file} is not accessible.") unless spec \
+  \
+  dep = spec.dependencies.detect { |d| d.type == type && d.name == name } \
+  if dep \
+    if requirements \
+      requirements = Gem::Requirement.create(requirements).requirements \
+      requirements.each do |r| \
+        unless dep.requirement.requirements.reject! { |dependency_requirements| dependency_requirements == r } \
+          abort("Requirement '#{r.first} #{r.last}' was not possible to remove for dependency '#{dep}'!") \
+        end \
+      end \
+      spec.dependencies.delete dep if dep.requirement.requirements.empty? \
+    else \
+      spec.dependencies.delete dep \
+    end \
+  else \
+    abort("Dependency '#{name}' was not found!") \
+  end \
+  File.write gemspec_file, spec.to_ruby \
+EOR\
+echo "$gemspec_remove_dep_script" | ruby \
+unset -v gemspec_remove_dep_script \
+%{nil}

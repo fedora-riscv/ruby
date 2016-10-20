@@ -900,6 +900,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Fri Nov 18 2016 Vít Ondruch <vondruch@redhat.com> - 2.2.6-50
 - Update to Ruby 2.2.6.
+- Add gemspec_add_dep and gemspec_remove_dep macros.
 
 * Tue Jul 12 2016 Vít Ondruch <vondruch@redhat.com> - 2.2.5-49
 - Make symlinks for json gem.
