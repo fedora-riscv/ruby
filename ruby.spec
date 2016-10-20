@@ -969,6 +969,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Fri Oct 21 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-59
 - Use continue to use OpenSSL 1.0 for the moment.
+- Add gemspec_add_dep and gemspec_remove_dep macros.
 - Harden package.
 
 * Wed Aug 10 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-58
