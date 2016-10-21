@@ -10,9 +10,14 @@
 %gem_spec %{gem_dir}/specifications/%{gem_name}-%{version}.gemspec
 %gem_docdir %{gem_dir}/doc/%{gem_name}-%{version}
 
-# Install gem into appropriate directory.
-# -n<gem_file>      Overrides gem file name for installation.
-# -d<install_dir>   Set installation directory.
+
+# %gem_install - Install gem into appropriate directory.
+#
+# Usage: %gem_install [options]
+#
+# -n <gem_file>      Overrides gem file name for installation.
+# -d <install_dir>   Set installation directory.
+#
 %gem_install(d:n:) \
 mkdir -p %{-d*}%{!?-d:.%{gem_dir}} \
 \
@@ -26,6 +31,7 @@ gem install \\\
         %{-n*}%{!?-n:%{gem_name}-%{version}.gem} \
 %{nil}
 
+
 # For rubygems packages we want to filter out any provides caused by private
 # libs in %%{gem_archdir}.
 #
@@ -35,17 +41,23 @@ gem install \\\
 %global __provides_exclude_from %{?__provides_exclude_from:%{__provides_exclude_from}|}^%{gem_extdir_mri}/.*\\\\.so$ \
 }
 
+
 # The 'read' command in gemspec_add _depand gemspec_remove_dep macros is not
 # essential, but it is usefull to make the sript appear in build log.
 
-# Add dependency named gem with version requirements to .gemspec. It adds
-# runtime dependency by default.
-# -g<gem>            Specifies name of the gem dependency.
-# -s<gemspec_file>   Overrides the default .gemspec location.
-# -d                 Add development dependecy.
+
+# %gemspec_add_dep - Add dependency into .gemspec.
 #
-# The remaining arguments are expected to be version requirements and should
-# be valid Ruby code.
+# Usage: %gemspec_add_dep -g <gem> [options] [requirements]
+#
+# Add dependency named <gem> to .gemspec file. The macro adds runtime
+# dependency by default. The [requirements] argument can be used to specify
+# the dependency constraints more precisely. It is expected to be valid Ruby
+# code.
+#
+# -s <gemspec_file>   Overrides the default .gemspec location.
+# -d                  Add development dependecy.
+#
 %gemspec_add_dep(g:s:d) \
 read -d '' gemspec_add_dep_script << 'EOR' || : \
   gemspec_file = '%{-s*}%{!?-s:./%{gem_name}.gemspec}' \
@@ -70,15 +82,19 @@ echo "$gemspec_add_dep_script" | ruby \
 unset -v gemspec_add_dep_script \
 %{nil}
 
-# Remove dependency named gem with version requirements to .gemspec. It
-# removes runtime dependency by default.
-# -g<gem>            Specifies name of the gem dependency.
-# -s<gemspec_file>   Overrides the default .gemspec location.
-# -d                 Remove development dependecy.
+
+# %gemspec_remove_dep - Remove dependency from .gemspec.
 #
-# The remaining arguments are expected to be version requirements and should
-# be valid Ruby code. The macro fails if these specific requirements can't be
-# removed.
+# Usage: %gemspec_remove_dep -g <gem> [options] [requirements]
+#
+# Remove dependency named <gem> from .gemspec file. The macro removes runtime
+# dependency by default. The [requirements] argument can be used to specify
+# the dependency constraints more precisely. It is expected to be valid Ruby
+# code. The macro fails if these specific requirements can't be removed.
+#
+# -s <gemspec_file>   Overrides the default .gemspec location.
+# -d                  Remove development dependecy.
+#
 %gemspec_remove_dep(g:s:d) \
 read -d '' gemspec_remove_dep_script << 'EOR' || : \
   gemspec_file = '%{-s*}%{!?-s:./%{gem_name}.gemspec}' \
