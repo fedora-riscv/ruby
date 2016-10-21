@@ -490,6 +490,10 @@ cp -a %{SOURCE6} .
 %build
 autoconf
 
+# Ruby does not respec LDFLAGS :(
+# https://bugs.ruby-lang.org/issues/11863
+export EXTLDFLAGS="%{__global_ldflags}"
+
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
@@ -965,6 +969,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Fri Oct 21 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-59
 - Use continue to use OpenSSL 1.0 for the moment.
+- Harden package.
 
 * Wed Aug 10 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-58
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
