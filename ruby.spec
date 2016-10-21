@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 58
+%global release 59
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -139,7 +139,7 @@ Recommends: rubygem(did_you_mean) >= %{did_you_mean_version}
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
 BuildRequires: libffi-devel
-BuildRequires: openssl-devel
+BuildRequires: compat-openssl10-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
 BuildRequires: tk-devel
@@ -963,6 +963,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri Oct 21 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-59
+- Use continue to use OpenSSL 1.0 for the moment.
+
 * Wed Aug 10 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-58
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 
