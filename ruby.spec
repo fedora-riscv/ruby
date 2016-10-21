@@ -510,6 +510,10 @@ cp -a %{SOURCE6} .
 %build
 autoconf
 
+# Ruby does not respec LDFLAGS :(
+# https://bugs.ruby-lang.org/issues/11863
+export EXTLDFLAGS="%{__global_ldflags}"
+
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
@@ -1003,6 +1007,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Move gemified openssl into subpackage.
 - Make symlinks for json gem.
 - Tk is removed from stdlib.
+- Harden package.
 
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
 - Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
