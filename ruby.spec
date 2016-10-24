@@ -129,6 +129,9 @@ Patch8: ruby-2.4.0-increase-timeout-for-ARMv7.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Avoid conflict between OpenSSL 1.0.x and 1.1.x.
+# https://bugs.ruby-lang.org/issues/12868
+Patch10: ruby-2.4.0-openssl-register-ex_data-index-for-X509_STORE-_CTX-r.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -478,6 +481,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -968,7 +972,7 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %changelog
 * Fri Oct 21 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-59
-- Use continue to use OpenSSL 1.0 for the moment.
+- Continue to use OpenSSL 1.0 for the moment.
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Harden package.
 

@@ -1,0 +1,206 @@
+From 2aabfcd4c604891ab043649129bb1404e3c311f0 Mon Sep 17 00:00:00 2001
+From: rhe <rhe@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Thu, 19 May 2016 04:53:05 +0000
+Subject: [PATCH] openssl: register ex_data index for X509_STORE{_CTX,}
+ respectively
+
+* ext/openssl/ossl.c (Init_openssl): register an ex_data index for
+  X509_STORE and X509_STORE_CTX respectively. Since they don't share
+  the ex_data index registry, we can't use the same index.
+  (ossl_verify_cb): use the the correct index.
+
+* ext/openssl/ossl_ssl.c (ossl_ssl_verify_callback): ditto.
+
+* ext/openssl/ossl_x509store.c (ossl_x509store_set_vfy_cb): ditto.
+  (ossl_x509stctx_verify): ditto.
+
+* ext/openssl/ossl.h (void ossl_clear_error): add extern declarations
+  of ossl_store_{ctx_,}ex_verify_cb_idx.
+
+* ext/openssl/openssl_missing.c: remove X509_STORE_set_ex_data and
+  X509_STORE_get_ex_data.
+
+* ext/openssl/openssl_missing.h: implement X509_STORE_get_ex_data,
+  X509_STORE_set_ex_data and X509_STORE_get_ex_new_index as macros.
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@55074 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ ChangeLog                     | 21 +++++++++++++++++++++
+ ext/openssl/openssl_missing.c | 14 --------------
+ ext/openssl/openssl_missing.h |  9 +++++++--
+ ext/openssl/ossl.c            | 15 +++++++++------
+ ext/openssl/ossl.h            |  3 ++-
+ ext/openssl/ossl_ssl.c        |  2 +-
+ ext/openssl/ossl_x509store.c  |  4 ++--
+ 7 files changed, 42 insertions(+), 26 deletions(-)
+
+diff --git a/ChangeLog b/ChangeLog
+index c163123..73ea253 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -1,3 +1,24 @@
++Thu May 19 13:22:44 2016  Kazuki Yamaguchi  <k@rhe.jp>
++
++	* ext/openssl/ossl.c (Init_openssl): register an ex_data index for
++	  X509_STORE and X509_STORE_CTX respectively. Since they don't share
++	  the ex_data index registry, we can't use the same index.
++	  (ossl_verify_cb): use the the correct index.
++
++	* ext/openssl/ossl_ssl.c (ossl_ssl_verify_callback): ditto.
++
++	* ext/openssl/ossl_x509store.c (ossl_x509store_set_vfy_cb): ditto.
++	  (ossl_x509stctx_verify): ditto.
++
++	* ext/openssl/ossl.h (void ossl_clear_error): add extern declarations
++	  of ossl_store_{ctx_,}ex_verify_cb_idx.
++
++	* ext/openssl/openssl_missing.c: remove X509_STORE_set_ex_data and
++	  X509_STORE_get_ex_data.
++
++	* ext/openssl/openssl_missing.h: implement X509_STORE_get_ex_data,
++	  X509_STORE_set_ex_data and X509_STORE_get_ex_new_index as macros.
++
+ Tue Apr 26 02:58:51 2016  Marcus Stollsteimer  <sto.mar@web.de>
+ 
+ 	* doc/extension.rdoc: Improvements to english grammers.
+diff --git a/ext/openssl/openssl_missing.c b/ext/openssl/openssl_missing.c
+index bd8eef5..31f2d0a 100644
+--- a/ext/openssl/openssl_missing.c
++++ b/ext/openssl/openssl_missing.c
+@@ -34,20 +34,6 @@ HMAC_CTX_copy(HMAC_CTX *out, HMAC_CTX *in)
+ #endif /* HAVE_HMAC_CTX_COPY */
+ #endif /* NO_HMAC */
+ 
+-#if !defined(HAVE_X509_STORE_SET_EX_DATA)
+-int X509_STORE_set_ex_data(X509_STORE *str, int idx, void *data)
+-{
+-    return CRYPTO_set_ex_data(&str->ex_data, idx, data);
+-}
+-#endif
+-
+-#if !defined(HAVE_X509_STORE_GET_EX_DATA)
+-void *X509_STORE_get_ex_data(X509_STORE *str, int idx)
+-{
+-    return CRYPTO_get_ex_data(&str->ex_data, idx);
+-}
+-#endif
+-
+ #if !defined(HAVE_EVP_MD_CTX_CREATE)
+ EVP_MD_CTX *
+ EVP_MD_CTX_create(void)
+diff --git a/ext/openssl/openssl_missing.h b/ext/openssl/openssl_missing.h
+index 2dc49d3..955579c 100644
+--- a/ext/openssl/openssl_missing.h
++++ b/ext/openssl/openssl_missing.h
+@@ -133,11 +133,16 @@ int EVP_CIPHER_CTX_copy(EVP_CIPHER_CTX *out, EVP_CIPHER_CTX *in);
+ #endif
+ 
+ #if !defined(HAVE_X509_STORE_GET_EX_DATA)
+-void *X509_STORE_get_ex_data(X509_STORE *str, int idx);
++#  define X509_STORE_get_ex_data(x, idx) \
++	CRYPTO_get_ex_data(&(x)->ex_data, (idx))
+ #endif
+ 
+ #if !defined(HAVE_X509_STORE_SET_EX_DATA)
+-int X509_STORE_set_ex_data(X509_STORE *str, int idx, void *data);
++#  define X509_STORE_set_ex_data(x, idx, data) \
++	CRYPTO_set_ex_data(&(x)->ex_data, (idx), (data))
++#  define X509_STORE_get_ex_new_index(l, p, newf, dupf, freef) \
++	CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_X509_STORE, (l), (p), \
++				(newf), (dupf), (freef))
+ #endif
+ 
+ #if !defined(HAVE_X509_CRL_SET_VERSION)
+diff --git a/ext/openssl/ossl.c b/ext/openssl/ossl.c
+index ac82815..2b5579e 100644
+--- a/ext/openssl/ossl.c
++++ b/ext/openssl/ossl.c
+@@ -198,7 +198,8 @@ ossl_pem_passwd_cb(char *buf, int max_len, int flag, void *pwd)
+ /*
+  * Verify callback
+  */
+-int ossl_verify_cb_idx;
++int ossl_store_ctx_ex_verify_cb_idx;
++int ossl_store_ex_verify_cb_idx;
+ 
+ VALUE
+ ossl_call_verify_cb_proc(struct ossl_verify_cb_args *args)
+@@ -214,10 +215,10 @@ ossl_verify_cb(int ok, X509_STORE_CTX *ctx)
+     struct ossl_verify_cb_args args;
+     int state = 0;
+ 
+-    proc = (VALUE)X509_STORE_CTX_get_ex_data(ctx, ossl_verify_cb_idx);
+-    if ((void*)proc == 0)
+-	proc = (VALUE)X509_STORE_get_ex_data(ctx->ctx, ossl_verify_cb_idx);
+-    if ((void*)proc == 0)
++    proc = (VALUE)X509_STORE_CTX_get_ex_data(ctx, ossl_store_ctx_ex_verify_cb_idx);
++    if (!proc)
++	proc = (VALUE)X509_STORE_get_ex_data(ctx->ctx, ossl_store_ex_verify_cb_idx);
++    if (!proc)
+ 	return ok;
+     if (!NIL_P(proc)) {
+ 	ret = Qfalse;
+@@ -1127,8 +1128,10 @@ Init_openssl(void)
+     /*
+      * Verify callback Proc index for ext-data
+      */
+-    if ((ossl_verify_cb_idx = X509_STORE_CTX_get_ex_new_index(0, (void *)"ossl_verify_cb_idx", 0, 0, 0)) < 0)
++    if ((ossl_store_ctx_ex_verify_cb_idx = X509_STORE_CTX_get_ex_new_index(0, (void *)"ossl_store_ctx_ex_verify_cb_idx", 0, 0, 0)) < 0)
+         ossl_raise(eOSSLError, "X509_STORE_CTX_get_ex_new_index");
++    if ((ossl_store_ex_verify_cb_idx = X509_STORE_get_ex_new_index(0, (void *)"ossl_store_ex_verify_cb_idx", 0, 0, 0)) < 0)
++        ossl_raise(eOSSLError, "X509_STORE_get_ex_new_index");
+ 
+     /*
+      * Init debug core
+diff --git a/ext/openssl/ossl.h b/ext/openssl/ossl.h
+index a31ca95..5b2f6e1 100644
+--- a/ext/openssl/ossl.h
++++ b/ext/openssl/ossl.h
+@@ -167,7 +167,8 @@ void ossl_clear_error(void);
+ /*
+  * Verify callback
+  */
+-extern int ossl_verify_cb_idx;
++extern int ossl_store_ctx_ex_verify_cb_idx;
++extern int ossl_store_ex_verify_cb_idx;
+ 
+ struct ossl_verify_cb_args {
+     VALUE proc;
+diff --git a/ext/openssl/ossl_ssl.c b/ext/openssl/ossl_ssl.c
+index 938e36f..87df7f9 100644
+--- a/ext/openssl/ossl_ssl.c
++++ b/ext/openssl/ossl_ssl.c
+@@ -307,7 +307,7 @@ ossl_ssl_verify_callback(int preverify_ok, X509_STORE_CTX *ctx)
+ 
+     ssl = X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
+     cb = (VALUE)SSL_get_ex_data(ssl, ossl_ssl_ex_vcb_idx);
+-    X509_STORE_CTX_set_ex_data(ctx, ossl_verify_cb_idx, (void*)cb);
++    X509_STORE_CTX_set_ex_data(ctx, ossl_store_ctx_ex_verify_cb_idx, (void *)cb);
+     return ossl_verify_cb(preverify_ok, ctx);
+ }
+ 
+diff --git a/ext/openssl/ossl_x509store.c b/ext/openssl/ossl_x509store.c
+index aca25b1..8d6f9de 100644
+--- a/ext/openssl/ossl_x509store.c
++++ b/ext/openssl/ossl_x509store.c
+@@ -130,7 +130,7 @@ ossl_x509store_set_vfy_cb(VALUE self, VALUE cb)
+     X509_STORE *store;
+ 
+     GetX509Store(self, store);
+-    X509_STORE_set_ex_data(store, ossl_verify_cb_idx, (void*)cb);
++    X509_STORE_set_ex_data(store, ossl_store_ex_verify_cb_idx, (void *)cb);
+     rb_iv_set(self, "@verify_callback", cb);
+ 
+     return cb;
+@@ -467,7 +467,7 @@ ossl_x509stctx_verify(VALUE self)
+     int result;
+ 
+     GetX509StCtx(self, ctx);
+-    X509_STORE_CTX_set_ex_data(ctx, ossl_verify_cb_idx,
++    X509_STORE_CTX_set_ex_data(ctx, ossl_store_ctx_ex_verify_cb_idx,
+                                (void*)rb_iv_get(self, "@verify_callback"));
+     result = X509_verify_cert(ctx);
+ 
+-- 
+2.10.0
+
