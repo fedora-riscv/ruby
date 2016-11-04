@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 56450
+%global revision 56558
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,8 +29,8 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.7
-%global molinillo_version 0.5.1
+%global rubygems_version 2.6.8
+%global molinillo_version 0.5.3
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
@@ -1001,8 +1001,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56450
-- Upgrade to Ruby 2.4.0 (r56450).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56558
+- Upgrade to Ruby 2.4.0 (r56558).
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
 - Move gemified openssl into subpackage.
