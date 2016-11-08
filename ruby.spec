@@ -148,6 +148,8 @@ BuildRequires: %{_bindir}/dtrace
 # RubyGems test suite optional dependencies.
 BuildRequires: git
 BuildRequires: %{_bindir}/cmake
+# Required to test hardening.
+BuildRequires: %{_bindir}/checksec
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
@@ -678,6 +680,10 @@ sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
+# Check Ruby hardening.
+checksec -f libruby.so.%{ruby_version} | \
+  grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
+
 # Check RubyGems version correctness.
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
 # Check Molinillo version correctness.
