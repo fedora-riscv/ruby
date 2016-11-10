@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 56664
+%global revision 56693
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -128,6 +128,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Make https://bugs.ruby-lang.org/issues/12910 pass in Mock with --new-chroot.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1393404
+# https://bugs.ruby-lang.org/issues/12910
+Patch10: ruby-2.4.0-Use-primary-group-as-well-as-supplementary-groups.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -505,6 +509,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1012,8 +1017,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56664
-- Upgrade to Ruby 2.4.0 (r56664).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56693
+- Upgrade to Ruby 2.4.0 (r56693).
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
