@@ -522,10 +522,6 @@ cp -a %{SOURCE6} .
 %build
 autoconf
 
-# Ruby does not respec LDFLAGS :(
-# https://bugs.ruby-lang.org/issues/11863
-export EXTLDFLAGS="%{__global_ldflags}"
-
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
