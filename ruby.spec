@@ -533,6 +533,8 @@ for cert in \
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
 done
+# Ensure there is not forgotten any certificate.
+test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
 
 # Move macros file into proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
