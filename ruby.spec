@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 2
-%global teeny_version 5
+%global teeny_version 6
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 49
+%global release 50
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.4.5.1
@@ -115,13 +115,6 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
 # https://bugs.ruby-lang.org/issues/10554
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
-# Ignore Europe/Moscow TZ test, which fails due to change in tzdata.
-# https://github.com/ruby/ruby/commit/d16ff5c412b90b2766be97a5d3d689c5a18528d3
-Patch8: ruby-2.2.6-Tests-depends-on-Europe-Moscow-removed.patch
-# Fixes random TestRubyOptimization#test_tailcall_inhibited_by_rescue test
-# suite failures.
-# https://github.com/ruby/ruby/commit/cf23ad429da3213fd3b1261c546dfa08e7dba2bf
-Patch9: ruby-2.2.6-Fix-random-test-failure-introduced-by-r54698.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Requires: ruby(rubygems) >= %{rubygems_version}
@@ -423,8 +416,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
-%patch9 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -484,7 +475,8 @@ for cert in \
   EntrustnetSecureServerCertificationAuthority.pem \
   GeoTrustGlobalCA.pem \
   AddTrustExternalCARoot.pem \
-  AddTrustExternalCARoot-2048.pem
+  AddTrustExternalCARoot-2048.pem \
+  GlobalSignRootCA.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
 done
@@ -906,6 +898,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri Nov 18 2016 Vít Ondruch <vondruch@redhat.com> - 2.2.6-50
+- Update to Ruby 2.2.6.
+
 * Tue Jul 12 2016 Vít Ondruch <vondruch@redhat.com> - 2.2.5-49
 - Make symlinks for json gem.
 
