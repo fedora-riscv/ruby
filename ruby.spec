@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 3
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 59
+%global release 60
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,8 +29,8 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.5.1
-%global molinillo_version 0.4.0
+%global rubygems_version 2.5.2
+%global molinillo_version 0.4.1
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
@@ -40,9 +40,9 @@
 %global did_you_mean_version 1.0.0
 %global io_console_version 0.4.5
 %global json_version 1.8.3
-%global minitest_version 5.8.3
+%global minitest_version 5.8.5
 %global power_assert_version 0.2.6
-%global psych_version 2.0.17
+%global psych_version 2.1.0
 %global rake_version 10.4.2
 %global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
@@ -122,16 +122,10 @@ Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
 # https://bugs.ruby-lang.org/issues/10554
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
-# Prevent test failures on ARM.
-# https://bugs.ruby-lang.org/issues/12331
-Patch8: ruby-2.4.0-increase-timeout-for-ARMv7.patch
 # Workaround "an invalid stdio handle" error on PPC, due to recently introduced
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Avoid conflict between OpenSSL 1.0.x and 1.1.x.
-# https://bugs.ruby-lang.org/issues/12868
-Patch10: ruby-2.4.0-openssl-register-ex_data-index-for-X509_STORE-_CTX-r.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -479,9 +473,7 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 %patch9 -p1
-%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -545,7 +537,8 @@ for cert in \
   EntrustnetSecureServerCertificationAuthority.pem \
   GeoTrustGlobalCA.pem \
   AddTrustExternalCARoot.pem \
-  AddTrustExternalCARoot-2048.pem
+  AddTrustExternalCARoot-2048.pem \
+  GlobalSignRootCA.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
 done
@@ -971,6 +964,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Fri Nov 18 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.2-60
+- Update to Ruby 2.3.2.
+
 * Fri Oct 21 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-59
 - Continue to use OpenSSL 1.0 for the moment.
 - Add gemspec_add_dep and gemspec_remove_dep macros.
