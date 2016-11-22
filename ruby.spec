@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 50
+%global release 51
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 %global rubygems_version 2.4.5.1
@@ -661,6 +661,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/*.rb
 %exclude %{ruby_libdir}/*-tk.rb
 %exclude %{ruby_libdir}/irb.rb
+%exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/tcltk.rb
 %exclude %{ruby_libdir}/tk*.rb
 %exclude %{ruby_libdir}/psych.rb
@@ -900,6 +901,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Nov 22 2016 Vít Ondruch <vondruch@redhat.com> - 2.2.6-51
+- Exclude json.rb from ruby-libs (rhbz#1397370).
+
 * Fri Nov 18 2016 Vít Ondruch <vondruch@redhat.com> - 2.2.6-50
 - Update to Ruby 2.2.6.
 - Add gemspec_add_dep and gemspec_remove_dep macros.
