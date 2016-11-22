@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 3
-%global teeny_version 2
+%global teeny_version 3
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -958,7 +958,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Nov 22 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.2-61
+* Tue Nov 22 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.3-61
+- Update to Ruby 2.3.3.
 - Exclude json.rb from ruby-libs (rhbz#1397370).
 
 * Fri Nov 18 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.2-60
