@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 60
+%global release 61
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -716,6 +716,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/*.rb
 %exclude %{ruby_libdir}/*-tk.rb
 %exclude %{ruby_libdir}/irb.rb
+%exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/tcltk.rb
 %exclude %{ruby_libdir}/tk*.rb
 %exclude %{ruby_libdir}/psych.rb
@@ -966,6 +967,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Nov 22 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.2-61
+- Exclude json.rb from ruby-libs (rhbz#1397370).
+
 * Fri Nov 18 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.2-60
 - Update to Ruby 2.3.2.
 
