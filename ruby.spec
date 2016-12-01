@@ -10,7 +10,7 @@
 #%%global milestone preview2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 56693
+%global revision 56948
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -42,9 +42,9 @@
 %global json_version 2.0.2
 %global minitest_version 5.9.1
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.0.beta.2
-%global power_assert_version 0.3.1
-%global psych_version 2.1.1
+%global openssl_version 2.0.0
+%global power_assert_version 0.4.1
+%global psych_version 2.2.1
 %global rake_version 11.3.0
 %global rdoc_version 5.0.0
 %global test_unit_version 3.2.1
@@ -128,10 +128,6 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Make https://bugs.ruby-lang.org/issues/12910 pass in Mock with --new-chroot.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1393404
-# https://bugs.ruby-lang.org/issues/12910
-Patch10: ruby-2.4.0-Use-primary-group-as-well-as-supplementary-groups.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -509,7 +505,6 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -536,6 +531,7 @@ autoconf
         --with-vendorarchhdrdir='$(vendorhdrdir)/$(arch)' \
         --with-rubygemsdir='%{rubygems_dir}' \
         --with-ruby-pc='%{name}.pc' \
+        --with-compress-debug-sections=no \
         --disable-rpath \
         --enable-shared \
         --with-ruby-version='' \
@@ -728,9 +724,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
 
-# http://fedoraproject.org/wiki/Packaging:Guidelines#Packaging_Static_Libraries
-%exclude %{_libdir}/libruby-static.a
-
 %files devel
 %doc BSDL
 %doc COPYING
@@ -768,6 +761,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
 %{ruby_libdir}/fiddle
+%{ruby_libdir}/forwardable
 %exclude %{ruby_libdir}/irb
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
@@ -1015,8 +1009,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56693
-- Upgrade to Ruby 2.4.0 (r56693).
+* Fri May 27 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r56948
+- Upgrade to Ruby 2.4.0 (r56948).
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
