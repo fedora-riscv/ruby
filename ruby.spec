@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 61
+%global release 61.1
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -126,6 +126,11 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Do not freeze strings in generated .gemspec. This causes regressions
+# and FTBFS in Fedora packages. This is revert of:
+# https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
+# https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/NLZRTNIMG7NB5V3D4PAQKQLYEKC2TQSY/
+Patch100: ruby-2.3.3-Revert-use-frozen-strings-in-serialized-specs.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -474,6 +479,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch100 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -963,6 +969,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Thu Dec 01 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.3-61.1
+- Do not freeze strings in generated .gemspec.
+
 * Tue Nov 22 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.3-61
 - Update to Ruby 2.3.3.
 - Exclude json.rb from ruby-libs (rhbz#1397370).
