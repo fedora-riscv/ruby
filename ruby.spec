@@ -1018,6 +1018,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Make symlinks for json gem.
 - Tk is removed from stdlib.
 - Harden package.
+- Extend 'gem_' macros for pre-release version support.
 
 * Mon May 23 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.1-56
 - Requires rubygem(json) for rubygem-rdoc (rhbz#1325022).
