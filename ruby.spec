@@ -714,22 +714,22 @@ make check TESTS="-v $DISABLE_TESTS"
 %postun libs -p /sbin/ldconfig
 
 %files
-%doc BSDL
-%doc COPYING
-%lang(ja) %doc COPYING.ja
-%doc GPL
-%doc LEGAL
+%license BSDL
+%license COPYING
+%lang(ja) %license COPYING.ja
+%license GPL
+%license LEGAL
 %{_bindir}/erb
 %{_bindir}/%{name}%{?with_rubypick:-mri}
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
 
 %files devel
-%doc BSDL
-%doc COPYING
-%lang(ja) %doc COPYING.ja
-%doc GPL
-%doc LEGAL
+%license BSDL
+%license COPYING
+%lang(ja) %license COPYING.ja
+%license GPL
+%license LEGAL
 
 %{_rpmconfigdir}/macros.d/macros.ruby
 
@@ -738,10 +738,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{_libdir}/pkgconfig/%{name}.pc
 
 %files libs
-%doc COPYING
-%lang(ja) %doc COPYING.ja
-%doc GPL
-%doc LEGAL
+%license COPYING
+%lang(ja) %license COPYING.ja
+%license GPL
+%license LEGAL
 %doc README.md
 %doc NEWS
 # Exclude /usr/local directory since it is supposed to be managed by
