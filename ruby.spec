@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 57072
+%global revision 57159
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -36,19 +36,19 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.3.0.pre.2
-%global did_you_mean_version 1.0.2
+%global bigdecimal_version 1.3.0
+%global did_you_mean_version 1.1.0
 %global io_console_version 0.4.6
 %global json_version 2.0.2
 %global minitest_version 5.10.1
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.1
+%global openssl_version 2.0.2
 %global power_assert_version 0.4.1
-%global psych_version 2.2.1
+%global psych_version 2.2.2
 %global rake_version 12.0.0
 %global rdoc_version 5.0.0
 %global test_unit_version 3.2.3
-%global xmlrpc_version 0.1.1
+%global xmlrpc_version 0.2.1
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -1009,8 +1009,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Dec 13 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r57072
-- Upgrade to Ruby 2.4.0 (r57072).
+* Tue Dec 13 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r57159
+- Upgrade to Ruby 2.4.0 (r57159).
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
