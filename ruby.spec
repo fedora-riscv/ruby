@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 57159
+#%%global revision 57159
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 1
+%global release 70
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1009,8 +1009,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Dec 13 2016 Vít Ondruch <vondruch@redhat.com> - 2.4.0-0.1.r57159
-- Upgrade to Ruby 2.4.0 (r57159).
+* Mon Jan 02 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-70
+- Upgrade to Ruby 2.4.0.
 - Workaround "an invalid stdio handle" error on PPC (rhbz#1361037).
 - Add gemspec_add_dep and gemspec_remove_dep macros.
 - Move gemified xmlrpc into subpackage.
