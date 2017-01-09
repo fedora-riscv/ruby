@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 70
+%global release 71
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -274,6 +274,7 @@ License:    GPLv2 and Ruby and MIT and SIL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
+Requires:   rubygem(io-console) >= %{io_console_version}
 # Hardcode the dependency to keep it compatible with dependencies of the
 # official rubygem-rdoc gem.
 Requires:   rubygem(json) >= %{json_version}
@@ -1011,6 +1012,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Jan 09 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-71
+- Add rubygem-io-console dependency for rubygem-rdoc.
+
 * Mon Jan 02 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-70
 - Upgrade to Ruby 2.4.0.
 - Move gemified xmlrpc into subpackage.
