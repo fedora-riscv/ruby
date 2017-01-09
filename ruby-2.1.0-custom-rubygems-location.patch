@@ -15,7 +15,7 @@ diff --git a/configure.in b/configure.in
 index 03a4152..0e371e2 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4264,6 +4264,10 @@ AC_ARG_WITH(vendorarchdir,
+@@ -4426,6 +4426,10 @@ AC_ARG_WITH(vendorarchdir,
              [vendorarchdir=$withval],
              [vendorarchdir=${multiarch+'${rubysitearchprefix}/vendor_ruby'${ruby_version_dir}}${multiarch-'${vendorlibdir}/${sitearch}'}])
  
@@ -26,7 +26,7 @@ index 03a4152..0e371e2 100644
  if test "${LOAD_RELATIVE+set}"; then
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
      RUBY_EXEC_PREFIX=''
-@@ -4288,6 +4292,7 @@ AC_SUBST(sitearchdir)dnl
+@@ -4450,6 +4454,7 @@ AC_SUBST(sitearchdir)dnl
  AC_SUBST(vendordir)dnl
  AC_SUBST(vendorlibdir)dnl
  AC_SUBST(vendorarchdir)dnl
@@ -67,7 +67,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index b47b6e1..0b99408 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -328,6 +328,7 @@ def CONFIG.[](name, mandatory = false)
+@@ -330,6 +330,7 @@ def CONFIG.[](name, mandatory = false)
  sitearchlibdir = CONFIG["sitearchdir"]
  vendorlibdir = CONFIG["vendorlibdir"]
  vendorarchlibdir = CONFIG["vendorarchdir"]
@@ -75,7 +75,7 @@ index b47b6e1..0b99408 100755
  mandir = CONFIG["mandir", true]
  docdir = CONFIG["docdir", true]
  configure_args = Shellwords.shellwords(CONFIG["configure_args"])
-@@ -506,7 +507,15 @@ def CONFIG.[](name, mandatory = false)
+@@ -517,7 +518,15 @@ def CONFIG.[](name, mandatory = false)
  install?(:local, :comm, :lib) do
    prepare "library scripts", rubylibdir
    noinst = %w[README* *.txt *.rdoc *.gemspec]

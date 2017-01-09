@@ -1,16 +1,16 @@
 %global major_version 2
-%global minor_version 3
-%global teeny_version 3
+%global minor_version 4
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview2
+#%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 53264
+#%%global revision 57159
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 61
+%global release 70
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,24 +29,26 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.5.2
-%global molinillo_version 0.4.1
+%global rubygems_version 2.6.8
+%global molinillo_version 0.5.3
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.2.8
-%global did_you_mean_version 1.0.0
-%global io_console_version 0.4.5
-%global json_version 1.8.3
-%global minitest_version 5.8.5
-%global power_assert_version 0.2.6
-%global psych_version 2.1.0
-%global rake_version 10.4.2
-%global rdoc_version 4.2.1
+%global bigdecimal_version 1.3.0
+%global did_you_mean_version 1.1.0
+%global io_console_version 0.4.6
+%global json_version 2.0.2
+%global minitest_version 5.10.1
 %global net_telnet_version 0.1.1
-%global test_unit_version 3.1.5
+%global openssl_version 2.0.2
+%global power_assert_version 0.4.1
+%global psych_version 2.2.2
+%global rake_version 12.0.0
+%global rdoc_version 5.0.0
+%global test_unit_version 3.2.3
+%global xmlrpc_version 0.2.1
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -132,20 +134,22 @@ Suggests: rubypick
 Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
 Recommends: rubygem(did_you_mean) >= %{did_you_mean_version}
+Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
 BuildRequires: libffi-devel
-BuildRequires: compat-openssl10-devel
+BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
-BuildRequires: tk-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
 BuildRequires: %{_bindir}/dtrace
 # RubyGems test suite optional dependencies.
 BuildRequires: git
 BuildRequires: %{_bindir}/cmake
+# Required to test hardening.
+BuildRequires: %{_bindir}/checksec
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
@@ -182,6 +186,13 @@ Provides: bundled(ccan-check_type)
 Provides: bundled(ccan-container_of)
 Provides: bundled(ccan-list)
 
+# Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe
+# so lets obsolete it. This is not the best place, but we don't have
+# better, unless https://fedorahosted.org/fpc/ticket/645 provides some
+# generic solution.
+Obsoletes: ruby-tcltk < 2.4.0
+
+
 %description libs
 This package includes the libruby, necessary to run Ruby.
 
@@ -195,6 +206,7 @@ License:    Ruby or MIT
 Requires:   ruby(release)
 Recommends: rubygem(rdoc) >= %{rdoc_version}
 Recommends: rubygem(io-console) >= %{io_console_version}
+Requires:   rubygem(openssl) >= %{openssl_version}
 Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
@@ -377,6 +389,20 @@ minitest/pride shows pride in testing and adds coloring to your test
 output.
 
 
+%package -n rubygem-openssl
+Summary:    OpenSSL provides SSL, TLS and general purpose cryptography
+Version:    %{openssl_version}
+Group:      Development/Libraries
+License:    Ruby or BSD
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(openssl) = %{version}-%{release}
+
+%description -n rubygem-openssl
+OpenSSL provides SSL, TLS and general purpose cryptography. It wraps the
+OpenSSL library.
+
+
 %package -n rubygem-power_assert
 Summary:    Power Assert for Ruby
 Version:    %{power_assert_version}
@@ -428,10 +454,8 @@ you do use sysread() directly when in telnet mode, you should probably pass
 the output through preprocess() to extract telnet command sequences.
 
 
-# The Summary/Description fields are rather poor.
-# https://github.com/test-unit/test-unit/issues/73
 %package -n rubygem-test-unit
-Summary:    Improved version of Test::Unit bundled in Ruby 1.8.x
+Summary:    An xUnit family unit testing framework for Ruby
 Version:    %{test_unit_version}
 Group:      Development/Libraries
 # lib/test/unit/diff.rb is a double license of the Ruby license and PSF license.
@@ -444,19 +468,26 @@ Provides:   rubygem(test-unit) = %{version}-%{release}
 BuildArch:  noarch
 
 %description -n rubygem-test-unit
-Ruby 1.9.x bundles minitest not Test::Unit. Test::Unit
-bundled in Ruby 1.8.x had not been improved but unbundled
-Test::Unit (test-unit) is improved actively.
+Test::Unit (test-unit) is unit testing framework for Ruby, based on xUnit
+principles. These were originally designed by Kent Beck, creator of extreme
+programming software development methodology, for Smalltalk's SUnit. It allows
+writing tests, checking results and automated testing in Ruby.
 
 
-%package tcltk
-Summary:    Tcl/Tk interface for scripting language Ruby
-Group:      Development/Languages
-Requires:   %{name}-libs%{?_isa} = %{ruby_version}
-Provides:   ruby(tcltk) = %{ruby_version}-%{release}
+%package -n rubygem-xmlrpc
+Summary:    XMLRPC is a lightweight protocol that enables remote procedure calls over HTTP
+Version:    %{xmlrpc_version}
+Group:      Development/Libraries
+License:    Ruby or BSD
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(xmlrpc) = %{version}-%{release}
+BuildArch:  noarch
 
-%description tcltk
-Tcl/Tk interface for the object-oriented scripting language Ruby.
+%description -n rubygem-xmlrpc
+XMLRPC is a lightweight protocol that enables remote procedure calls over
+HTTP.
+
 
 %prep
 %setup -q -n %{ruby_archive}
@@ -486,10 +517,6 @@ cp -a %{SOURCE6} .
 %build
 autoconf
 
-# Ruby does not respec LDFLAGS :(
-# https://bugs.ruby-lang.org/issues/11863
-export EXTLDFLAGS="%{__global_ldflags}"
-
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
@@ -504,6 +531,7 @@ export EXTLDFLAGS="%{__global_ldflags}"
         --with-vendorarchhdrdir='$(vendorhdrdir)/$(arch)' \
         --with-rubygemsdir='%{rubygems_dir}' \
         --with-ruby-pc='%{name}.pc' \
+        --with-compress-debug-sections=no \
         --disable-rpath \
         --enable-shared \
         --with-ruby-version='' \
@@ -532,15 +560,12 @@ sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_li
 
 # Kill bundled certificates, as they should be part of ca-certificates.
 for cert in \
-  Class3PublicPrimaryCertificationAuthority.pem \
-  DigiCertHighAssuranceEVRootCA.pem \
-  EntrustnetSecureServerCertificationAuthority.pem \
-  GeoTrustGlobalCA.pem \
-  AddTrustExternalCARoot.pem \
-  AddTrustExternalCARoot-2048.pem \
-  GlobalSignRootCA.pem
+  rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem \
+  rubygems.org/AddTrustExternalCARoot.pem \
+  index.rubygems.org/GlobalSignRootCA.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
+  rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
@@ -603,6 +628,15 @@ ln -s %{gem_dir}/gems/json-%{json_version}/lib/json.rb %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/json-%{json_version}/lib/json %{buildroot}%{ruby_libdir}/json
 ln -s %{_libdir}/gems/%{name}/json-%{json_version}/json/ %{buildroot}%{ruby_libarchdir}/json
 
+mkdir -p %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}
+mv %{buildroot}%{ruby_libdir}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
+mv %{buildroot}%{ruby_libarchdir}/openssl.so %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}/
+mv %{buildroot}%{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
+ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl %{buildroot}%{ruby_libdir}/openssl
+ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl.rb %{buildroot}%{ruby_libdir}/openssl.rb
+ln -s %{_libdir}/gems/%{name}/openssl-%{openssl_version}/openssl.so %{buildroot}%{ruby_libarchdir}/openssl.so
+
 mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}
 mv %{buildroot}%{ruby_libdir}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
@@ -611,6 +645,12 @@ mv %{buildroot}%{gem_dir}/specifications/default/psych-%{psych_version}.gemspec 
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir}/psych
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
+
+# Move the binary extensions into proper place (if no gem has binary extension,
+# the extensions directory might be empty).
+find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
+  -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \; \
+  || echo "No gem binary extensions to move."
 
 # Adjust the gemspec files so that the gems will load properly
 sed -i '/^end$/ i\
@@ -639,6 +679,10 @@ sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
+# Check Ruby hardening.
+checksec -f libruby.so.%{ruby_version} | \
+  grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
+
 # Check RubyGems version correctness.
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
 # Check Molinillo version correctness.
@@ -670,25 +714,22 @@ make check TESTS="-v $DISABLE_TESTS"
 %postun libs -p /sbin/ldconfig
 
 %files
-%doc BSDL
-%doc COPYING
-%lang(ja) %doc COPYING.ja
-%doc GPL
-%doc LEGAL
+%license BSDL
+%license COPYING
+%lang(ja) %license COPYING.ja
+%license GPL
+%license LEGAL
 %{_bindir}/erb
 %{_bindir}/%{name}%{?with_rubypick:-mri}
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
 
-# http://fedoraproject.org/wiki/Packaging:Guidelines#Packaging_Static_Libraries
-%exclude %{_libdir}/libruby-static.a
-
 %files devel
-%doc BSDL
-%doc COPYING
-%lang(ja) %doc COPYING.ja
-%doc GPL
-%doc LEGAL
+%license BSDL
+%license COPYING
+%lang(ja) %license COPYING.ja
+%license GPL
+%license LEGAL
 
 %{_rpmconfigdir}/macros.d/macros.ruby
 
@@ -697,10 +738,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{_libdir}/pkgconfig/%{name}.pc
 
 %files libs
-%doc COPYING
-%lang(ja) %doc COPYING.ja
-%doc GPL
-%doc LEGAL
+%license COPYING
+%lang(ja) %license COPYING.ja
+%license GPL
+%license LEGAL
 %doc README.md
 %doc NEWS
 # Exclude /usr/local directory since it is supposed to be managed by
@@ -714,20 +755,18 @@ make check TESTS="-v $DISABLE_TESTS"
 # Platform independent libraries.
 %dir %{ruby_libdir}
 %{ruby_libdir}/*.rb
-%exclude %{ruby_libdir}/*-tk.rb
 %exclude %{ruby_libdir}/irb.rb
 %exclude %{ruby_libdir}/json.rb
-%exclude %{ruby_libdir}/tcltk.rb
-%exclude %{ruby_libdir}/tk*.rb
+%exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
 %{ruby_libdir}/cgi
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
 %{ruby_libdir}/fiddle
+%{ruby_libdir}/forwardable
 %exclude %{ruby_libdir}/irb
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
-%{ruby_libdir}/openssl
 %{ruby_libdir}/optparse
 %{ruby_libdir}/racc
 %{ruby_libdir}/rbconfig
@@ -737,12 +776,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/rss
 %{ruby_libdir}/shell
 %{ruby_libdir}/syslog
-%exclude %{ruby_libdir}/tk
-%exclude %{ruby_libdir}/tkextlib
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
 %{ruby_libdir}/webrick
-%{ruby_libdir}/xmlrpc
 %{ruby_libdir}/yaml
 
 # Platform specific libraries.
@@ -818,6 +854,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/enc/windows_1250.so
 %{ruby_libarchdir}/enc/windows_1251.so
 %{ruby_libarchdir}/enc/windows_1252.so
+%{ruby_libarchdir}/enc/windows_1253.so
+%{ruby_libarchdir}/enc/windows_1254.so
+%{ruby_libarchdir}/enc/windows_1257.so
 %{ruby_libarchdir}/enc/windows_31j.so
 %{ruby_libarchdir}/etc.so
 %{ruby_libarchdir}/fcntl.so
@@ -832,7 +871,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/mathn/rational.so
 %{ruby_libarchdir}/nkf.so
 %{ruby_libarchdir}/objspace.so
-%{ruby_libarchdir}/openssl.so
 %{ruby_libarchdir}/pathname.so
 %{ruby_libarchdir}/pty.so
 %dir %{ruby_libarchdir}/racc
@@ -847,9 +885,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libarchdir}/stringio.so
 %{ruby_libarchdir}/strscan.so
 %{ruby_libarchdir}/syslog.so
-%exclude %{ruby_libarchdir}/tcltklib.so
-%{ruby_libarchdir}/thread.so
-%exclude %{ruby_libarchdir}/tkutil.so
 %{ruby_libarchdir}/zlib.so
 
 %{tapset_root}
@@ -935,6 +970,14 @@ make check TESTS="-v $DISABLE_TESTS"
 %exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
 %{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
+%files -n rubygem-openssl
+%{ruby_libdir}/openssl
+%{ruby_libdir}/openssl.rb
+%{ruby_libarchdir}/openssl.so
+%{_libdir}/gems/%{name}/openssl-%{openssl_version}
+%{gem_dir}/gems/openssl-%{openssl_version}
+%{gem_dir}/specifications/openssl-%{openssl_version}.gemspec
+
 %files -n rubygem-power_assert
 %{gem_dir}/gems/power_assert-%{power_assert_version}
 %exclude %{gem_dir}/gems/power_assert-%{power_assert_version}/.*
@@ -957,16 +1000,24 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/test-unit-%{test_unit_version}
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
 
-%files tcltk
-%{ruby_libdir}/*-tk.rb
-%{ruby_libdir}/tcltk.rb
-%{ruby_libdir}/tk*.rb
-%{ruby_libarchdir}/tcltklib.so
-%{ruby_libarchdir}/tkutil.so
-%{ruby_libdir}/tk
-%{ruby_libdir}/tkextlib
+%files -n rubygem-xmlrpc
+%license %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
+%dir %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
+%doc %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/README.md
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/bin
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/lib
+%{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Jan 02 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-70
+- Upgrade to Ruby 2.4.0.
+- Move gemified xmlrpc into subpackage.
+- Move gemified openssl into subpackage.
+- Tk is removed from stdlib.
+- Extend 'gem_' macros for pre-release version support.
+
 * Tue Nov 22 2016 Vít Ondruch <vondruch@redhat.com> - 2.3.3-61
 - Update to Ruby 2.3.3.
 - Exclude json.rb from ruby-libs (rhbz#1397370).

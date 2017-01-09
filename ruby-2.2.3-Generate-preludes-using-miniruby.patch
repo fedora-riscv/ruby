@@ -11,12 +11,12 @@ diff --git a/common.mk b/common.mk
 index 168dc52..20c218a 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -839,9 +839,9 @@ $(MINIPRELUDE_C): $(COMPILE_PRELUDE)
+@@ -873,9 +873,9 @@ $(MINIPRELUDE_C): $(COMPILE_PRELUDE)
+ 		$(srcdir)/template/prelude.c.tmpl
+ 
  $(PRELUDE_C): $(COMPILE_PRELUDE) \
- 	   {$(srcdir)}lib/rubygems/defaults.rb \
- 	   {$(srcdir)}lib/rubygems/core_ext/kernel_gem.rb \
--	   $(PRELUDE_SCRIPTS) $(LIB_SRCS)
-+	   $(PRELUDE_SCRIPTS) $(PREP) $(LIB_SRCS)
+-	   $(PRELUDE_SCRIPTS)
++	   $(PRELUDE_SCRIPTS) $(PREP)
  	$(ECHO) generating $@
 -	$(Q) $(BASERUBY) $(srcdir)/tool/generic_erb.rb -I$(srcdir) -c -o $@ \
 +	$(Q) $(MINIRUBY) $(srcdir)/tool/generic_erb.rb -I$(srcdir) -c -o $@ \
