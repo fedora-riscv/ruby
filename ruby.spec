@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 71
+%global release 72
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -634,7 +634,11 @@ mkdir -p %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}
 mv %{buildroot}%{ruby_libdir}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/openssl.so %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}/
 mv %{buildroot}%{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
-ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl %{buildroot}%{ruby_libdir}/openssl
+# This used to be directory when OpenSSL was integral part of StdLib => Keep
+# it as directory and link everything in it to prevent directory => symlink
+# conversion RPM issues.
+mkdir -p %{buildroot}%{ruby_libdir}/openssl
+ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl/* %{buildroot}%{ruby_libdir}/openssl
 ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl.rb %{buildroot}%{ruby_libdir}/openssl.rb
 ln -s %{_libdir}/gems/%{name}/openssl-%{openssl_version}/openssl.so %{buildroot}%{ruby_libarchdir}/openssl.so
 
@@ -1012,6 +1016,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Jan 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-72
+- Link files into directory to avoid dir => symlink isues.
+
 * Mon Jan 09 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-71
 - Add rubygem-io-console dependency for rubygem-rdoc.
 
