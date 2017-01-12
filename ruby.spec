@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 73
+%global release 74
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1016,6 +1016,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Jan 13 2017 Mamoru TASAKA <mtasaka@fedoraproject.org> - 2.4.0-74
+- Rebuild again for f26-ruby24 sidetag
+
 * Thu Jan 12 2017 Igor Gnatenko <ignatenko@redhat.com> - 2.4.0-73
 - Rebuild for readline 7.x
 
