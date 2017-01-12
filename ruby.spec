@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 72
+%global release 73
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1016,6 +1016,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Jan 12 2017 Igor Gnatenko <ignatenko@redhat.com> - 2.4.0-73
+- Rebuild for readline 7.x
+
 * Wed Jan 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-72
 - Link files into directory to avoid dir => symlink isues.
 
