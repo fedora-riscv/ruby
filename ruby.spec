@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 74
+%global release 75
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -128,6 +128,9 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# This fixed rubygem-mongo build failures and may be something else as well.
+# https://bugs.ruby-lang.org/issues/13107
+Patch10: ruby-2.4.0-vm_insnhelper.c-block-argument-at-tailcall.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -506,6 +509,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1016,6 +1020,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Jan 17 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-75
+- Apply patch fixing rubygem-mongo build failures.
+
 * Fri Jan 13 2017 Mamoru TASAKA <mtasaka@fedoraproject.org> - 2.4.0-74
 - Rebuild again for f26-ruby24 sidetag
 
