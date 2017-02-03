@@ -156,6 +156,7 @@ BuildRequires: git
 BuildRequires: %{_bindir}/cmake
 # Required to test hardening.
 BuildRequires: %{_bindir}/checksec
+BuildRequires: multilib-rpm-config
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
@@ -557,8 +558,7 @@ make install DESTDIR=%{buildroot}
 
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
-mv %{buildroot}%{_includedir}/%{name}/config.h %{buildroot}%{_includedir}/%{name}/config-%{_arch}.h
-install -m644 %{SOURCE7} %{buildroot}%{_includedir}/%{name}/config.h
+%multilib_fix_c_header --file %{_includedir}/%{name}/config.h
 
 # Rename the ruby executable. It is replaced by RubyPick.
 %{?with_rubypick:mv %{buildroot}%{_bindir}/%{name}{,-mri}}
@@ -1026,6 +1026,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Fri Feb 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-76
 - Fix GCC 7.x compatibility (rhbz#1417590).
+- Use standardized multilib solution (rhbz#1412274).
 
 * Tue Jan 17 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-75
 - Apply patch fixing rubygem-mongo build failures.
