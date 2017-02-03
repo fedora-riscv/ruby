@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 75
+%global release 76
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -131,6 +131,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # This fixed rubygem-mongo build failures and may be something else as well.
 # https://bugs.ruby-lang.org/issues/13107
 Patch10: ruby-2.4.0-vm_insnhelper.c-block-argument-at-tailcall.patch
+# Fix GCC 7.x compatibility (rhbz#1417590).
+# https://bugs.ruby-lang.org/issues/13150
+Patch11: ruby-2.4.0-Prevent-GC-by-volatile.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -510,6 +513,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1020,6 +1024,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Feb 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-76
+- Fix GCC 7.x compatibility (rhbz#1417590).
+
 * Tue Jan 17 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-75
 - Apply patch fixing rubygem-mongo build failures.
 
