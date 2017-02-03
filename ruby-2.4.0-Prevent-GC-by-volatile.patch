@@ -1,0 +1,36 @@
+From 7c1b30a602ab109d8d5388d7dfb3c5b180ba24e1 Mon Sep 17 00:00:00 2001
+From: naruse <naruse@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Mon, 23 Jan 2017 16:58:27 +0000
+Subject: [PATCH] Prevent GC by volatile [Bug #13150]
+
+test/ruby/test_marshal.rb test_context_switch (load) and test_gc (dump)
+are failed on FreeBSD 10.3 and gcc7 (FreeBSD Ports Collection) 7.0.0
+20170115 (experimental); RB_GC_GUARD looks not worked well.
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@57410 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ marshal.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/marshal.c b/marshal.c
+index a9926ac..d628daa 100644
+--- a/marshal.c
++++ b/marshal.c
+@@ -1024,7 +1024,7 @@ VALUE
+ rb_marshal_dump_limited(VALUE obj, VALUE port, int limit)
+ {
+     struct dump_arg *arg;
+-    VALUE wrapper; /* used to avoid memory leak in case of exception */
++    volatile VALUE wrapper; /* used to avoid memory leak in case of exception */
+ 
+     wrapper = TypedData_Make_Struct(rb_cData, struct dump_arg, &dump_arg_data, arg);
+     arg->dest = 0;
+@@ -2038,7 +2038,7 @@ rb_marshal_load_with_proc(VALUE port, VALUE proc)
+ {
+     int major, minor, infection = 0;
+     VALUE v;
+-    VALUE wrapper; /* used to avoid memory leak in case of exception */
++    volatile VALUE wrapper; /* used to avoid memory leak in case of exception */
+     struct load_arg *arg;
+ 
+     v = rb_check_string_type(port);
