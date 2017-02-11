@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 76
+%global release 77
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1024,6 +1024,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.0-77
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Fri Feb 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-76
 - Fix GCC 7.x compatibility (rhbz#1417590).
 - Use standardized multilib solution (rhbz#1412274).
