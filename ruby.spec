@@ -905,7 +905,11 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %files -n rubygems
 %{_bindir}/gem
-%{rubygems_dir}
+%dir %{rubygems_dir}
+%{rubygems_dir}/rbconfig
+%{rubygems_dir}/rubygems
+%{rubygems_dir}/rubygems.rb
+%{rubygems_dir}/ubygems.rb
 
 # Explicitly include only RubyGems directory strucure to avoid accidentally
 # packaged content.
