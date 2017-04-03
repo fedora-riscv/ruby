@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 4
-%global teeny_version 0
+%global teeny_version 1
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 78
+%global release 79
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,8 +29,8 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.8
-%global molinillo_version 0.5.3
+%global rubygems_version 2.6.11
+%global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
@@ -42,7 +42,7 @@
 %global json_version 2.0.2
 %global minitest_version 5.10.1
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.2
+%global openssl_version 2.0.3
 %global power_assert_version 0.4.1
 %global psych_version 2.2.2
 %global rake_version 12.0.0
@@ -128,12 +128,6 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# This fixed rubygem-mongo build failures and may be something else as well.
-# https://bugs.ruby-lang.org/issues/13107
-Patch10: ruby-2.4.0-vm_insnhelper.c-block-argument-at-tailcall.patch
-# Fix GCC 7.x compatibility (rhbz#1417590).
-# https://bugs.ruby-lang.org/issues/13150
-Patch11: ruby-2.4.0-Prevent-GC-by-volatile.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -513,8 +507,6 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1029,6 +1021,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
+- Update to Ruby 2.4.1.
+
 * Thu Feb 23 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.0-78
 - Fix OpenSSL symlinks.
 
