@@ -1,6 +1,6 @@
 %global major_version 2
-%global minor_version 4
-%global teeny_version 1
+%global minor_version 5
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 57159
+%global revision 58319
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 79
+%global release 1
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -36,17 +36,17 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.3.0
+%global bigdecimal_version 1.3.2
 %global did_you_mean_version 1.1.0
 %global io_console_version 0.4.6
 %global json_version 2.0.2
 %global minitest_version 5.10.1
 %global net_telnet_version 0.1.1
 %global openssl_version 2.0.3
-%global power_assert_version 0.4.1
-%global psych_version 2.2.2
+%global power_assert_version 1.0.1
+%global psych_version 3.0.0.beta1
 %global rake_version 12.0.0
-%global rdoc_version 5.0.0
+%global rdoc_version 5.1.0
 %global test_unit_version 3.2.3
 %global xmlrpc_version 0.2.1
 
@@ -775,7 +775,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
 %{ruby_libdir}/racc
-%{ruby_libdir}/rbconfig
 %{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper
@@ -898,7 +897,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %files -n rubygems
 %{_bindir}/gem
 %dir %{rubygems_dir}
-%{rubygems_dir}/rbconfig
 %{rubygems_dir}/rubygems
 %{rubygems_dir}/rubygems.rb
 %{rubygems_dir}/ubygems.rb
@@ -917,6 +915,24 @@ make check TESTS="-v $DISABLE_TESTS"
 %dir %{_exec_prefix}/lib*/gems/ruby
 
 %exclude %{gem_dir}/cache/*
+
+# TODO: Gemify these libraries
+%{gem_dir}/specifications/default/cmath-0.0.1.gemspec
+%{gem_dir}/specifications/default/csv-0.0.1.gemspec
+%{gem_dir}/specifications/default/date-0.0.1.gemspec
+%{gem_dir}/specifications/default/dbm-0.5.1.gemspec
+%{gem_dir}/specifications/default/etc-0.2.1.gemspec
+%{gem_dir}/specifications/default/fcntl-0.0.1.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.0.beta1.gemspec
+%{gem_dir}/specifications/default/fileutils-0.0.1.gemspec
+%{gem_dir}/specifications/default/gdbm-0.0.1.gemspec
+%{gem_dir}/specifications/default/mathn-0.0.1.gemspec
+%{gem_dir}/specifications/default/scanf-0.0.1.gemspec
+%{gem_dir}/specifications/default/sdbm-0.0.1.gemspec
+%{gem_dir}/specifications/default/stringio-0.0.1.gemspec
+%{gem_dir}/specifications/default/strscan-0.0.1.gemspec
+%{gem_dir}/specifications/default/webrick-0.0.1.gemspec
+%{gem_dir}/specifications/default/zlib-0.0.1.gemspec
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -1013,14 +1029,19 @@ make check TESTS="-v $DISABLE_TESTS"
 %files -n rubygem-xmlrpc
 %license %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
 %dir %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}
+%exclude %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/.*
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
 %doc %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/README.md
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/bin
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/lib
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r58319
+- Upgrade to Ruby 2.5.0 (r58319).
+
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
 - Update to Ruby 2.4.1.
 
