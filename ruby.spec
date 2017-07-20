@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 79
+%global release 80
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -128,6 +128,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Fix OpenSSL::TestSSL#test_sslctx_set_params failures due to recent changes in
+# OpenSSL.
+# https://github.com/ruby/openssl/issues/127
+Patch10: ruby-2.5.0-allow-3DES-cipher-suites-in-test_sslctx_set_params.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -507,6 +511,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1021,6 +1026,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Jul 20 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-80
+- OpenSSL 1.1.0f-3 disables some weak ciphers. Adjust the package to pass
+  the tests suite.
+
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
 - Update to Ruby 2.4.1.
 
