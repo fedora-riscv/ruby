@@ -13,7 +13,7 @@ diff --git a/Makefile.in b/Makefile.in
 index 7e8ed82..7916993 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -116,6 +116,8 @@ XRUBY_RUBYLIBDIR = @XRUBY_RUBYLIBDIR@
+@@ -118,6 +118,8 @@ XRUBY_RUBYLIBDIR = @XRUBY_RUBYLIBDIR@
  XRUBY_RUBYHDRDIR = @XRUBY_RUBYHDRDIR@
  BOOTSTRAPRUBY = @BOOTSTRAPRUBY@
  
@@ -26,12 +26,12 @@ diff --git a/common.mk b/common.mk
 index 5cfbc3d..3f0a82e 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -148,7 +148,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
+@@ -149,7 +149,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
  GOLFOBJS      = goruby.$(OBJEXT) golf_prelude.$(OBJEXT)
  
  DEFAULT_PRELUDES = $(GEM_PRELUDE)
--PRELUDE_SCRIPTS = $(srcdir)/prelude.rb $(srcdir)/enc/prelude.rb $(DEFAULT_PRELUDES)
-+PRELUDE_SCRIPTS = $(srcdir)/prelude.rb $(srcdir)/enc/prelude.rb $(DEFAULT_PRELUDES) $(OPTIONAL_PRELUDES)
+-PRELUDE_SCRIPTS = $(srcdir)/prelude.rb $(DEFAULT_PRELUDES)
++PRELUDE_SCRIPTS = $(srcdir)/prelude.rb $(DEFAULT_PRELUDES) $(OPTIONAL_PRELUDES)
  GEM_PRELUDE   = $(srcdir)/gem_prelude.rb
  PRELUDES      = {$(srcdir)}prelude.c {$(srcdir)}miniprelude.c
  GOLFPRELUDES  = {$(srcdir)}golf_prelude.c
@@ -39,7 +39,7 @@ diff --git a/configure.in b/configure.in
 index 0e371e2..d4f1dcb 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4595,6 +4595,13 @@ AC_SUBST(rubyarchhdrdir)dnl
+@@ -4572,6 +4572,13 @@ AC_SUBST(rubyarchhdrdir)dnl
  AC_SUBST(sitearchhdrdir)dnl
  AC_SUBST(vendorarchhdrdir)dnl
  
