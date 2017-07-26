@@ -26,7 +26,7 @@ diff --git a/common.mk b/common.mk
 index 5cfbc3d..3f0a82e 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -149,7 +149,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
+@@ -145,7 +145,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
  GOLFOBJS      = goruby.$(OBJEXT) golf_prelude.$(OBJEXT)
  
  DEFAULT_PRELUDES = $(GEM_PRELUDE)

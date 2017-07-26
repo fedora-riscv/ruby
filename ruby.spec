@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 59376
+%global revision 59424
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1040,8 +1040,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59376
-- Upgrade to Ruby 2.5.0 (r59376).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59424
+- Upgrade to Ruby 2.5.0 (r59424).
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
 - Update to Ruby 2.4.1.
