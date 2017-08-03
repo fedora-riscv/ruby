@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 81
+%global release 82
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1026,6 +1026,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.1-82
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 2.4.1-81
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
