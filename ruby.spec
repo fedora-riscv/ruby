@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 3
-%global teeny_version 3
+%global teeny_version 4
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -980,7 +980,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
-* Tue Aug 08 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.3-63
+* Tue Aug 08 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.4-63
+- Update to Ruby 2.3.4.
 - Fix SMTP command injection via CRLF sequences in RCPT TO or MAIL FROM
   commands in Net::SMTP (rhbz#1461848).
 
