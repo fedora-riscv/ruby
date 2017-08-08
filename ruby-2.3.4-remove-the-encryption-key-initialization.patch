@@ -30,9 +30,9 @@ index 33b9dbe79fef..ad89c9c4bd52 100644
 +	  written by Kazuki Yamaguchi.
 +	  [Backport #8221]
 +
- Mon Nov 21 16:55:15 2016  boshan  <boshan@subsplash.com>
+ Wed Mar 29 23:47:31 2017  CHIKANAGA Tomoyuki  <nagachika@ruby-lang.org>
  
- 	* lib/tempfile.rb (Tempfile#initialize): [DOC] the first parameter
+ 	* hash.c (any_hash): fix CI failure on L32LLP64 architecture.
 diff --git a/ext/openssl/ossl_cipher.c b/ext/openssl/ossl_cipher.c
 index 09b021d9873a..24caba6e3721 100644
 --- a/ext/openssl/ossl_cipher.c
