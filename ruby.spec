@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 62
+%global release 63
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -130,6 +130,11 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1381527
 # https://github.com/ruby/ruby/commit/739782e37a6662fea379e7ef3ec89e851b04b46c
 Patch10: ruby-2.3.4-remove-the-encryption-key-initialization.patch
+# Fix SMTP command injection via CRLF sequences in RCPT TO or MAIL FROM
+# commands in Net::SMTP (CVE-2015-9096).
+# https://bugzilla.redhat.com/show_bug.cgi?id=1461848
+# https://github.com/ruby/ruby/pull/1647
+Patch11: ruby-2.4.0-SMTP-injection-fix.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -484,6 +489,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch100 -p1
 
 # Provide an example of usage of the tapset:
@@ -974,6 +980,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Tue Aug 08 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.3-63
+- Fix SMTP command injection via CRLF sequences in RCPT TO or MAIL FROM
+  commands in Net::SMTP (rhbz#1461848).
+
 * Thu Jul 27 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.3-62
 - Fix IV Reuse in GCM Mode (rhbz#1381527).
 
