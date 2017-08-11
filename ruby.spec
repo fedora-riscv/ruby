@@ -685,9 +685,17 @@ sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
+# Temporary change the hardening check on PPC64LE as long as the checksec is
+# is providing incorrect output.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1479302
+%ifnarch ppc64le
 # Check Ruby hardening.
 checksec -f libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
+%else
+checksec -f libruby.so.%{ruby_version} | \
+  grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*No.*\d*.*\d*.*libruby.so.%{ruby_version}"
+%endif
 
 # Check RubyGems version correctness.
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
