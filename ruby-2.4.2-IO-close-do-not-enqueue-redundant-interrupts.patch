@@ -1,0 +1,241 @@
+From 27251312111b7e25e347773e5777ee6072f9289b Mon Sep 17 00:00:00 2001
+From: nagachika <nagachika@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Sat, 8 Jul 2017 02:21:36 +0000
+Subject: [PATCH] merge revision(s) 58284,58812,59028: [Backport #13632]
+
+	vm_core.h: ruby_error_stream_closed
+
+	* vm_core.h (ruby_special_exceptions): renamed
+	  ruby_error_closed_stream as ruby_error_stream_closed, like the
+	  message.
+	speed up IO#close with many threads
+
+	Today, it increases IO#close performance with many threads:
+
+	  Execution time (sec)
+	  name            trunk   after
+	  vm_thread_close 4.276   3.018
+
+	  Speedup ratio: compare with the result of `trunk' (greater is better)
+	  name            after
+	  vm_thread_close 1.417
+
+	This speedup comes because rb_notify_fd_close only scans threads
+	inside rb_thread_io_blocking_region, not all threads in the VM.
+
+	In the future, this type data structure may allow us to notify
+	waiters of multiple FDs on a single thread (when using
+	Fibers).
+
+	* thread.c (struct waiting_fd): declare
+	  (rb_thread_io_blocking_region): use on-stack list waiter
+	  (rb_notify_fd_close): walk vm->waiting_fds instead
+	  (call_without_gvl): remove old field setting
+	  (th_init): ditto
+	* vm_core.h (typedef struct rb_vm_struct): add waiting_fds list
+	* (typedef struct rb_thread_struct): remove waiting_fd field
+	  (rb_vm_living_threads_init): initialize waiting_fds list
+
+	I am now kicking myself for not thinking about this 3 years ago
+	when I introduced ccan/list in [Feature #9632] to optimize this
+	same function :<
+	IO#close: do not enqueue redundant interrupts (take #2)
+
+	Enqueuing multiple errors for one event causes spurious errors
+	down the line, as reported by Nikolay Vashchenko in
+	https://bugs.ruby-lang.org/issues/13632
+
+	This should fix bad interactions with test_race_gets_and_close
+	in test/ruby/test_io.rb since we ensure rb_notify_fd_close
+	continues returning the busy flag after enqueuing the interrupt.
+
+	Backporting changes to 2.4 and earlier releases will be more
+	challenging...
+
+	* thread.c (rb_notify_fd_close): do not enqueue multiple interrupts
+	  [ruby-core:81581] [Bug #13632]
+	* test/ruby/test_io.rb (test_single_exception_on_close):
+	  new test based on script from Nikolay
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/branches/ruby_2_4@59286 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ test/ruby/test_io.rb | 22 ++++++++++++++++++++++
+ thread.c             | 36 +++++++++++++++++++++++++-----------
+ vm.c                 |  1 -
+ vm_core.h            |  6 +++---
+ 4 files changed, 50 insertions(+), 15 deletions(-)
+
+diff --git a/test/ruby/test_io.rb b/test/ruby/test_io.rb
+index 61dfba318042..034dac570ce4 100644
+--- a/test/ruby/test_io.rb
++++ b/test/ruby/test_io.rb
+@@ -2809,6 +2809,28 @@ def test_cross_thread_close_stdio
+     end;
+   end
+ 
++  def test_single_exception_on_close
++    a = []
++    t = []
++    10.times do
++      r, w = IO.pipe
++      a << [r, w]
++      t << Thread.new do
++        while r.gets
++        end rescue IOError
++        Thread.current.pending_interrupt?
++      end
++    end
++    a.each do |r, w|
++      w.write -"\n"
++      w.close
++      r.close
++    end
++    t.each do |th|
++      assert_equal false, th.value, '[ruby-core:81581] [Bug #13632]'
++    end
++  end
++
+   def test_open_mode
+     feature4742 = "[ruby-core:36338]"
+     bug6055 = '[ruby-dev:45268]'
+diff --git a/thread.c b/thread.c
+index 7391cf96d284..2691fd835de4 100644
+--- a/thread.c
++++ b/thread.c
+@@ -95,7 +95,11 @@ static int rb_threadptr_pending_interrupt_empty_p(rb_thread_t *th);
+ #define eTerminateSignal INT2FIX(1)
+ static volatile int system_working = 1;
+ 
+-#define closed_stream_error GET_VM()->special_exceptions[ruby_error_closed_stream]
++struct waiting_fd {
++    struct list_node wfd_node; /* <=> vm.waiting_fds */
++    rb_thread_t *th;
++    int fd;
++};
+ 
+ inline static void
+ st_delete_wrap(st_table *table, st_data_t key)
+@@ -1310,7 +1314,6 @@ call_without_gvl(void *(*func)(void *), void *data1,
+     rb_thread_t *th = GET_THREAD();
+     int saved_errno = 0;
+ 
+-    th->waiting_fd = -1;
+     if (ubf == RUBY_UBF_IO || ubf == RUBY_UBF_PROCESS) {
+ 	ubf = ubf_select;
+ 	data2 = th;
+@@ -1433,11 +1436,15 @@ VALUE
+ rb_thread_io_blocking_region(rb_blocking_function_t *func, void *data1, int fd)
+ {
+     volatile VALUE val = Qundef; /* shouldn't be used */
++    rb_vm_t *vm = GET_VM();
+     rb_thread_t *th = GET_THREAD();
+     volatile int saved_errno = 0;
+     int state;
++    struct waiting_fd wfd;
+ 
+-    th->waiting_fd = fd;
++    wfd.fd = fd;
++    wfd.th = th;
++    list_add(&vm->waiting_fds, &wfd.wfd_node);
+ 
+     TH_PUSH_TAG(th);
+     if ((state = EXEC_TAG()) == 0) {
+@@ -1448,8 +1455,8 @@ rb_thread_io_blocking_region(rb_blocking_function_t *func, void *data1, int fd)
+     }
+     TH_POP_TAG();
+ 
+-    /* clear waiting_fd anytime */
+-    th->waiting_fd = -1;
++    /* must be deleted before jump */
++    list_del(&wfd.wfd_node);
+ 
+     if (state) {
+ 	TH_JUMP_TAG(th, state);
+@@ -2195,16 +2202,23 @@ int
+ rb_notify_fd_close(int fd)
+ {
+     rb_vm_t *vm = GET_THREAD()->vm;
+-    rb_thread_t *th = 0;
++    struct waiting_fd *wfd = 0;
+     int busy;
+ 
+     busy = 0;
+-    list_for_each(&vm->living_threads, th, vmlt_node) {
+-	if (th->waiting_fd == fd) {
+-	    VALUE err = th->vm->special_exceptions[ruby_error_closed_stream];
++    list_for_each(&vm->waiting_fds, wfd, wfd_node) {
++	if (wfd->fd == fd) {
++	    rb_thread_t *th = wfd->th;
++	    VALUE err;
++
++	    busy = 1;
++	    if (!th) {
++		continue;
++	    }
++	    wfd->th = 0;
++	    err = th->vm->special_exceptions[ruby_error_stream_closed];
+ 	    rb_threadptr_pending_interrupt_enque(th, err);
+ 	    rb_threadptr_interrupt(th);
+-	    busy = 1;
+ 	}
+     }
+     return busy;
+@@ -4839,7 +4853,7 @@ Init_Thread(void)
+     rb_define_method(rb_cThread, "name=", rb_thread_setname, 1);
+     rb_define_method(rb_cThread, "inspect", rb_thread_inspect, 0);
+ 
+-    rb_vm_register_special_exception(ruby_error_closed_stream, rb_eIOError, "stream closed");
++    rb_vm_register_special_exception(ruby_error_stream_closed, rb_eIOError, "stream closed");
+ 
+     cThGroup = rb_define_class("ThreadGroup", rb_cObject);
+     rb_define_alloc_func(cThGroup, thgroup_s_alloc);
+diff --git a/vm.c b/vm.c
+index 0544bcc4e573..c8ed39ad1e47 100644
+--- a/vm.c
++++ b/vm.c
+@@ -2477,7 +2477,6 @@ th_init(rb_thread_t *th, VALUE self)
+     th->status = THREAD_RUNNABLE;
+     th->errinfo = Qnil;
+     th->last_status = Qnil;
+-    th->waiting_fd = -1;
+     th->root_svar = Qfalse;
+     th->local_storage_recursive_hash = Qnil;
+     th->local_storage_recursive_hash_for_trace = Qnil;
+diff --git a/vm_core.h b/vm_core.h
+index d0385d219f82..8e2b93d8e9b2 100644
+--- a/vm_core.h
++++ b/vm_core.h
+@@ -427,7 +427,7 @@ enum ruby_special_exceptions {
+     ruby_error_reenter,
+     ruby_error_nomemory,
+     ruby_error_sysstack,
+-    ruby_error_closed_stream,
++    ruby_error_stream_closed,
+     ruby_special_error_count
+ };
+ 
+@@ -490,6 +490,7 @@ typedef struct rb_vm_struct {
+     struct rb_thread_struct *main_thread;
+     struct rb_thread_struct *running_thread;
+ 
++    struct list_head waiting_fds; /* <=> struct waiting_fd */
+     struct list_head living_threads;
+     size_t living_thread_num;
+     VALUE thgroup_default;
+@@ -712,8 +713,6 @@ typedef struct rb_thread_struct {
+     /* passing state */
+     int state;
+ 
+-    int waiting_fd;
+-
+     /* for rb_iterate */
+     VALUE passed_block_handler;
+ 
+@@ -1445,6 +1444,7 @@ void rb_thread_wakeup_timer_thread(void);
+ static inline void
+ rb_vm_living_threads_init(rb_vm_t *vm)
+ {
++    list_head_init(&vm->waiting_fds);
+     list_head_init(&vm->living_threads);
+     vm->living_thread_num = 0;
+ }
