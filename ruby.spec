@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 59424
+%global revision 59643
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -42,8 +42,8 @@
 %global json_version 2.1.0
 %global minitest_version 5.10.2
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.4
-%global power_assert_version 1.0.2
+%global openssl_version 2.0.5
+%global power_assert_version 1.1.0
 %global psych_version 3.0.0.beta3
 %global rake_version 12.0.0
 %global rdoc_version 5.1.0
@@ -128,10 +128,6 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Fix OpenSSL::TestSSL#test_sslctx_set_params failures due to recent changes in
-# OpenSSL.
-# https://github.com/ruby/openssl/issues/127
-Patch10: ruby-2.5.0-allow-3DES-cipher-suites-in-test_sslctx_set_params.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -511,7 +507,6 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -923,11 +918,13 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/default/csv-0.0.1.gemspec
 %{gem_dir}/specifications/default/date-0.0.1.gemspec
 %{gem_dir}/specifications/default/dbm-0.5.1.gemspec
+%{gem_dir}/specifications/default/digest-0.1.0.gemspec
 %{gem_dir}/specifications/default/etc-0.2.1.gemspec
 %{gem_dir}/specifications/default/fcntl-0.0.1.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.beta1.gemspec
 %{gem_dir}/specifications/default/fileutils-0.7.2.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.beta1.gemspec
+%{gem_dir}/specifications/default/ipaddr-1.0.0.gemspec
 %{gem_dir}/specifications/default/scanf-0.0.1.gemspec
 %{gem_dir}/specifications/default/sdbm-0.0.1.gemspec
 %{gem_dir}/specifications/default/stringio-0.0.1.gemspec
@@ -1040,8 +1037,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59424
-- Upgrade to Ruby 2.5.0 (r59424).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59643
+- Upgrade to Ruby 2.5.0 (r59643).
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
 - Update to Ruby 2.4.1.

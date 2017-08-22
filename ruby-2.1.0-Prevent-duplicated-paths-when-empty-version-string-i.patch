@@ -14,7 +14,7 @@ diff --git a/configure.in b/configure.in
 index db37cd6..ce8d149 100644
 --- a/configure.in
 +++ b/configure.in
-@@ -4426,7 +4426,8 @@ AS_CASE(["$ruby_version_dir_name"],
+@@ -4433,7 +4433,8 @@ AS_CASE(["$ruby_version_dir_name"],
  ruby_version_dir=/'${ruby_version_dir_name}'
  
  if test -z "${ruby_version_dir_name}"; then
@@ -28,7 +28,7 @@ diff --git a/loadpath.c b/loadpath.c
 index 9160031..0d4d953 100644
 --- a/loadpath.c
 +++ b/loadpath.c
-@@ -65,22 +65,34 @@ const char ruby_initial_load_paths[] =
+@@ -65,21 +65,33 @@ const char ruby_initial_load_paths[] =
      RUBY_SEARCH_PATH "\0"
  #endif
  #ifndef NO_RUBY_SITE_LIB
@@ -58,11 +58,10 @@ index 9160031..0d4d953 100644
      RUBY_VENDOR_ARCH_LIB_FOR(RUBY_SITEARCH) "\0"
 +#ifndef RUBY_LIB_VERSION_BLANK
      RUBY_VENDOR_LIB "\0"
- #endif
 +#endif
+ #endif
  
      RUBY_LIB "\0"
- #ifdef RUBY_THINARCH
 diff --git a/tool/mkconfig.rb b/tool/mkconfig.rb
 index 07076d4..35e6c3c 100755
 --- a/tool/mkconfig.rb
