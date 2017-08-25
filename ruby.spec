@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 59643
+%global revision 59657
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -128,6 +128,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+
+# Avoids SEGV in TestBacktrace#test_caller_lev segaults on PPC.
+# https://bugs.ruby-lang.org/issues/13757
+Patch100: ruby-2.5.0-Revert-runruby-test-with-smallest-possible-machine-stack.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -507,6 +511,8 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+
+%patch100 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1045,8 +1051,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59643
-- Upgrade to Ruby 2.5.0 (r59643).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59657
+- Upgrade to Ruby 2.5.0 (r59657).
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
 - Update to Ruby 2.4.1.

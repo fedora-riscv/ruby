@@ -1,0 +1,32 @@
+From 68b8e9b42f1baf67f8ef9535d213fd0bd7ae42f4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Fri, 25 Aug 2017 13:21:56 +0200
+Subject: [PATCH] Revert "tool/runruby.rb: test with smallest possible machine
+ stack"
+
+This reverts commit c4e2cf466448f4283fd3f8a17a73f5fa9b745fe1.
+---
+ tool/runruby.rb | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/tool/runruby.rb b/tool/runruby.rb
+index f6c46779e3..cade314748 100755
+--- a/tool/runruby.rb
++++ b/tool/runruby.rb
+@@ -67,12 +67,7 @@ def File.realpath(*args)
+ libs << File.expand_path("lib", srcdir)
+ config["bindir"] = abs_archdir
+ 
+-env = {
+-  # Test with the smallest possible machine stack sizes.
+-  # These values are clamped to machine-dependent minimum values in vm_core.h
+-  'RUBY_THREAD_MACHINE_STACK_SIZE' => '1',
+-  'RUBY_FIBER_MACHINE_STACK_SIZE' => '1',
+-}
++env = {}
+ 
+ runner = File.join(abs_archdir, "ruby-runner#{config['EXEEXT']}")
+ runner = nil unless File.exist?(runner)
+-- 
+2.14.1
+
