@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 63
+%global release 64
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.5.2
+%global rubygems_version 2.5.2.1
 %global molinillo_version 0.4.1
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -135,6 +135,15 @@ Patch10: ruby-2.3.4-remove-the-encryption-key-initialization.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1461848
 # https://github.com/ruby/ruby/pull/1647
 Patch11: ruby-2.4.0-SMTP-injection-fix.patch
+# Fix various RubyGems CVEs:
+# an ANSI escape sequence vulnerability (CVE-2017-0899).
+# a DoS vulnerability in the query command (CVE-2017-0900).
+# a vulnerability in the gem installer that allowed a malicious gem
+# to overwrite arbitrary files (CVE-2017-0901).
+# a DNS request hijacking vulnerability (CVE-2017-0902).
+# https://bugzilla.redhat.com/show_bug.cgi?id=1487591
+# https://bugs.ruby-lang.org/issues/13842
+Patch12: ruby-2.3.4-Fix-RubyGems-CVEs.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -490,6 +499,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12
 %patch100 -p1
 
 # Provide an example of usage of the tapset:
@@ -980,6 +990,13 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Wed Sep 06 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.4-64
+- Fix ANSI escape sequence vulnerability (rhbz#1487590).
+- Fix DoS vulnerability in the query command (rhbz#1487588).
+- Fix a vulnerability in the gem installer that allowed a malicious gem
+  to overwrite arbitrary files (rhbz#1487587).
+- Fix DNS request hijacking vulnerability (rhbz#1487589).
+
 * Tue Aug 08 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.4-63
 - Update to Ruby 2.3.4.
 - Fix SMTP command injection via CRLF sequences in RCPT TO or MAIL FROM
