@@ -39,7 +39,7 @@
 %global bigdecimal_version 1.2.8
 %global did_you_mean_version 1.0.0
 %global io_console_version 0.4.5
-%global json_version 1.8.3
+%global json_version 1.8.3.1
 %global minitest_version 5.8.5
 %global power_assert_version 0.2.6
 %global psych_version 2.1.0
@@ -144,6 +144,10 @@ Patch11: ruby-2.4.0-SMTP-injection-fix.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1487591
 # https://bugs.ruby-lang.org/issues/13842
 Patch12: ruby-2.3.4-Fix-RubyGems-CVEs.patch
+# Fix arbitrary heap exposure during a JSON.generate call (CVE-2017-14064).
+# https://bugzilla.redhat.com/show_bug.cgi?id=1487553
+# https://bugs.ruby-lang.org/issues/13853
+Patch13: ruby-2.3.4-Fix-arbitrary-heap-exposure-during-a-JSON.generate-call.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -500,6 +504,7 @@ rm -rf ext/fiddle/libffi*
 %patch10 -p1
 %patch11 -p1
 %patch12
+%patch13
 %patch100 -p1
 
 # Provide an example of usage of the tapset:
@@ -996,6 +1001,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Fix a vulnerability in the gem installer that allowed a malicious gem
   to overwrite arbitrary files (rhbz#1487587).
 - Fix DNS request hijacking vulnerability (rhbz#1487589).
+- Fix arbitrary heap exposure during a JSON.generate call (rhbz#1487552).
 
 * Tue Aug 08 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.4-63
 - Update to Ruby 2.3.4.
