@@ -171,7 +171,8 @@ straight-forward, and extensible.
 Summary:    A Ruby development environment
 Group:      Development/Languages
 Requires:   %{name}%{?_isa} = %{version}-%{release}
-Requires:   rubypick
+# This would not be needed if ~50 packages depending on -devel used
+# --disable-gems
 Requires:   rubygems
 
 %description devel
@@ -1053,6 +1054,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59657
 - Upgrade to Ruby 2.5.0 (r59657).
+- Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
 - Update to Ruby 2.4.1.
