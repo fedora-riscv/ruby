@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 4
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.11
+%global rubygems_version 2.6.13
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -39,10 +39,10 @@
 %global bigdecimal_version 1.3.0
 %global did_you_mean_version 1.1.0
 %global io_console_version 0.4.6
-%global json_version 2.0.2
+%global json_version 2.0.4
 %global minitest_version 5.10.1
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.3
+%global openssl_version 2.0.5
 %global power_assert_version 0.4.1
 %global psych_version 2.2.2
 %global rake_version 12.0.0
@@ -1022,6 +1022,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Sep 18 2017 Pavel Valena <pvalena@redhat.com> - 2.4.2-84
+- Update to Ruby 2.4.2.
+
 * Fri Sep 08 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-84
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
