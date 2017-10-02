@@ -13,7 +13,7 @@ diff --git a/lib/rubygems/specification.rb b/lib/rubygems/specification.rb
 index 7128532..654996a 100644
 --- a/lib/rubygems/specification.rb
 +++ b/lib/rubygems/specification.rb
-@@ -2335,7 +2335,7 @@ class Gem::Specification < Gem::BasicSpecification
+@@ -2337,7 +2337,7 @@ class Gem::Specification < Gem::BasicSpecification
  
    def ruby_code(obj)
      case obj
@@ -22,7 +22,7 @@ index 7128532..654996a 100644
      when Array             then '[' + obj.map { |x| ruby_code x }.join(", ") + ']'
      when Hash              then
        seg = obj.keys.sort.map { |k| "#{k.to_s.dump} => #{obj[k].to_s.dump}" }
-@@ -2525,14 +2525,14 @@ class Gem::Specification < Gem::BasicSpecification
+@@ -2527,14 +2527,14 @@ class Gem::Specification < Gem::BasicSpecification
        dependencies.each do |dep|
          req = dep.requirements_list.inspect
          dep.instance_variable_set :@type, :runtime if dep.type.nil? # HACK
@@ -39,7 +39,7 @@ index 7128532..654996a 100644
        end
  
        result << '    end'
-@@ -2540,7 +2540,7 @@ class Gem::Specification < Gem::BasicSpecification
+@@ -2542,7 +2542,7 @@ class Gem::Specification < Gem::BasicSpecification
        result << "  else"
        dependencies.each do |dep|
          version_reqs_param = dep.requirements_list.inspect
@@ -209,7 +209,7 @@ index dc7b134..204e100 100644
    end
  end
      SPEC
-@@ -3294,20 +3294,20 @@ Did you mean 'Ruby'?
+@@ -3324,20 +3324,20 @@ Did you mean 'Ruby'?
  # stub: m 1 ruby lib
  
  Gem::Specification.new do |s|

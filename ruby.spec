@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 3
-%global teeny_version 4
+%global teeny_version 5
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 64
+%global release 65
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -42,7 +42,7 @@
 %global json_version 1.8.3.1
 %global minitest_version 5.8.5
 %global power_assert_version 0.2.6
-%global psych_version 2.1.0
+%global psych_version 2.1.0.1
 %global rake_version 10.4.2
 %global rdoc_version 4.2.1
 %global net_telnet_version 0.1.1
@@ -126,28 +126,6 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Fix IV Reuse in GCM Mode (CVE-2016-7798).
-# https://bugzilla.redhat.com/show_bug.cgi?id=1381527
-# https://github.com/ruby/ruby/commit/739782e37a6662fea379e7ef3ec89e851b04b46c
-Patch10: ruby-2.3.4-remove-the-encryption-key-initialization.patch
-# Fix SMTP command injection via CRLF sequences in RCPT TO or MAIL FROM
-# commands in Net::SMTP (CVE-2015-9096).
-# https://bugzilla.redhat.com/show_bug.cgi?id=1461848
-# https://github.com/ruby/ruby/pull/1647
-Patch11: ruby-2.4.0-SMTP-injection-fix.patch
-# Fix various RubyGems CVEs:
-# an ANSI escape sequence vulnerability (CVE-2017-0899).
-# a DoS vulnerability in the query command (CVE-2017-0900).
-# a vulnerability in the gem installer that allowed a malicious gem
-# to overwrite arbitrary files (CVE-2017-0901).
-# a DNS request hijacking vulnerability (CVE-2017-0902).
-# https://bugzilla.redhat.com/show_bug.cgi?id=1487591
-# https://bugs.ruby-lang.org/issues/13842
-Patch12: ruby-2.3.4-Fix-RubyGems-CVEs.patch
-# Fix arbitrary heap exposure during a JSON.generate call (CVE-2017-14064).
-# https://bugzilla.redhat.com/show_bug.cgi?id=1487553
-# https://bugs.ruby-lang.org/issues/13853
-Patch13: ruby-2.3.4-Fix-arbitrary-heap-exposure-during-a-JSON.generate-call.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -501,10 +479,6 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12
-%patch13
 %patch100 -p1
 
 # Provide an example of usage of the tapset:
@@ -995,6 +969,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/tkextlib
 
 %changelog
+* Mon Oct 02 2017 Pavel Valena <pvalena@redhat.com> - 2.3.5-65
+- Update to Ruby 2.3.5.
+
 * Wed Sep 06 2017 Vít Ondruch <vondruch@redhat.com> - 2.3.4-64
 - Fix ANSI escape sequence vulnerability (rhbz#1487590).
 - Fix DoS vulnerability in the query command (rhbz#1487588).
