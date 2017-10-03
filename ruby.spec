@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 60018
+%global revision 60107
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1058,8 +1058,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r60018
-- Upgrade to Ruby 2.5.0 (r60018).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r60107
+- Upgrade to Ruby 2.5.0 (r60107).
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79

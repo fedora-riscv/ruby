@@ -12,15 +12,15 @@ ruby_version_dir_name now specifies custom version string for versioned
 directories, e.g. instead of default X.Y.Z, you can specify whatever
 string.
 ---
- configure.in        | 64 ++++++++++++++++++++++++++++-------------------------
+ configure.ac        | 64 ++++++++++++++++++++++++++++-------------------------
  template/ruby.pc.in |  1 +
  2 files changed, 35 insertions(+), 30 deletions(-)
 
-diff --git a/configure.in b/configure.in
-index db37cd6..6e73fae 100644
---- a/configure.in
-+++ b/configure.in
-@@ -4345,9 +4345,6 @@ AS_CASE(["$target_os"],
+diff --git a/configure.ac b/configure.ac
+index 8ea969412f..a00f2b6776 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -4337,9 +4337,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index db37cd6..6e73fae 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4370,56 +4367,62 @@ AC_ARG_WITH(ridir,
+@@ -4362,56 +4359,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index db37cd6..6e73fae 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4436,6 +4439,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4428,6 +4431,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -275,14 +275,14 @@ Subject: [PATCH 4/4] Let headers directories follow the configured version
  name.
 
 ---
- configure.in | 2 +-
+ configure.ac | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/configure.in b/configure.in
-index 6e73fae..c842725 100644
---- a/configure.in
-+++ b/configure.in
-@@ -283,7 +283,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+diff --git a/configure.ac b/configure.ac
+index a00f2b6776..999e2d6d5d 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -278,7 +278,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)
