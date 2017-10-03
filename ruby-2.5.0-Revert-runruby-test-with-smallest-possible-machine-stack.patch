@@ -25,7 +25,7 @@ index f6c46779e3..cade314748 100755
 -}
 +env = {}
  
- runner = File.join(abs_archdir, "ruby-runner#{config['EXEEXT']}")
+ runner = File.join(abs_archdir, "exe/ruby#{config['EXEEXT']}")
  runner = nil unless File.exist?(runner)
 -- 
 2.14.1

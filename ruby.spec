@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 59657
+%global revision 60018
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.12
+%global rubygems_version 2.6.13
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -37,17 +37,18 @@
 %global irb_version %{ruby_version}
 
 %global bigdecimal_version 1.3.2
+%global bundler_version 1.15.4
 %global did_you_mean_version 1.1.2
 %global io_console_version 0.4.6
 %global json_version 2.1.0
-%global minitest_version 5.10.2
+%global minitest_version 5.10.3
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.5
+%global openssl_version 2.1.0.beta1
 %global power_assert_version 1.1.0
 %global psych_version 3.0.0.beta3
-%global rake_version 12.0.0
-%global rdoc_version 5.1.0
-%global test_unit_version 3.2.4
+%global rake_version 12.1.0
+%global rdoc_version 6.0.0.beta2
+%global test_unit_version 3.2.5
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -659,6 +660,12 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
+# Remove Bundler until it is really necessary.
+rm -rf %{buildroot}%{ruby_libdir}/bundler
+rm -rf %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}
+rm -rf %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec
+rm %{buildroot}%{_bindir}/bundle*
+
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
@@ -911,7 +918,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %dir %{rubygems_dir}
 %{rubygems_dir}/rubygems
 %{rubygems_dir}/rubygems.rb
-%{rubygems_dir}/ubygems.rb
 
 # Explicitly include only RubyGems directory strucure to avoid accidentally
 # packaged content.
@@ -930,13 +936,13 @@ make check TESTS="-v $DISABLE_TESTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-0.0.1.gemspec
-%{gem_dir}/specifications/default/csv-0.0.1.gemspec
+%{gem_dir}/specifications/default/csv-0.1.0.gemspec
 %{gem_dir}/specifications/default/date-0.0.1.gemspec
-%{gem_dir}/specifications/default/dbm-0.5.1.gemspec
+%{gem_dir}/specifications/default/dbm-1.0.0.beta1.gemspec
 %{gem_dir}/specifications/default/digest-0.1.0.gemspec
 %{gem_dir}/specifications/default/etc-0.2.1.gemspec
 %{gem_dir}/specifications/default/fcntl-0.0.1.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.0.beta1.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.0.beta2.gemspec
 %{gem_dir}/specifications/default/fileutils-0.7.2.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.beta1.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.0.0.gemspec
@@ -945,7 +951,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/default/stringio-0.0.1.gemspec
 %{gem_dir}/specifications/default/strscan-0.0.1.gemspec
 %{gem_dir}/specifications/default/webrick-1.4.0.beta1.gemspec
-%{gem_dir}/specifications/default/zlib-0.0.1.gemspec
+%{gem_dir}/specifications/default/zlib-0.1.0.gemspec
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -1052,8 +1058,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r59657
-- Upgrade to Ruby 2.5.0 (r59657).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r60018
+- Upgrade to Ruby 2.5.0 (r60018).
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
