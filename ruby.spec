@@ -126,6 +126,9 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Revert experimental rounding that does not work on i686:
+# https://bugs.ruby-lang.org/issues/13980
+Patch10: ruby-2.3.5-Revert-experimental-rounding-on-i686.patch
 # Do not freeze strings in generated .gemspec. This causes regressions
 # and FTBFS in Fedora packages. This is revert of:
 # https://github.com/rubygems/rubygems/commit/8eda3272d28010c768a05620de776e5a8195c1ae
@@ -479,6 +482,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 %patch100 -p1
 
 # Provide an example of usage of the tapset:
