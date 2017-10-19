@@ -63,6 +63,10 @@
 %global with_rubypick 1
 %endif
 
+%bcond_without systemtap
+%bcond_without git
+%bcond_without cmake
+
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}
@@ -149,10 +153,10 @@ BuildRequires: libyaml-devel
 BuildRequires: readline-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
-BuildRequires: %{_bindir}/dtrace
+%{?with_systemtap:BuildRequires: %{_bindir}/dtrace}
 # RubyGems test suite optional dependencies.
-BuildRequires: git
-BuildRequires: %{_bindir}/cmake
+%{?with_git:BuildRequires: git}
+%{?with_cmake:BuildRequires: %{_bindir}/cmake}
 # Required to test hardening.
 BuildRequires: %{_bindir}/checksec
 BuildRequires: multilib-rpm-config
@@ -727,7 +731,7 @@ touch abrt.rb
 make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
 
 # Check if systemtap is supported.
-make runruby TESTRUN_SCRIPT=%{SOURCE13}
+%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE13}}
 
 DISABLE_TESTS=""
 
