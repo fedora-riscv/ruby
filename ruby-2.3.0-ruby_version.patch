@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 8ea969412f..a00f2b6776 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4337,9 +4337,6 @@ AS_CASE(["$target_os"],
+@@ -4348,9 +4348,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 8ea969412f..a00f2b6776 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4362,56 +4359,62 @@ AC_ARG_WITH(ridir,
+@@ -4373,56 +4370,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 8ea969412f..a00f2b6776 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4428,6 +4431,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4439,6 +4442,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -137,9 +137,9 @@ index 8a2c066..c81b211 100644
  TEENY=@TEENY@
  ruby_version=@ruby_version@
 +ruby_version_dir_name=@ruby_version_dir_name@
+ RUBY_API_VERSION=@RUBY_API_VERSION@
  RUBY_PROGRAM_VERSION=@RUBY_PROGRAM_VERSION@
  RUBY_BASE_NAME=@RUBY_BASE_NAME@
- RUBY_VERSION_NAME=@RUBY_VERSION_NAME@
 -- 
 2.1.0
 
@@ -245,7 +245,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index 0428bea..b6e090e 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1124,7 +1124,8 @@ def test_self_use_paths
+@@ -1156,7 +1156,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -255,7 +255,7 @@ index 0428bea..b6e090e 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1251,7 +1252,7 @@ def test_self_user_home_user_drive_and_path
+@@ -1283,7 +1284,7 @@ def test_self_user_home_user_drive_and_path
    def test_self_vendor_dir
      expected =
        File.join RbConfig::CONFIG['vendordir'], 'gems',

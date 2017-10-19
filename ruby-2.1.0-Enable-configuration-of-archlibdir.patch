@@ -11,7 +11,7 @@ diff --git a/configure.ac b/configure.ac
 index 11fc237552..b77e88fc37 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3774,6 +3774,11 @@ AS_IF([test ${multiarch+set}], [
+@@ -3780,6 +3780,11 @@ AS_IF([test ${multiarch+set}], [
  ])
  
  archlibdir='${libdir}/${arch}'

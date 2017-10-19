@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 60107
+%global revision 60213
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.13
+%global rubygems_version 2.6.14
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -47,7 +47,7 @@
 %global power_assert_version 1.1.0
 %global psych_version 3.0.0.beta3
 %global rake_version 12.1.0
-%global rdoc_version 6.0.0.beta2
+%global rdoc_version 6.0.0.beta3
 %global test_unit_version 3.2.5
 %global xmlrpc_version 0.3.0
 
@@ -1058,8 +1058,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r60107
-- Upgrade to Ruby 2.5.0 (r60107).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r60213
+- Upgrade to Ruby 2.5.0 (r60213).
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
