@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 84
+%global release 85
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -61,6 +61,10 @@
 %if 0%{?fedora} >= 19
 %global with_rubypick 1
 %endif
+
+%bcond_without systemtap
+%bcond_without git
+%bcond_without cmake
 
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
@@ -144,10 +148,16 @@ BuildRequires: libyaml-devel
 BuildRequires: readline-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
+%if %{with systemtap}
 BuildRequires: %{_bindir}/dtrace
+%endif
 # RubyGems test suite optional dependencies.
+%if %{with git}
 BuildRequires: git
+%endif
+%if %{with cmake}
 BuildRequires: %{_bindir}/cmake
+%endif
 # Required to test hardening.
 BuildRequires: %{_bindir}/checksec
 BuildRequires: multilib-rpm-config
@@ -713,8 +723,10 @@ touch abrt.rb
 # runruby, so re-enable them).
 make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
 
+%if %{with systemtap}
 # Check if systemtap is supported.
 make runruby TESTRUN_SCRIPT=%{SOURCE13}
+%endif
 
 DISABLE_TESTS=""
 
@@ -1030,6 +1042,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Oct 19 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-85
+- Add macros to remove systemtap, git and cmake dependencies.
+
 * Mon Sep 18 2017 Pavel Valena <pvalena@redhat.com> - 2.4.2-84
 - Update to Ruby 2.4.2.
 
