@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 85
+%global release 86
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -59,7 +59,7 @@
 %global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 
 %if 0%{?fedora} >= 19
-%global with_rubypick 1
+%bcond_without rubypick
 %endif
 
 %bcond_without systemtap
@@ -1042,6 +1042,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Sat Oct 21 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-86
+- Add macro to remove rubypick dependency.
+
 * Thu Oct 19 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-85
 - Add macros to remove systemtap, git and cmake dependencies.
 
