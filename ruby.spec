@@ -148,16 +148,10 @@ BuildRequires: libyaml-devel
 BuildRequires: readline-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
-%if %{with systemtap}
-BuildRequires: %{_bindir}/dtrace
-%endif
+%{?with_systemtap:BuildRequires: %{_bindir}/dtrace}
 # RubyGems test suite optional dependencies.
-%if %{with git}
-BuildRequires: git
-%endif
-%if %{with cmake}
-BuildRequires: %{_bindir}/cmake
-%endif
+%{?with_git:BuildRequires: git}
+%{?with_cmake:BuildRequires: %{_bindir}/cmake}
 # Required to test hardening.
 BuildRequires: %{_bindir}/checksec
 BuildRequires: multilib-rpm-config
@@ -723,10 +717,8 @@ touch abrt.rb
 # runruby, so re-enable them).
 make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
 
-%if %{with systemtap}
 # Check if systemtap is supported.
-make runruby TESTRUN_SCRIPT=%{SOURCE13}
-%endif
+%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE13}}
 
 DISABLE_TESTS=""
 
@@ -1042,6 +1034,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Oct 27 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-86
+- Improve "with" conditional statement as inline.
+
 * Thu Oct 19 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-85
 - Add macros to remove systemtap, git and cmake dependencies.
 
