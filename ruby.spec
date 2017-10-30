@@ -85,11 +85,6 @@ Source3: ruby-exercise.stp
 Source4: macros.ruby
 Source5: macros.rubygems
 Source6: abrt_prelude.rb
-# This wrapper fixes https://bugzilla.redhat.com/show_bug.cgi?id=977941
-# Hopefully, it will get removed soon:
-# https://fedorahosted.org/fpc/ticket/312
-# https://bugzilla.redhat.com/show_bug.cgi?id=977941
-Source7: config.h
 # RPM dependency generators.
 Source8: rubygems.attr
 Source9: rubygems.req
