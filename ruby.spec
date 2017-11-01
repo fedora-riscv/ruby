@@ -67,6 +67,10 @@
 %bcond_without git
 %bcond_without cmake
 
+%if 0%{?fedora}
+%bcond_without hardening_test
+%endif
+
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}
@@ -153,7 +157,7 @@ BuildRequires: procps
 %{?with_git:BuildRequires: git}
 %{?with_cmake:BuildRequires: %{_bindir}/cmake}
 # Required to test hardening.
-BuildRequires: %{_bindir}/checksec
+%{?with_hardening_test:BuildRequires: %{_bindir}/checksec}
 BuildRequires: multilib-rpm-config
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
@@ -698,6 +702,7 @@ sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
+%if 0%{?with_hardening_test}
 # Temporary change the hardening check on PPC64LE as long as the checksec is
 # is providing incorrect output.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1479302
@@ -708,6 +713,7 @@ checksec -f libruby.so.%{ruby_version} | \
 %else
 checksec -f libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*No.*\d*.*\d*.*libruby.so.%{ruby_version}"
+%endif
 %endif
 
 # Check RubyGems version correctness.
