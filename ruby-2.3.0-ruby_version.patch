@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 8ea969412f..a00f2b6776 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4348,9 +4348,6 @@ AS_CASE(["$target_os"],
+@@ -4193,9 +4193,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 8ea969412f..a00f2b6776 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4373,56 +4370,62 @@ AC_ARG_WITH(ridir,
+@@ -4218,56 +4215,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 8ea969412f..a00f2b6776 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4439,6 +4442,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4284,6 +4287,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -171,7 +171,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index d4c110e..d39c9a6 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -416,7 +416,7 @@ def CONFIG.[](name, mandatory = false)
+@@ -417,7 +417,7 @@ def CONFIG.[](name, mandatory = false)
  
  install?(:doc, :rdoc) do
    if $rdocdir
@@ -282,7 +282,7 @@ diff --git a/configure.ac b/configure.ac
 index a00f2b6776..999e2d6d5d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -278,7 +278,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -164,7 +164,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)
