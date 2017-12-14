@@ -726,10 +726,10 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
-## Disable failing TestResolvMDNS#test_mdns_each_address test,
-## which fails on Koji.
-## https://bugs.ruby-lang.org/issues/14175
-#sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
+# Disable failing TestResolvMDNS#test_mdns_each_address test,
+# which fails on Koji.
+# https://bugs.ruby-lang.org/issues/14175
+sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
