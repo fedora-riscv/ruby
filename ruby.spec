@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 61169
+%global revision 61214
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -36,7 +36,7 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.3.2
+%global bigdecimal_version 1.3.3
 %global bundler_version 1.16.1.pre1
 %global did_you_mean_version 1.1.2
 %global io_console_version 0.4.6
@@ -726,9 +726,10 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
-# Disable failing TestProcess#test_maxgroups test.
-# https://bugs.ruby-lang.org/issues/14174
-sed -i '/def test_maxgroups$/,/^  end$/ s/^/#/' test/ruby/test_process.rb
+## Disable failing TestResolvMDNS#test_mdns_each_address test,
+## which fails on Koji.
+## https://bugs.ruby-lang.org/issues/14175
+#sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -931,11 +932,11 @@ make check TESTS="-v $DISABLE_TESTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-0.1.0.gemspec
+%{gem_dir}/specifications/default/csv-1.0.0.gemspec
 %{gem_dir}/specifications/default/date-1.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/digest-0.1.0.gemspec
-%{gem_dir}/specifications/default/etc-0.2.1.gemspec
+%{gem_dir}/specifications/default/etc-1.0.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
 %{gem_dir}/specifications/default/fileutils-1.0.1.gemspec
@@ -1053,8 +1054,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r61169
-- Upgrade to Ruby 2.5.0 (r61169).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r61214
+- Upgrade to Ruby 2.5.0 (r61214).
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
