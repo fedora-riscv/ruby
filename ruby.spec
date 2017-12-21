@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 4
-%global teeny_version 2
+%global teeny_version 3
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 85
+%global release 86
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.13
+%global rubygems_version 2.6.14
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -1029,6 +1029,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Dec 21 2017 Pavel Valena <pvalena@redhat.com> - 2.4.3-86
+- Update to Ruby 2.4.3.
+
 * Fri Oct 27 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-86
 - Improve "with" conditional statement as inline.
 
