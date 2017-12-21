@@ -127,6 +127,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Fix: Command injection in lib/resolv.rb:lazy_initialize()
+# https://bugzilla.redhat.com/show_bug.cgi?id=1528226
+# https://github.com/ruby/ruby/commit/e7464561b5151501beb356fc750d5dd1a88014f7
+Patch10: ruby-2.4.3-Fix-Command-injection-in-lib-resolv-lazy_initialize.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -1031,6 +1035,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Thu Dec 21 2017 Pavel Valena <pvalena@redhat.com> - 2.4.3-86
 - Update to Ruby 2.4.3.
+- Fix: Command injection in lib/resolv.rb:lazy_initialize() (rhbz#1528226)
 
 * Fri Oct 27 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-86
 - Improve "with" conditional statement as inline.
