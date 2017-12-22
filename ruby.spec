@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 61214
+%global revision 61414
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -37,15 +37,15 @@
 %global irb_version %{ruby_version}
 
 %global bigdecimal_version 1.3.3
-%global bundler_version 1.16.1.pre1
-%global did_you_mean_version 1.1.2
+%global bundler_version 1.16.1
+%global did_you_mean_version 1.2.0
 %global io_console_version 0.4.6
 %global json_version 2.1.0
 %global minitest_version 5.10.3
 %global net_telnet_version 0.1.1
-%global openssl_version 2.1.0.beta2
+%global openssl_version 2.1.0
 %global power_assert_version 1.1.1
-%global psych_version 3.0.0
+%global psych_version 3.0.2
 %global rake_version 12.3.0
 %global rdoc_version 6.0.0
 %global test_unit_version 3.2.7
@@ -939,18 +939,17 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/default/csv-1.0.0.gemspec
 %{gem_dir}/specifications/default/date-1.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
-%{gem_dir}/specifications/default/digest-0.1.0.gemspec
 %{gem_dir}/specifications/default/etc-1.0.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.0.1.gemspec
+%{gem_dir}/specifications/default/fileutils-1.0.2.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.0.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/stringio-0.0.1.gemspec
-%{gem_dir}/specifications/default/strscan-0.0.1.gemspec
-%{gem_dir}/specifications/default/webrick-1.4.0.beta1.gemspec
+%{gem_dir}/specifications/default/strscan-1.0.0.gemspec
+%{gem_dir}/specifications/default/webrick-1.4.1.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
 %files -n rubygems-devel
@@ -1058,8 +1057,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r61214
-- Upgrade to Ruby 2.5.0 (r61214).
+* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r61414
+- Upgrade to Ruby 2.5.0 (r61414).
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
