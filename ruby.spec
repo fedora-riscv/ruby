@@ -338,6 +338,7 @@ License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(did_you_mean) = %{version}-%{release}
+BuildArch:  noarch
 
 %description -n rubygem-did_you_mean
 "did you mean?" experience in Ruby: the error message will tell you the right
