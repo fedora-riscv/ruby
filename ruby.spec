@@ -453,6 +453,7 @@ Group:      Development/Libraries
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(net-telnet) = %{version}-%{release}
+BuildArch:  noarch
 
 %description -n rubygem-net-telnet
 Provides telnet client functionality.
