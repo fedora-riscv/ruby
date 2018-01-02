@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 61414
+#%%global revision 61414
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 1
+%global release 86
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -36,8 +36,7 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.3.3
-%global bundler_version 1.16.1
+%global bigdecimal_version 1.3.4
 %global did_you_mean_version 1.2.0
 %global io_console_version 0.4.6
 %global json_version 2.1.0
@@ -47,7 +46,7 @@
 %global power_assert_version 1.1.1
 %global psych_version 3.0.2
 %global rake_version 12.3.0
-%global rdoc_version 6.0.0
+%global rdoc_version 6.0.1
 %global test_unit_version 3.2.7
 %global xmlrpc_version 0.3.0
 
@@ -662,12 +661,6 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
-# Remove Bundler until it is really necessary.
-rm -rf %{buildroot}%{ruby_libdir}/bundler
-rm -rf %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}
-rm -rf %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec
-rm %{buildroot}%{_bindir}/bundle*
-
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
@@ -957,7 +950,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/stringio-0.0.1.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.0.gemspec
-%{gem_dir}/specifications/default/webrick-1.4.1.gemspec
+%{gem_dir}/specifications/default/webrick-1.4.2.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
 %files -n rubygems-devel
@@ -1065,8 +1058,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Apr 11 2017 Vít Ondruch <vondruch@redhat.com> - 2.5.0-0.1.r61414
-- Upgrade to Ruby 2.5.0 (r61414).
+* Tue Jan 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-1
+- Upgrade to Ruby 2.5.0.
 - Drop ruby-devel dependency on rubypick, which is pulled in transtitively.
 
 * Mon Apr 03 2017 Vít Ondruch <vondruch@redhat.com> - 2.4.1-79
