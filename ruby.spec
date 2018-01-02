@@ -220,7 +220,6 @@ Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
-Provides:   bundled(rubygem(molinillo)) = %{molinillo_version}
 Provides:   bundled(rubygem-molinillo) = %{molinillo_version}
 BuildArch:  noarch
 
@@ -708,11 +707,18 @@ checksec -f libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
 %endif
 
-# Check RubyGems version correctness.
+# Check RubyGems version.
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
-# Check Molinillo version correctness.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
+
+# Check Rubygems bundled dependencies versions.
+
+# Molinillo.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Gem; module Resolver; end; end; \
+  require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; \
+  puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
+
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
