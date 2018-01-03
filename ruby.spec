@@ -1,6 +1,6 @@
 %global major_version 2
-%global minor_version 4
-%global teeny_version 2
+%global minor_version 5
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 57159
+#%%global revision 61414
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,26 +29,26 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.13
+%global rubygems_version 2.7.3
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.3.0
-%global did_you_mean_version 1.1.0
+%global bigdecimal_version 1.3.4
+%global did_you_mean_version 1.2.0
 %global io_console_version 0.4.6
-%global json_version 2.0.4
-%global minitest_version 5.10.1
+%global json_version 2.1.0
+%global minitest_version 5.10.3
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.5
-%global power_assert_version 0.4.1
-%global psych_version 2.2.2
-%global rake_version 12.0.0
-%global rdoc_version 5.0.0
-%global test_unit_version 3.2.3
-%global xmlrpc_version 0.2.1
+%global openssl_version 2.1.0
+%global power_assert_version 1.1.1
+%global psych_version 3.0.2
+%global rake_version 12.3.0
+%global rdoc_version 6.0.1
+%global test_unit_version 3.2.7
+%global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -131,6 +131,9 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Add Gem.operating_system_defaults to allow packagers to override defaults.
+# https://github.com/rubygems/rubygems/pull/2116
+Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -216,7 +219,6 @@ Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
-Provides:   bundled(rubygem(molinillo)) = %{molinillo_version}
 Provides:   bundled(rubygem-molinillo) = %{molinillo_version}
 BuildArch:  noarch
 
@@ -334,6 +336,7 @@ License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(did_you_mean) = %{version}-%{release}
+BuildArch:  noarch
 
 %description -n rubygem-did_you_mean
 "did you mean?" experience in Ruby: the error message will tell you the right
@@ -448,6 +451,7 @@ Group:      Development/Libraries
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(net-telnet) = %{version}-%{release}
+BuildArch:  noarch
 
 %description -n rubygem-net-telnet
 Provides telnet client functionality.
@@ -511,6 +515,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -690,24 +695,23 @@ sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
 %check
 %if 0%{?with_hardening_test}
-# Temporary change the hardening check on PPC64LE as long as the checksec is
-# is providing incorrect output.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1479302
-%ifnarch ppc64le
 # Check Ruby hardening.
 checksec -f libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
-%else
-checksec -f libruby.so.%{ruby_version} | \
-  grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*No.*\d*.*\d*.*libruby.so.%{ruby_version}"
-%endif
 %endif
 
-# Check RubyGems version correctness.
+# Check RubyGems version.
 [ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
-# Check Molinillo version correctness.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\"module Gem; module Resolver; end; end; require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
+
+# Check Rubygems bundled dependencies versions.
+
+# Molinillo.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Gem; module Resolver; end; end; \
+  require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; \
+  puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{molinillo_version}' ]
+
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
@@ -726,6 +730,11 @@ DISABLE_TESTS=""
 # https://bugs.ruby-lang.org/issues/11480
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
+
+# Disable failing TestResolvMDNS#test_mdns_each_address test,
+# which fails on Koji.
+# https://bugs.ruby-lang.org/issues/14175
+sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -789,7 +798,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
 %{ruby_libdir}/racc
-%{ruby_libdir}/rbconfig
 %{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper
@@ -886,9 +894,6 @@ make check TESTS="-v $DISABLE_TESTS"
 %dir %{ruby_libarchdir}/io
 %{ruby_libarchdir}/io/nonblock.so
 %{ruby_libarchdir}/io/wait.so
-%dir %{ruby_libarchdir}/mathn
-%{ruby_libarchdir}/mathn/complex.so
-%{ruby_libarchdir}/mathn/rational.so
 %{ruby_libarchdir}/nkf.so
 %{ruby_libarchdir}/objspace.so
 %{ruby_libarchdir}/pathname.so
@@ -912,10 +917,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %files -n rubygems
 %{_bindir}/gem
 %dir %{rubygems_dir}
-%{rubygems_dir}/rbconfig
 %{rubygems_dir}/rubygems
 %{rubygems_dir}/rubygems.rb
-%{rubygems_dir}/ubygems.rb
 
 # Explicitly include only RubyGems directory strucure to avoid accidentally
 # packaged content.
@@ -931,6 +934,24 @@ make check TESTS="-v $DISABLE_TESTS"
 %dir %{_exec_prefix}/lib*/gems/ruby
 
 %exclude %{gem_dir}/cache/*
+
+# TODO: Gemify these libraries
+%{gem_dir}/specifications/default/cmath-1.0.0.gemspec
+%{gem_dir}/specifications/default/csv-1.0.0.gemspec
+%{gem_dir}/specifications/default/date-1.0.0.gemspec
+%{gem_dir}/specifications/default/dbm-1.0.0.gemspec
+%{gem_dir}/specifications/default/etc-1.0.0.gemspec
+%{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
+%{gem_dir}/specifications/default/fileutils-1.0.2.gemspec
+%{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
+%{gem_dir}/specifications/default/ipaddr-1.2.0.gemspec
+%{gem_dir}/specifications/default/scanf-1.0.0.gemspec
+%{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
+%{gem_dir}/specifications/default/stringio-0.0.1.gemspec
+%{gem_dir}/specifications/default/strscan-1.0.0.gemspec
+%{gem_dir}/specifications/default/webrick-1.4.2.gemspec
+%{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -1027,14 +1048,19 @@ make check TESTS="-v $DISABLE_TESTS"
 %files -n rubygem-xmlrpc
 %license %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
 %dir %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}
+%exclude %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/.*
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
 %doc %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/README.md
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/bin
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/lib
+%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Jan 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-1
+- Upgrade to Ruby 2.5.0.
+
 * Fri Oct 27 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-86
 - Add macro to remove rubypick dependency.
 - Improve "with" conditional statement as inline.
