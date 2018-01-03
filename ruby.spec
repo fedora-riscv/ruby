@@ -359,6 +359,7 @@ provide higher layer features, such like curses and readline.
 %package -n rubygem-json
 Summary:    This is a JSON implementation as a Ruby extension in C
 Version:    %{json_version}
+Release:    102%{?dist}
 Group:      Development/Libraries
 # UCD: ext/json/generator/generator.c
 License:    (Ruby or GPLv2) and UCD
