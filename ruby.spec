@@ -1065,7 +1065,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Tue Jan 09 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-87
 - Fix segfaults during generating of documentation.
 
-* Tue Jan 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-1
+* Tue Jan 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-86
 - Upgrade to Ruby 2.5.0.
 
 * Fri Oct 27 2017 Jun Aruga <jaruga@redhat.com> - 2.4.2-86
