@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 86
+%global release 87
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -134,6 +134,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Add Gem.operating_system_defaults to allow packagers to override defaults.
 # https://github.com/rubygems/rubygems/pull/2116
 Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
+# Fix segfault during generating documentation.
+# https://bugs.ruby-lang.org/issues/14343
+Patch11: ruby-2.5.0-parse.y-assignable_error.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -516,6 +519,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1058,6 +1062,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Jan 09 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-87
+- Fix segfaults during generating of documentation.
+
 * Tue Jan 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-1
 - Upgrade to Ruby 2.5.0.
 
