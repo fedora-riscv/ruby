@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 87
+%global release 88
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1062,6 +1062,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Sat Jan 20 2018 Björn Esser <besser82@fedoraproject.org> - 2.5.0-88
+- Rebuilt for switch to libxcrypt
+
 * Tue Jan 09 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-87
 - Fix segfaults during generating of documentation.
 
