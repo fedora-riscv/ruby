@@ -742,10 +742,6 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
 make check TESTS="-v $DISABLE_TESTS"
 
-%post libs -p /sbin/ldconfig
-
-%postun libs -p /sbin/ldconfig
-
 %files
 %license BSDL
 %license COPYING
@@ -1062,6 +1058,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Feb 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-89
+- Drop obsolete ldconfig scriptlets.
+
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.0-89
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
