@@ -94,10 +94,11 @@ Source6: abrt_prelude.rb
 Source8: rubygems.attr
 Source9: rubygems.req
 Source10: rubygems.prov
+Source11: rubygems.con
 # ABRT hoook test case.
-Source12: test_abrt.rb
+Source13: test_abrt.rb
 # SystemTap tests.
-Source13: test_systemtap.rb
+Source14: test_systemtap.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
@@ -599,6 +600,7 @@ mkdir -p %{buildroot}%{_rpmconfigdir}/fileattrs
 install -m 644 %{SOURCE8} %{buildroot}%{_rpmconfigdir}/fileattrs
 install -m 755 %{SOURCE9} %{buildroot}%{_rpmconfigdir}
 install -m 755 %{SOURCE10} %{buildroot}%{_rpmconfigdir}
+install -m 755 %{SOURCE11} %{buildroot}%{_rpmconfigdir}
 
 # Install custom operating_system.rb.
 mkdir -p %{buildroot}%{rubygems_dir}/rubygems/defaults
@@ -726,10 +728,10 @@ touch abrt.rb
 
 # Check if abrt hook is required (RubyGems are disabled by default when using
 # runruby, so re-enable them).
-make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE12}"
+make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 
 # Check if systemtap is supported.
-%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE13}}
+%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
 
 DISABLE_TESTS=""
 
@@ -960,6 +962,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{_rpmconfigdir}/fileattrs/rubygems.attr
 %{_rpmconfigdir}/rubygems.req
 %{_rpmconfigdir}/rubygems.prov
+%{_rpmconfigdir}/rubygems.con
 
 %files -n rubygem-rake
 %{_bindir}/rake
@@ -1064,6 +1067,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Drop obsolete ldconfig scriptlets.
 - Add GMP dependency.
 - Use 'with' operator in RPM dependency generator.
+- Add conflicts RPM generator.
 
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.0-89
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
