@@ -1063,6 +1063,7 @@ make check TESTS="-v $DISABLE_TESTS"
 * Tue Feb 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-89
 - Drop obsolete ldconfig scriptlets.
 - Add GMP dependency.
+- Use 'with' operator in RPM dependency generator.
 
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.0-89
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
