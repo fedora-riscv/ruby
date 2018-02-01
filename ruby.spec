@@ -65,6 +65,7 @@
 %bcond_without systemtap
 %bcond_without git
 %bcond_without cmake
+%bcond_without gmp
 
 %if 0%{?fedora}
 %bcond_without hardening_test
@@ -147,6 +148,7 @@ Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
+%{?with_hardening_test:BuildRequires: gmp-devel}
 BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
@@ -1060,6 +1062,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Tue Feb 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-89
 - Drop obsolete ldconfig scriptlets.
+- Add GMP dependency.
 
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.0-89
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
