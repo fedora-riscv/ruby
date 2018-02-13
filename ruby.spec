@@ -142,6 +142,9 @@ Patch11: ruby-2.5.0-parse.y-assignable_error.patch
 # Recent tzdata change breaks Ruby test suite.
 # https://bugs.ruby-lang.org/issues/14438
 Patch12: ruby-2.5.0-Disable-Tokyo-TZ-tests.patch
+# Fix thread_safe tests suite segfaults.
+# https://bugs.ruby-lang.org/issues/14357
+Patch13: ruby-2.5.0-st.c-retry-operations-if-rebuilt.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -527,6 +530,7 @@ rm -rf ext/fiddle/libffi*
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1072,6 +1076,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Add GMP dependency.
 - Use 'with' operator in RPM dependency generator.
 - Add conflicts RPM generator.
+- Fix thread_safe test suite segfaults.
 
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.0-89
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
