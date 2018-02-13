@@ -135,6 +135,9 @@ Patch10: ruby-2.4.3-Fix-Command-injection-in-lib-resolv-lazy_initialize.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1547431
 # https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
 Patch11: rubygems-2.4.3-multiple-vulnerabilities.patch
+# Recent tzdata change breaks Ruby test suite.
+# https://bugs.ruby-lang.org/issues/14438
+Patch12: ruby-2.5.0-Disable-Tokyo-TZ-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -517,6 +520,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p0
+%patch12 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
