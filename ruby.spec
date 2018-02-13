@@ -139,6 +139,9 @@ Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
 # Fix segfault during generating documentation.
 # https://bugs.ruby-lang.org/issues/14343
 Patch11: ruby-2.5.0-parse.y-assignable_error.patch
+# Recent tzdata change breaks Ruby test suite.
+# https://bugs.ruby-lang.org/issues/14438
+Patch12: ruby-2.5.0-Disable-Tokyo-TZ-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -523,6 +526,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
