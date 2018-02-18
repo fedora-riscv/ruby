@@ -289,7 +289,7 @@ Summary:    A tool to generate HTML and command-line documentation for Ruby proj
 Version:    %{rdoc_version}
 Group:      Development/Libraries
 # SIL: lib/rdoc/generator/template/darkfish/css/fonts.css
-License:    GPLv2 and Ruby and MIT and SIL
+License:    GPLv2 and Ruby and MIT and OFL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
@@ -322,7 +322,7 @@ This package contains documentation for %{name}.
 Summary:    BigDecimal provides arbitrary-precision floating point decimal arithmetic
 Version:    %{bigdecimal_version}
 Group:      Development/Libraries
-License:    GPL+ or Artistic
+License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(bigdecimal) = %{version}-%{release}
@@ -1077,6 +1077,7 @@ make check TESTS="-v $DISABLE_TESTS"
 - Use 'with' operator in RPM dependency generator.
 - Add conflicts RPM generator.
 - Fix thread_safe test suite segfaults.
+- Fix invalid licenses.
 
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.0-89
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
