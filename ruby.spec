@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 86
+%global release 87
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.6.14
+%global rubygems_version 2.6.14.1
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -131,6 +131,10 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1528226
 # https://github.com/ruby/ruby/commit/e7464561b5151501beb356fc750d5dd1a88014f7
 Patch10: ruby-2.4.3-Fix-Command-injection-in-lib-resolv-lazy_initialize.patch
+# Fix: Multiple vulnerabilities in RubyGems
+# https://bugzilla.redhat.com/show_bug.cgi?id=1547431
+# https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
+Patch11: rubygems-2.4.3-multiple-vulnerabilities.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -512,6 +516,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p0
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1034,6 +1039,11 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Feb 21 2018 Pavel Valena <pvalena@redhat.com> - 2.4.3-87
+- Fix: Multiple vulnerabilities in RubyGems
+  https://bugzilla.redhat.com/show_bug.cgi?id=1547431
+  https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
+
 * Thu Dec 21 2017 Pavel Valena <pvalena@redhat.com> - 2.4.3-86
 - Update to Ruby 2.4.3.
 - Fix: Command injection in lib/resolv.rb:lazy_initialize() (rhbz#1528226)
