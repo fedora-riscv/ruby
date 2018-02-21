@@ -173,6 +173,7 @@ BuildRequires: procps
 # Required to test hardening.
 %{?with_hardening_test:BuildRequires: %{_bindir}/checksec}
 BuildRequires: multilib-rpm-config
+BuildRequires: gcc
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
