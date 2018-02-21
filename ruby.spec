@@ -511,6 +511,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
