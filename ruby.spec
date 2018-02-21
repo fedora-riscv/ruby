@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.7.3
+%global rubygems_version 2.7.6
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -145,6 +145,10 @@ Patch12: ruby-2.5.0-Disable-Tokyo-TZ-tests.patch
 # Fix thread_safe tests suite segfaults.
 # https://bugs.ruby-lang.org/issues/14357
 Patch13: ruby-2.5.0-st.c-retry-operations-if-rebuilt.patch
+# Fix: Multiple vulnerabilities in RubyGems
+# https://bugzilla.redhat.com/show_bug.cgi?id=1547431
+# https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
+Patch14: rubygems-2.5.0-multiple-vulnerabilities.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -531,6 +535,7 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p0
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1071,6 +1076,11 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Feb 23 2018 Pavel Valena <pvalena@redhat.com> - 2.5.0-89
+- Fix: Multiple vulnerabilities in RubyGems
+  https://bugzilla.redhat.com/show_bug.cgi?id=1547431
+  https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
+
 * Tue Feb 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-89
 - Drop obsolete ldconfig scriptlets.
 - Add GMP dependency.
