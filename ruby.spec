@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 89
+%global release 90
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1077,6 +1077,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Sat Feb 24 2018 Florian Weimer <fweimer@redhat.com> - 2.5.0-90
+- Rebuild with new LDFLAGS from redhat-rpm-config
+
 * Wed Feb 23 2018 Pavel Valena <pvalena@redhat.com> - 2.5.0-89
 - Fix: Multiple vulnerabilities in RubyGems
   https://bugzilla.redhat.com/show_bug.cgi?id=1547431
