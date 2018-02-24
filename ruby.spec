@@ -568,6 +568,9 @@ autoconf
         --with-ruby-version='' \
         --enable-multiarch \
         --with-prelude=./abrt_prelude.rb \
+%ifarch aarch64
+	--with-setjmp-type=setjmp \
+%endif
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
@@ -1076,7 +1079,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Wed Feb 23 2018 Pavel Valena <pvalena@redhat.com> - 2.5.0-89
+* Sat Feb 24 2018 Florian Weimer <fweimer@redhat.com> - 2.5.0-89
+- Use --with-setjmp-type=setjmp on aarch64 to work around gcc issue (#1545239)
+
+* Wed Feb 21 2018 Pavel Valena <pvalena@redhat.com> - 2.5.0-89
 - Fix: Multiple vulnerabilities in RubyGems
   https://bugzilla.redhat.com/show_bug.cgi?id=1547431
   https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
