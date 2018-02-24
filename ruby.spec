@@ -569,6 +569,9 @@ autoconf
         --with-ruby-version='' \
         --enable-multiarch \
         --with-prelude=./abrt_prelude.rb \
+%ifarch aarch64
+	--with-setjmp-type=setjmp \
+%endif
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
@@ -1079,6 +1082,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Sat Feb 24 2018 Florian Weimer <fweimer@redhat.com> - 2.5.0-90
 - Rebuild with new LDFLAGS from redhat-rpm-config
+- Use --with-setjmp-type=setjmp on aarch64 to work around gcc issue (#1545239)
 
 * Wed Feb 23 2018 Pavel Valena <pvalena@redhat.com> - 2.5.0-89
 - Fix: Multiple vulnerabilities in RubyGems
