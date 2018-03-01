@@ -754,6 +754,12 @@ DISABLE_TESTS=""
 # Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
 DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
+# SIGSEV handler does not provide correct output on AArch64.
+# https://bugs.ruby-lang.org/issues/13758
+%ifarch aarch64
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\)/"
+%endif
+
 # Disable failing TestResolvMDNS#test_mdns_each_address test,
 # which fails on Koji.
 # https://bugs.ruby-lang.org/issues/14175
