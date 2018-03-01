@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 89
+%global release 90
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -65,7 +65,6 @@
 %bcond_without systemtap
 %bcond_without git
 %bcond_without cmake
-%bcond_without gmp
 
 %if 0%{?fedora}
 %bcond_without hardening_test
@@ -159,7 +158,6 @@ Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
-%{?with_hardening_test:BuildRequires: gmp-devel}
 BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
@@ -1080,6 +1078,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Mar 01 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-90
+- Drop GMP dependency.
+
 * Sat Feb 24 2018 Florian Weimer <fweimer@redhat.com> - 2.5.0-89
 - Rebuild with new LDFLAGS from redhat-rpm-config
 - Use --with-setjmp-type=setjmp on aarch64 to work around gcc issue (#1545239)
