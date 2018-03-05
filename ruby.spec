@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 90
+%global release 91
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -148,6 +148,9 @@ Patch13: ruby-2.5.0-st.c-retry-operations-if-rebuilt.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1547431
 # https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
 Patch14: rubygems-2.5.0-multiple-vulnerabilities.patch
+# Don't force libraries used to build Ruby to its dependencies.
+# https://bugs.ruby-lang.org/issues/14422
+Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -535,6 +538,7 @@ rm -rf ext/fiddle/libffi*
 %patch12 -p1
 %patch13 -p1
 %patch14 -p0
+%patch15 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1084,6 +1088,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Mar 05 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-91
+- Don't force libraries used to build Ruby to its dependencies.
+
 * Thu Mar 01 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-90
 - Drop GMP dependency.
 
