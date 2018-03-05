@@ -65,6 +65,7 @@
 %bcond_without systemtap
 %bcond_without git
 %bcond_without cmake
+%bcond_without gmp
 
 %if 0%{?fedora}
 %bcond_without hardening_test
@@ -161,6 +162,7 @@ Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
+%{?with_gmp:BuildRequires: gmp-devel}
 BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
@@ -1090,6 +1092,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Mon Mar 05 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-91
 - Don't force libraries used to build Ruby to its dependencies.
+- Re-enable GMP dependency.
 
 * Thu Mar 01 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-90
 - Drop GMP dependency.
