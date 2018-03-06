@@ -757,7 +757,7 @@ DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 # SIGSEV handler does not provide correct output on AArch64.
 # https://bugs.ruby-lang.org/issues/13758
 %ifarch aarch64
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\)/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_features\)/"
 %endif
 
 # Disable failing TestResolvMDNS#test_mdns_each_address test,
