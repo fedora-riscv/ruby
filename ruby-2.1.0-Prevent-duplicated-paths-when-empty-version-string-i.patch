@@ -14,7 +14,7 @@ diff --git a/configure.ac b/configure.ac
 index 999e2d6d5d..11fc237552 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4250,7 +4250,8 @@ AS_CASE(["$ruby_version_dir_name"],
+@@ -4251,7 +4251,8 @@ AS_CASE(["$ruby_version_dir_name"],
  ruby_version_dir=/'${ruby_version_dir_name}'
  
  if test -z "${ruby_version_dir_name}"; then

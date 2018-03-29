@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 8ea969412f..a00f2b6776 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4201,9 +4201,6 @@ AS_CASE(["$target_os"],
+@@ -4202,9 +4202,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 8ea969412f..a00f2b6776 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4226,56 +4223,62 @@ AC_ARG_WITH(ridir,
+@@ -4227,56 +4224,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 8ea969412f..a00f2b6776 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4292,6 +4295,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4293,6 +4296,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl

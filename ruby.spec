@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 5
-%global teeny_version 0
+%global teeny_version 1
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 90
+%global release 92
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -135,19 +135,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Add Gem.operating_system_defaults to allow packagers to override defaults.
 # https://github.com/rubygems/rubygems/pull/2116
 Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
-# Fix segfault during generating documentation.
-# https://bugs.ruby-lang.org/issues/14343
-Patch11: ruby-2.5.0-parse.y-assignable_error.patch
-# Recent tzdata change breaks Ruby test suite.
-# https://bugs.ruby-lang.org/issues/14438
-Patch12: ruby-2.5.0-Disable-Tokyo-TZ-tests.patch
-# Fix thread_safe tests suite segfaults.
-# https://bugs.ruby-lang.org/issues/14357
-Patch13: ruby-2.5.0-st.c-retry-operations-if-rebuilt.patch
-# Fix: Multiple vulnerabilities in RubyGems
-# https://bugzilla.redhat.com/show_bug.cgi?id=1547431
-# https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
-Patch14: rubygems-2.5.0-multiple-vulnerabilities.patch
+# TestTimeTZ test failures Kiritimati and Lisbon
+# https://bugs.ruby-lang.org/issues/14655
+Patch11: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -532,9 +522,6 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p0
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -749,10 +736,6 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 %{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
 
 DISABLE_TESTS=""
-
-# https://bugs.ruby-lang.org/issues/11480
-# Once seen: http://koji.fedoraproject.org/koji/taskinfo?taskID=12556650
-DISABLE_TESTS="$DISABLE_TESTS -x test_fork.rb"
 
 # SIGSEV handler does not provide correct output on AArch64.
 # https://bugs.ruby-lang.org/issues/13758
@@ -1084,6 +1067,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Mar 29 2018 Pavel Valena <pvalena@redhat.com> - 2.5.1-92
+- Update to Ruby 2.5.1.
+
 * Thu Mar 01 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.0-90
 - Drop GMP dependency.
 
