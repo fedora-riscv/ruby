@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 4
-%global teeny_version 3
+%global teeny_version 4
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -36,13 +36,13 @@
 # http://redmine.ruby-lang.org/issues/5313
 %global irb_version %{ruby_version}
 
-%global bigdecimal_version 1.3.0
+%global bigdecimal_version 1.3.2
 %global did_you_mean_version 1.1.0
 %global io_console_version 0.4.6
 %global json_version 2.0.4
 %global minitest_version 5.10.1
 %global net_telnet_version 0.1.1
-%global openssl_version 2.0.5
+%global openssl_version 2.0.7
 %global power_assert_version 0.4.1
 %global psych_version 2.2.2
 %global rake_version 12.0.0
@@ -131,13 +131,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1528226
 # https://github.com/ruby/ruby/commit/e7464561b5151501beb356fc750d5dd1a88014f7
 Patch10: ruby-2.4.3-Fix-Command-injection-in-lib-resolv-lazy_initialize.patch
-# Fix: Multiple vulnerabilities in RubyGems
-# https://bugzilla.redhat.com/show_bug.cgi?id=1547431
-# https://www.ruby-lang.org/en/news/2018/02/17/multiple-vulnerabilities-in-rubygems/
-Patch11: rubygems-2.4.3-multiple-vulnerabilities.patch
-# Recent tzdata change breaks Ruby test suite.
-# https://bugs.ruby-lang.org/issues/14438
-Patch12: ruby-2.5.0-Disable-Tokyo-TZ-tests.patch
+# TestTimeTZ test failures Kiritimati and Lisbon
+# https://bugs.ruby-lang.org/issues/14655
+Patch13: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -519,8 +515,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p0
-%patch12 -p1
+%patch13 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1035,6 +1030,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Apr 16 2018 Pavel Valena <pvalena@redhat.com> - 2.4.4-88
+- Update to Ruby 2.4.4.
+
 * Wed Feb 21 2018 Pavel Valena <pvalena@redhat.com> - 2.4.3-87
 - Fix: Multiple vulnerabilities in RubyGems
   https://bugzilla.redhat.com/show_bug.cgi?id=1547431
