@@ -18,7 +18,7 @@ diff --git a/lib/resolv.rb b/lib/resolv.rb
 index 1044b95e6810..56183b837d81 100644
 --- a/lib/resolv.rb
 +++ b/lib/resolv.rb
-@@ -188,7 +188,7 @@ def lazy_initialize # :nodoc:
+@@ -189,7 +189,7 @@ def lazy_initialize # :nodoc:
          unless @initialized
            @name2addr = {}
            @addr2name = {}
