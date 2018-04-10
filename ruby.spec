@@ -554,9 +554,6 @@ autoconf
         --with-ruby-version='' \
         --enable-multiarch \
         --with-prelude=./abrt_prelude.rb \
-%ifarch aarch64
-	--with-setjmp-type=setjmp \
-%endif
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
@@ -1069,6 +1066,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Tue Apr 10 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-92
 - Conflict requirement needs to generate dependency.
+- Stop using --with-setjmp-type=setjmp on aarch64 (rhbz#1545239).
 
 * Thu Mar 29 2018 Pavel Valena <pvalena@redhat.com> - 2.5.1-92
 - Update to Ruby 2.5.1.
