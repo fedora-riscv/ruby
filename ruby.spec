@@ -1067,6 +1067,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Apr 10 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-92
+- Conflict requirement needs to generate dependency.
+
 * Thu Mar 29 2018 Pavel Valena <pvalena@redhat.com> - 2.5.1-92
 - Update to Ruby 2.5.1.
 
