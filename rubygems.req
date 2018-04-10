@@ -11,7 +11,13 @@ module RubyGemsReq
         when '~>'
           expand_pessimistic_requirement(r)
         when '!='
-          []
+          # If there is only the conflict requirement, we still need to depend
+          # on the specified gem.
+          if requirements.size == 1
+            Gem::Requirement.default.requirements
+          else
+            []
+          end
         else
           [r]
         end
