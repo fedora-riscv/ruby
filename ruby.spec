@@ -292,8 +292,6 @@ Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   ruby(irb) = %{irb_version}
 Requires:   rubygem(io-console) >= %{io_console_version}
-# Hardcode the dependency to keep it compatible with dependencies of the
-# official rubygem-rdoc gem.
 Requires:   rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
 Provides:   ri = %{version}-%{release}
