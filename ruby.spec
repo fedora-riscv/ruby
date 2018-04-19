@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 87
+%global release 88
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
