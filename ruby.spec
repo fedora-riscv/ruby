@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 88
+%global release 89
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1029,6 +1029,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed May 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.4.4-89
+- Make %%gemspec_{add,remove}_dep modify .gemspec provided by %%setup macro.
+
 * Mon Apr 16 2018 Pavel Valena <pvalena@redhat.com> - 2.4.4-88
 - Update to Ruby 2.4.4.
 
