@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 92
+%global release 93
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1068,6 +1068,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed May 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-93
+- Make %%gemspec_{add,remove}_dep modify .gemspec provided by %%setup macro.
+
 * Tue Apr 10 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-92
 - Conflict requirement needs to generate dependency.
 - Stop using --with-setjmp-type=setjmp on aarch64 (rhbz#1545239).
