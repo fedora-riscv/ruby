@@ -42,8 +42,8 @@ gem install \\\
 }
 
 
-# The 'read' command in gemspec_add_dep and gemspec_remove_dep macros is not
-# essential, but it is usefull to make the script appear in build log.
+# The 'read' command in %%gemspec_* macros is not essential, but it is usefull
+# to make the sript appear in build log.
 
 
 # %gemspec_add_dep - Add dependency into .gemspec.
@@ -127,4 +127,69 @@ read -d '' gemspec_remove_dep_script << 'EOR' || : \
 EOR\
 echo "$gemspec_remove_dep_script" | ruby \
 unset -v gemspec_remove_dep_script \
+%{nil}
+
+
+# %%gemspec_add_file - Add files to various files lists in .gemspec.
+#
+# Usage: %%gemspec_add_file [options] <file>
+#
+# Add files to .gemspec file. <file> is expected to be valid Ruby code.
+# Path to file is expected. Does not check real files in any way.
+# By default, `files` list is edited.
+#
+# -s <gemspec_file>   Overrides the default .gemspec location.
+# -t                  Edit test_files only.
+# -r                  Edit extra_rdoc_files only.
+#
+%gemspec_add_file(s:tr) \
+read -d '' gemspec_add_file_script << 'EOR' || : \
+  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}.gemspec}' \
+  \
+  abort("gemspec_add_file: Use only one '-t' or '-r' at a time.") if "%{?-t}%{?-r}" == "-t-r" \
+  \
+  filenames = %{*}%{!?1:nil} \
+  filenames = Array(filenames) \
+  \
+  spec = Gem::Specification.load(gemspec_file) \
+  abort("#{gemspec_file} is not accessible.") unless spec \
+  \
+  spec.%{?-t:test_}%{?-r:extra_rdoc_}files += filenames \
+  File.write gemspec_file, spec.to_ruby \
+EOR\
+echo "$gemspec_add_file_script" | ruby \
+unset -v gemspec_add_file_script \
+%{nil}
+
+
+# %%gemspec_remove_file - Remove files from various files lists in .gemspec.
+#
+# Usage: %%gemspec_remove_file [options] <file>
+#
+# Remove files from .gemspec file. <file> is expected to be valid Ruby code.
+# Path to file is expected. Does not check/remove real files in any way.
+# By default, `files` list is edited. File has to be removed from `test_files`
+# first in order to be removable from `files`.
+#
+# -s <gemspec_file>   Overrides the default .gemspec location.
+# -t                  Edit test_files only.
+# -r                  Edit extra_rdoc_files only.
+#
+%gemspec_remove_file(s:tr) \
+read -d '' gemspec_remove_file_script << 'EOR' || : \
+  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}.gemspec}' \
+  \
+  abort("gemspec_remove_file: Use only one '-t' or '-r' at a time.") if "%{?-t}%{?-r}" == "-t-r" \
+  \
+  filenames = %{*}%{!?1:nil} \
+  filenames = Array(filenames) \
+  \
+  spec = Gem::Specification.load(gemspec_file) \
+  abort("#{gemspec_file} is not accessible.") unless spec \
+  \
+  spec.%{?-t:test_}%{?-r:extra_rdoc_}files -= filenames \
+  File.write gemspec_file, spec.to_ruby \
+EOR\
+echo "$gemspec_remove_file_script" | ruby \
+unset -v gemspec_remove_file_script \
 %{nil}
