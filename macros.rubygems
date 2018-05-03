@@ -42,8 +42,8 @@ gem install \\\
 }
 
 
-# The 'read' command in gemspec_add _depand gemspec_remove_dep macros is not
-# essential, but it is usefull to make the sript appear in build log.
+# The 'read' command in gemspec_add_dep and gemspec_remove_dep macros is not
+# essential, but it is usefull to make the script appear in build log.
 
 
 # %gemspec_add_dep - Add dependency into .gemspec.
