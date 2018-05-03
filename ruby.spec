@@ -1064,6 +1064,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu May 10 2018 Pavel Valena <pvalena@redhat.com> - 2.5.1-93
+- Add macros to edit files lists in .gemspec
+  (gemspec_add_file and gemspec_remove_file).
+
 * Wed May 02 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-93
 - Make %%gemspec_{add,remove}_dep modify .gemspec provided by %%setup macro.
 
