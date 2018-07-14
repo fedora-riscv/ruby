@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 93
+%global release 94
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1068,6 +1068,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.1-94
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Thu May 10 2018 Pavel Valena <pvalena@redhat.com> - 2.5.1-93
 - Add macros to edit files lists in .gemspec
   (gemspec_add_file and gemspec_remove_file).
