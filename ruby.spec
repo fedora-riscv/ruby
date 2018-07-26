@@ -145,6 +145,9 @@ Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
 # Do not require C++ compiler.
 # https://github.com/rubygems/rubygems/pull/2367
 Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
+# Fix some OpenSSL 1.1.1 test failures.
+# https://github.com/ruby/openssl/pull/202
+Patch17: ruby-2.5.1-Test-fixes-for-OpenSSL-1.1.1.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -530,6 +533,7 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch15 -p1
 %patch16 -p1
+%patch17 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -752,6 +756,13 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # which fails on Koji.
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
+
+# For now, disable some OpenSSL tests incompatible with OpenSSL 1.1.1:
+# https://github.com/ruby/openssl/issues/207
+mv test/openssl/test_ssl.rb{,.disabled}
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_resumption/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(identity_verify_failure\|min_version\|session_reuse\)/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -1072,6 +1083,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Jul 26 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-94
+- Disable some test failing with OpenSSL 1.1.1.
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 2.5.1-94
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 

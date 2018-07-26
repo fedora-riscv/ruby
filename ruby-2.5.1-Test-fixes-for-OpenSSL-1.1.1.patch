@@ -1,0 +1,112 @@
+From 71057ca5963108bac1e2c31bd0e8e205ba74cc19 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 11 May 2018 13:43:32 +0900
+Subject: [PATCH 1/2] test/test_pkey_rsa: fix test failure with OpenSSL 1.1.1
+
+OpenSSL 1.1.1 raised the minimum size for RSA keys to 512 bits.
+---
+ test/openssl/test_pkey_rsa.rb | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/test/openssl/test_pkey_rsa.rb b/test/openssl/test_pkey_rsa.rb
+index c1205563..b4393e68 100644
+--- a/test/openssl/test_pkey_rsa.rb
++++ b/test/openssl/test_pkey_rsa.rb
+@@ -60,6 +60,13 @@ def test_new_with_exponent
+     end
+   end
+ 
++  def test_generate
++    key = OpenSSL::PKey::RSA.generate(512, 17)
++    assert_equal 512, key.n.num_bits
++    assert_equal 17, key.e
++    assert_not_nil key.d
++  end
++
+   def test_new_break
+     assert_nil(OpenSSL::PKey::RSA.new(1024) { break })
+     assert_raise(RuntimeError) do
+@@ -256,7 +263,7 @@ def test_pem_passwd
+   end
+ 
+   def test_dup
+-    key = OpenSSL::PKey::RSA.generate(256, 17)
++    key = Fixtures.pkey("rsa1024")
+     key2 = key.dup
+     assert_equal key.params, key2.params
+     key2.set_key(key2.n, 3, key2.d)
+
+From a5e26bc1345fe325bdc619f9b1768b7ad3c94214 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 11 May 2018 14:12:39 +0900
+Subject: [PATCH 2/2] test/test_ssl_session: set client protocol version
+ explicitly
+
+Clients that implement TLS 1.3's Middlebox Compatibility Mode will
+always provide a non-empty session ID in the ClientHello. This means
+the "get" callback for the server-side session caching may be called
+for the initial connection.
+---
+ test/openssl/test_ssl_session.rb | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/test/openssl/test_ssl_session.rb b/test/openssl/test_ssl_session.rb
+index af8c65b1..6db0c2d1 100644
+--- a/test/openssl/test_ssl_session.rb
++++ b/test/openssl/test_ssl_session.rb
+@@ -198,7 +198,9 @@ def test_server_session_cache
+       first_session = nil
+       10.times do |i|
+         connections = i
+-        server_connect_with_session(port, nil, first_session) { |ssl|
++        cctx = OpenSSL::SSL::SSLContext.new
++        cctx.ssl_version = :TLSv1_2
++        server_connect_with_session(port, cctx, first_session) { |ssl|
+           ssl.puts("abc"); assert_equal "abc\n", ssl.gets
+           first_session ||= ssl.session
+ 
+@@ -257,6 +259,8 @@ def test_ctx_server_session_cb
+ 
+     connections = nil
+     called = {}
++    cctx = OpenSSL::SSL::SSLContext.new
++    cctx.ssl_version = :TLSv1_2
+     sctx = nil
+     ctx_proc = Proc.new { |ctx|
+       sctx = ctx
+@@ -292,7 +296,7 @@ def test_ctx_server_session_cb
+     }
+     start_server(ctx_proc: ctx_proc) do |port|
+       connections = 0
+-      sess0 = server_connect_with_session(port, nil, nil) { |ssl|
++      sess0 = server_connect_with_session(port, cctx, nil) { |ssl|
+         ssl.puts("abc"); assert_equal "abc\n", ssl.gets
+         assert_equal false, ssl.session_reused?
+         ssl.session
+@@ -307,7 +311,7 @@ def test_ctx_server_session_cb
+ 
+       # Internal cache hit
+       connections = 1
+-      server_connect_with_session(port, nil, sess0.dup) { |ssl|
++      server_connect_with_session(port, cctx, sess0.dup) { |ssl|
+         ssl.puts("abc"); assert_equal "abc\n", ssl.gets
+         assert_equal true, ssl.session_reused?
+         ssl.session
+@@ -328,7 +332,7 @@ def test_ctx_server_session_cb
+ 
+       # External cache hit
+       connections = 2
+-      sess2 = server_connect_with_session(port, nil, sess0.dup) { |ssl|
++      sess2 = server_connect_with_session(port, cctx, sess0.dup) { |ssl|
+         ssl.puts("abc"); assert_equal "abc\n", ssl.gets
+         if !ssl.session_reused? && openssl?(1, 1, 0) && !openssl?(1, 1, 0, 7)
+           # OpenSSL >= 1.1.0, < 1.1.0g
+@@ -355,7 +359,7 @@ def test_ctx_server_session_cb
+ 
+       # Cache miss
+       connections = 3
+-      sess3 = server_connect_with_session(port, nil, sess0.dup) { |ssl|
++      sess3 = server_connect_with_session(port, cctx, sess0.dup) { |ssl|
+         ssl.puts("abc"); assert_equal "abc\n", ssl.gets
+         assert_equal false, ssl.session_reused?
+         ssl.session
