@@ -1,0 +1,35 @@
+From 51e2c91412a511196e58efea5b87c460b4fa6a20 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Thu, 26 Jul 2018 13:17:52 +0200
+Subject: [PATCH] Avoid need of C++ compiler to pass the test suite.
+
+The test suite fails when C++ compiler is not available on the system:
+
+~~~
+TestGemExtCmakeBuilder#test_self_build:
+Gem::InstallError: cmake failed, exit code 1
+    /builddir/build/BUILD/ruby-2.5.1/lib/rubygems/ext/builder.rb:92:in `run'
+    /builddir/build/BUILD/ruby-2.5.1/lib/rubygems/ext/cmake_builder.rb:10:in `build'
+    /builddir/build/BUILD/ruby-2.5.1/test/rubygems/test_gem_ext_cmake_builder.rb:37:in `block in test_self_build'
+    /builddir/build/BUILD/ruby-2.5.1/test/rubygems/test_gem_ext_cmake_builder.rb:36:in `chdir'
+    /builddir/build/BUILD/ruby-2.5.1/test/rubygems/test_gem_ext_cmake_builder.rb:36:in `test_self_build'
+~~~
+
+But there is nothing which would realy required C++. It is just CMake
+default to check for C++.
+---
+ test/rubygems/test_gem_ext_cmake_builder.rb | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/test/rubygems/test_gem_ext_cmake_builder.rb b/test/rubygems/test_gem_ext_cmake_builder.rb
+index 76d3cb2afe..2d449fc2fd 100644
+--- a/test/rubygems/test_gem_ext_cmake_builder.rb
++++ b/test/rubygems/test_gem_ext_cmake_builder.rb
+@@ -25,6 +25,7 @@ def test_self_build
+     File.open File.join(@ext, 'CMakeLists.txt'), 'w' do |cmakelists|
+       cmakelists.write <<-eo_cmake
+ cmake_minimum_required(VERSION 2.6)
++project(self_build LANGUAGES NONE)
+ install (FILES test.txt DESTINATION bin)
+       eo_cmake
+     end

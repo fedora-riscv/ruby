@@ -142,6 +142,9 @@ Patch11: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 # Don't force libraries used to build Ruby to its dependencies.
 # https://bugs.ruby-lang.org/issues/14422
 Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
+# Do not require C++ compiler.
+# https://github.com/rubygems/rubygems/pull/2367
+Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -526,6 +529,7 @@ rm -rf ext/fiddle/libffi*
 %patch10 -p1
 %patch11 -p1
 %patch15 -p1
+%patch16 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
