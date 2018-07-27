@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 94
+%global release 95
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -1083,6 +1083,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Jul 27 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.5.1-95
+- Rebuild for new binutils
+
 * Thu Jul 26 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-94
 - Disable some test failing with OpenSSL 1.1.1.
 
