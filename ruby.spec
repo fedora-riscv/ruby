@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 96
+%global release 97
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -148,6 +148,10 @@ Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
 # Fix some OpenSSL 1.1.1 test failures.
 # https://github.com/ruby/openssl/pull/202
 Patch17: ruby-2.5.1-Test-fixes-for-OpenSSL-1.1.1.patch
+# https://github.com/ruby/openssl/pull/209
+Patch18: ruby-2.6.0-fix-test-failure-with-TLS-1.3.patch
+# https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
+Patch19: ruby-2.6.0-net-http-net-ftp-fix-session-resumption-with-TLS-1.3.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -534,6 +538,8 @@ rm -rf ext/fiddle/libffi*
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
+%patch19 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -759,10 +765,10 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
 # For now, disable some OpenSSL tests incompatible with OpenSSL 1.1.1:
 # https://github.com/ruby/openssl/issues/207
-mv test/openssl/test_ssl.rb{,.disabled}
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_resumption/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(identity_verify_failure\|min_version\|session_reuse\)/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(add_certificate\|minmax_version\|options_disable_versions\|set_params_min_version\)/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
+# https://github.com/ruby/openssl/issues/208
+DISABLE_TESTS="$DISABLE_TESTS -n !/^test_constants$/"
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -1083,6 +1089,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Aug 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-97
+- Fix TLS 1.3 issues.
+
 * Tue Jul 31 2018 Florian Weimer <fweimer@redhat.com> - 2.5.1-96
 - Rebuild with fixed binutils
 
