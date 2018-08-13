@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 97
+%global release 98
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -768,7 +768,7 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(add_certificate\|minmax_version\|options_disable_versions\|set_params_min_version\)/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
 # https://github.com/ruby/openssl/issues/208
-DISABLE_TESTS="$DISABLE_TESTS -n !/^test_constants$/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_constants/"
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -1089,6 +1089,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Aug 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-98
+- Properly execute entire test suite.
+
 * Mon Aug 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-97
 - Fix TLS 1.3 issues.
 
