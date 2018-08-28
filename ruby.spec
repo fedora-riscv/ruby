@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 98
+%global release 99
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -145,6 +145,9 @@ Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
 # Do not require C++ compiler.
 # https://github.com/rubygems/rubygems/pull/2367
 Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
+# https://github.com/ruby/rdoc/commit/d05e6269d4a4dfd701f5ddb3ae34306cba891511
+Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
+
 # Fix some OpenSSL 1.1.1 test failures.
 # https://github.com/ruby/openssl/pull/202
 Patch17: ruby-2.5.1-Test-fixes-for-OpenSSL-1.1.1.patch
@@ -540,6 +543,7 @@ rm -rf ext/fiddle/libffi*
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1089,6 +1093,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Aug 28 2018 Jun Aruga <jaruga@redhat.com> - 2.5.1-99
+- Fix generated rdoc template issues.
+
 * Mon Aug 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-98
 - Properly execute entire test suite.
 
