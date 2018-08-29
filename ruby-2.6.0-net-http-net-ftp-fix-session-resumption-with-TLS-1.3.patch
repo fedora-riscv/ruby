@@ -44,7 +44,7 @@ diff --git a/lib/net/http.rb b/lib/net/http.rb
 index 281b15cedff0..683a884f5dbe 100644
 --- a/lib/net/http.rb
 +++ b/lib/net/http.rb
-@@ -983,6 +983,10 @@ def connect
+@@ -969,6 +969,10 @@ def connect
          end
          @ssl_context = OpenSSL::SSL::SSLContext.new
          @ssl_context.set_params(ssl_parameters)
@@ -55,7 +55,7 @@ index 281b15cedff0..683a884f5dbe 100644
          D "starting SSL for #{conn_address}:#{conn_port}..."
          s = OpenSSL::SSL::SSLSocket.new(s, @ssl_context)
          s.sync_close = true
-@@ -990,13 +994,12 @@ def connect
+@@ -976,13 +980,12 @@ def connect
          s.hostname = @address if s.respond_to? :hostname=
          if @ssl_session and
             Process.clock_gettime(Process::CLOCK_REALTIME) < @ssl_session.time.to_f + @ssl_session.timeout

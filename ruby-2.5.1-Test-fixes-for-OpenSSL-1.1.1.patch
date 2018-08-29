@@ -26,7 +26,7 @@ index c1205563..b4393e68 100644
    def test_new_break
      assert_nil(OpenSSL::PKey::RSA.new(1024) { break })
      assert_raise(RuntimeError) do
-@@ -256,7 +263,7 @@ def test_pem_passwd
+@@ -289,7 +296,7 @@ def test_pem_passwd
    end
  
    def test_dup
