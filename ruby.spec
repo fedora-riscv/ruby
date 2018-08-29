@@ -155,6 +155,16 @@ Patch17: ruby-2.5.1-Test-fixes-for-OpenSSL-1.1.1.patch
 Patch18: ruby-2.6.0-fix-test-failure-with-TLS-1.3.patch
 # https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
 Patch19: ruby-2.6.0-net-http-net-ftp-fix-session-resumption-with-TLS-1.3.patch
+# Additional test fixes taken from:
+# https://github.com/ruby/openssl/issues/207#issuecomment-413454568
+# https://github.com/ruby/openssl/commit/158201f9b66607f380513708e3ab65f1e27694e6
+Patch21: ruby-2.6.0-fix-test-failure-with-TLS-1.3-maint.patch
+# Add support for .include directive used by OpenSSL config files.
+# https://github.com/ruby/openssl/pull/216
+Patch22: ruby-2.6.0-config-support-include-directive.patch
+# Use larger keys to prevent test failures.
+# https://github.com/ruby/openssl/pull/217
+Patch23: ruby-2.6.0-use-larger-keys-for-SSL-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -544,6 +554,9 @@ rm -rf ext/fiddle/libffi*
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -767,12 +780,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
-# For now, disable some OpenSSL tests incompatible with OpenSSL 1.1.1:
-# https://github.com/ruby/openssl/issues/207
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(add_certificate\|minmax_version\|options_disable_versions\|set_params_min_version\)/"
+# For now, disable test incompatible with OpenSSL 1.1.1:
+# https://github.com/rubygems/rubygems/issues/2388
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
-# https://github.com/ruby/openssl/issues/208
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_constants/"
 
 make check TESTS="-v $DISABLE_TESTS"
 
@@ -1093,6 +1103,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Aug 29 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-99
+- Additional OpenSSL 1.1.1 fixes.
+
 * Tue Aug 28 2018 Jun Aruga <jaruga@redhat.com> - 2.5.1-99
 - Fix generated rdoc template issues.
 
