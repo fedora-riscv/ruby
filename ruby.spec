@@ -1105,6 +1105,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Wed Aug 29 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-99
 - Additional OpenSSL 1.1.1 fixes.
+- Add --with-cxxflags configuration for %%gem_install macro.
 
 * Tue Aug 28 2018 Jun Aruga <jaruga@redhat.com> - 2.5.1-99
 - Fix generated rdoc template issues.

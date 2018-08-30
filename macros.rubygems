@@ -21,7 +21,7 @@
 %gem_install(d:n:) \
 mkdir -p %{-d*}%{!?-d:.%{gem_dir}} \
 \
-CONFIGURE_ARGS="--with-cflags='%{optflags}' $CONFIGURE_ARGS" \\\
+CONFIGURE_ARGS="--with-cflags='%{optflags}' --with-cxxflags='%{optflags}' $CONFIGURE_ARGS" \\\
 gem install \\\
         -V \\\
         --local \\\
