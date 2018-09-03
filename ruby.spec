@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 99
+%global release 100
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -147,6 +147,9 @@ Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
 Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
 # https://github.com/ruby/rdoc/commit/d05e6269d4a4dfd701f5ddb3ae34306cba891511
 Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
+# Properly harden package using -fstack-protector-strong.
+# https://bugs.ruby-lang.org/issues/15053
+Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
 
 # Fix some OpenSSL 1.1.1 test failures.
 # https://github.com/ruby/openssl/pull/202
@@ -557,6 +560,7 @@ rm -rf ext/fiddle/libffi*
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1103,6 +1107,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Sep 03 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-100
+- Properly harden package using -fstack-protector-strong.
+
 * Wed Aug 29 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-99
 - Additional OpenSSL 1.1.1 fixes.
 - Add --with-cxxflags configuration for %%gem_install macro.
