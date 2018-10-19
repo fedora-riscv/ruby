@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 5
-%global teeny_version 1
+%global teeny_version 3
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 93
+%global release 94
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -42,7 +42,7 @@
 %global json_version 2.1.0
 %global minitest_version 5.10.3
 %global net_telnet_version 0.1.1
-%global openssl_version 2.1.0
+%global openssl_version 2.1.2
 %global power_assert_version 1.1.1
 %global psych_version 3.0.2
 %global rake_version 12.3.0
@@ -135,9 +135,6 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Add Gem.operating_system_defaults to allow packagers to override defaults.
 # https://github.com/rubygems/rubygems/pull/2116
 Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
-# TestTimeTZ test failures Kiritimati and Lisbon
-# https://bugs.ruby-lang.org/issues/14655
-Patch11: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -521,7 +518,6 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1064,6 +1060,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Oct 19 2018 Jun Aruga <jaruga@redhat.com> - 2.5.3-94
+- Update to Ruby 2.5.3.
+
 * Thu May 10 2018 Pavel Valena <pvalena@redhat.com> - 2.5.1-93
 - Add macros to edit files lists in .gemspec
   (gemspec_add_file and gemspec_remove_file).
