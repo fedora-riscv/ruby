@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 5
-%global teeny_version 1
+%global teeny_version 3
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 98
+%global release 99
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory three, since the
@@ -42,7 +42,7 @@
 %global json_version 2.1.0
 %global minitest_version 5.10.3
 %global net_telnet_version 0.1.1
-%global openssl_version 2.1.0
+%global openssl_version 2.1.2
 %global power_assert_version 1.1.1
 %global psych_version 3.0.2
 %global rake_version 12.3.0
@@ -136,9 +136,6 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Add Gem.operating_system_defaults to allow packagers to override defaults.
 # https://github.com/rubygems/rubygems/pull/2116
 Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
-# TestTimeTZ test failures Kiritimati and Lisbon
-# https://bugs.ruby-lang.org/issues/14655
-Patch11: ruby-2.5.1-TestTimeTZ-test-failures-Kiritimati-and-Lisbon.patch
 # Don't force libraries used to build Ruby to its dependencies.
 # https://bugs.ruby-lang.org/issues/14422
 Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
@@ -146,10 +143,6 @@ Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
 # https://github.com/rubygems/rubygems/pull/2367
 Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
 # Fix some OpenSSL 1.1.1 test failures.
-# https://github.com/ruby/openssl/pull/202
-Patch17: ruby-2.5.1-Test-fixes-for-OpenSSL-1.1.1.patch
-# https://github.com/ruby/openssl/pull/209
-Patch18: ruby-2.6.0-fix-test-failure-with-TLS-1.3.patch
 # https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
 Patch19: ruby-2.6.0-net-http-net-ftp-fix-session-resumption-with-TLS-1.3.patch
 
@@ -534,11 +527,8 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 %patch15 -p1
 %patch16 -p1
-%patch17 -p1
-%patch18 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1089,6 +1079,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Oct 19 2018 Jun Aruga <jaruga@redhat.com> - 2.5.3-99
+- Update to Ruby 2.5.3.
+
 * Mon Aug 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.1-98
 - Properly execute entire test suite.
 
