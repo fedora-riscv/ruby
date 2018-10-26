@@ -82,7 +82,7 @@ Group: Development/Languages
 # UCD: some of enc/trans/**/*.src
 License: (Ruby or BSD) and Public Domain and MIT and CC0 and zlib and UCD
 URL: http://ruby-lang.org/
-Source0: ftp://ftp.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
+Source0: https://cache.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
 Source1: operating_system.rb
 # TODO: Try to push SystemTap support upstream.
 Source2: libruby.stp
