@@ -1,0 +1,24 @@
+diff --git a/test/ruby/test_io.rb b/test/ruby/test_io.rb
+index dc99a8c463..30984bc26a 100644
+--- a/test/ruby/test_io.rb
++++ b/test/ruby/test_io.rb
+@@ -3551,7 +3551,7 @@ def test_write_no_garbage
+   end
+ 
+   def test_select_leak
+-    assert_no_memory_leak([], <<-"end;", <<-"end;", rss: true, timeout: 60)
++    assert_no_memory_leak([], <<-"end;", <<-"end;", rss: true, timeout: 240)
+       r, w = IO.pipe
+       rset = [r]
+       wset = [w]
+@@ -3562,6 +3562,7 @@ def test_select_leak
+         Thread.pass until th.stop?
+         th.kill
+         th.join
++        GC.start
+       end
+     end;
+   end
+-- 
+2.17.1
+
