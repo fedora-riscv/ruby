@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 101
+%global release 102
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -147,6 +147,9 @@ Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
 # Properly harden package using -fstack-protector-strong.
 # https://bugs.ruby-lang.org/issues/15053
 Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
+# Fix Tokyo TZ tests.
+# https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
+Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
 
 # Fix some OpenSSL 1.1.1 test failures.
 # https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
@@ -546,6 +549,7 @@ rm -rf ext/fiddle/libffi*
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch25 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1092,6 +1096,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
+- Fix Tokyo TZ tests.
+
 * Fri Oct 19 2018 Jun Aruga <jaruga@redhat.com> - 2.5.3-101
 - Update to Ruby 2.5.3.
 
