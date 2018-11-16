@@ -1,13 +1,13 @@
 %global major_version 2
-%global minor_version 5
-%global teeny_version 3
+%global minor_version 6
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone rc1
+%global milestone preview3
 
 # Keep the revision enabled for pre-releases from SVN.
 #%%global revision 61414
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 102
+%global release 1
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,25 +29,25 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.7.6
+%global rubygems_version 3.0.0.beta2
 %global molinillo_version 0.5.7
 
+%global bigdecimal_version 1.3.4
+%global bundler_version 1.17.1
+%global did_you_mean_version 1.2.1
+%global io_console_version 0.4.6
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
 # http://redmine.ruby-lang.org/issues/5313
-%global irb_version %{ruby_version}
-
-%global bigdecimal_version 1.3.4
-%global did_you_mean_version 1.2.0
-%global io_console_version 0.4.6
+%global irb_version 0.9.6
 %global json_version 2.1.0
-%global minitest_version 5.10.3
-%global net_telnet_version 0.1.1
+%global minitest_version 5.11.3
+%global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
-%global power_assert_version 1.1.1
-%global psych_version 3.0.2
-%global rake_version 12.3.0
-%global rdoc_version 6.0.1
-%global test_unit_version 3.2.7
+%global power_assert_version 1.1.3
+%global psych_version 3.1.0.pre2
+%global rake_version 12.3.1
+%global rdoc_version 6.1.0.beta2
+%global test_unit_version 3.2.8
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -62,10 +62,11 @@
 %bcond_without rubypick
 %endif
 
-%bcond_without systemtap
-%bcond_without git
 %bcond_without cmake
+%bcond_without git
 %bcond_without gmp
+%bcond_without hostname
+%bcond_without systemtap
 
 %if 0%{?fedora}
 %bcond_without hardening_test
@@ -127,33 +128,13 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
-# https://bugs.ruby-lang.org/issues/10554
+# https://bugs.ruby-lang.org/issues/15306
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # Workaround "an invalid stdio handle" error on PPC, due to recently introduced
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Add Gem.operating_system_defaults to allow packagers to override defaults.
-# https://github.com/rubygems/rubygems/pull/2116
-Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
-# Don't force libraries used to build Ruby to its dependencies.
-# https://bugs.ruby-lang.org/issues/14422
-Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
-# Do not require C++ compiler.
-# https://github.com/rubygems/rubygems/pull/2367
-Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
-# https://github.com/ruby/rdoc/commit/d05e6269d4a4dfd701f5ddb3ae34306cba891511
-Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
-# Properly harden package using -fstack-protector-strong.
-# https://bugs.ruby-lang.org/issues/15053
-Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
-# Fix Tokyo TZ tests.
-# https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
-Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
 
-# Fix some OpenSSL 1.1.1 test failures.
-# https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
-Patch19: ruby-2.6.0-net-http-net-ftp-fix-session-resumption-with-TLS-1.3.patch
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
@@ -183,6 +164,7 @@ BuildRequires: procps
 %{?with_cmake:BuildRequires: %{_bindir}/cmake}
 # Required to test hardening.
 %{?with_hardening_test:BuildRequires: %{_bindir}/checksec}
+%{?with_hostname:BuildRequires: %{_bindir}/hostname}
 BuildRequires: multilib-rpm-config
 BuildRequires: gcc
 
@@ -541,15 +523,8 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch10 -p1
-%patch15 -p1
-%patch16 -p1
-%patch19 -p1
-%patch20 -p1
 %patch22 -p1
 %patch23 -p1
-%patch24 -p1
-%patch25 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -696,6 +671,18 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
+# TODO: Move bundler into subpackage.
+rm -rf %{buildroot}%{ruby_libdir}/bundler
+rm -rf %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}
+rm -rf %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec
+rm %{buildroot}%{_bindir}/bundle*
+rm %{buildroot}%{_mandir}/man1/bundle*
+rm %{buildroot}%{_mandir}/man5/gemfile*
+
+# TODO: Gemify IRB.
+rm -rf %{buildroot}%{gem_dir}/gems/irb-%{irb_version}
+rm %{buildroot}%{gem_dir}/specifications/default/irb-%{irb_version}.gemspec
+
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
@@ -761,6 +748,10 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 %{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
 
 DISABLE_TESTS=""
+MSPECOPTS=""
+
+# Avoid `hostname' dependency.
+%{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
 # SIGSEV handler does not provide correct output on AArch64.
 # https://bugs.ruby-lang.org/issues/13758
@@ -777,7 +768,11 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 # https://github.com/rubygems/rubygems/issues/2388
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
 
-make check TESTS="-v $DISABLE_TESTS"
+# Test failures due to `-fcf-protection' compiler option.
+# https://bugs.ruby-lang.org/issues/15307
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(catching_deep_exception\|compile_insn_throw\|lambda_longjmp\)/"
+
+make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
@@ -826,9 +821,12 @@ make check TESTS="-v $DISABLE_TESTS"
 %exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
 %{ruby_libdir}/cgi
+%{ruby_libdir}/csv
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
+%{ruby_libdir}/e2mmap
 %{ruby_libdir}/fiddle
+%{ruby_libdir}/fileutils
 %{ruby_libdir}/forwardable
 %exclude %{ruby_libdir}/irb
 %{ruby_libdir}/matrix
@@ -841,6 +839,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/rss
 %{ruby_libdir}/shell
 %{ruby_libdir}/syslog
+%{ruby_libdir}/thwait
+%{ruby_libdir}/tracer
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
 %{ruby_libdir}/webrick
@@ -974,19 +974,32 @@ make check TESTS="-v $DISABLE_TESTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-1.0.0.gemspec
+%{gem_dir}/specifications/default/csv-3.0.1.gemspec
 %{gem_dir}/specifications/default/date-1.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
-%{gem_dir}/specifications/default/etc-1.0.0.gemspec
+%{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
+%{gem_dir}/specifications/default/etc-1.0.1.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.0.2.gemspec
+%{gem_dir}/specifications/default/fileutils-1.1.0.gemspec
+%{gem_dir}/specifications/default/forwardable-1.2.0.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.0.gemspec
+%{gem_dir}/specifications/default/logger-1.2.7.gemspec
+%{gem_dir}/specifications/default/matrix-0.1.0.gemspec
+%{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
+%{gem_dir}/specifications/default/prime-0.1.0.gemspec
+%{gem_dir}/specifications/default/rexml-3.1.7.3.gemspec
+%{gem_dir}/specifications/default/rss-0.2.7.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
+%{gem_dir}/specifications/default/shell-0.7.gemspec
 %{gem_dir}/specifications/default/stringio-0.0.1.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.0.gemspec
+%{gem_dir}/specifications/default/sync-0.1.0.gemspec
+%{gem_dir}/specifications/default/thwait-0.1.0.gemspec
+%{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.4.2.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
@@ -1096,6 +1109,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Nov 15 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.preview3
+- Update to Ruby 2.6.0.preview3.
+
 * Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
 - Fix Tokyo TZ tests.
 

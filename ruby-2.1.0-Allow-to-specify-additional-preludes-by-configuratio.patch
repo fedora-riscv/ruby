@@ -13,7 +13,7 @@ diff --git a/Makefile.in b/Makefile.in
 index 7e8ed82..7916993 100644
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -119,6 +119,8 @@ XRUBY_RUBYLIBDIR = @XRUBY_RUBYLIBDIR@
+@@ -143,6 +143,8 @@ XRUBY_RUBYLIBDIR = @XRUBY_RUBYLIBDIR@
  XRUBY_RUBYHDRDIR = @XRUBY_RUBYHDRDIR@
  BOOTSTRAPRUBY = @BOOTSTRAPRUBY@
  
@@ -26,7 +26,7 @@ diff --git a/common.mk b/common.mk
 index 5cfbc3d..3f0a82e 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -147,7 +147,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
+@@ -154,7 +154,7 @@ ALLOBJS       = $(NORMALMAINOBJ) $(MINIOBJS) $(COMMONOBJS) $(INITOBJS)
  GOLFOBJS      = goruby.$(OBJEXT) golf_prelude.$(OBJEXT)
  
  DEFAULT_PRELUDES = $(GEM_PRELUDE)
@@ -39,7 +39,7 @@ diff --git a/configure.ac b/configure.ac
 index 028ef7ca3e..cdeff87871 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4396,6 +4396,13 @@ AC_SUBST(rubyarchhdrdir)dnl
+@@ -3816,6 +3816,13 @@ AC_SUBST(rubyarchhdrdir)dnl
  AC_SUBST(sitearchhdrdir)dnl
  AC_SUBST(vendorarchhdrdir)dnl
  

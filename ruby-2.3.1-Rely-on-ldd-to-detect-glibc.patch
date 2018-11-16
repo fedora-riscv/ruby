@@ -8,8 +8,8 @@ on Red Hat platforms.
 
 This workaround rhbz#1361037
 ---
- test/fiddle/helper.rb | 92 ---------------------------------------------------
- 1 file changed, 92 deletions(-)
+ test/fiddle/helper.rb | 89 -------------------------------------------
+ 1 file changed, 89 deletions(-)
 
 diff --git a/test/fiddle/helper.rb b/test/fiddle/helper.rb
 index 1da3d93..65148a1 100644
