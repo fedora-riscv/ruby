@@ -222,7 +222,9 @@ Version:    %{rubygems_version}
 Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
-Recommends: rubygem(rdoc) >= %{rdoc_version}
+# RDoc is hard dependency for now :(
+# https://github.com/rubygems/rubygems/issues/2483
+Requires: rubygem(rdoc) >= %{rdoc_version}
 Recommends: rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(openssl) >= %{openssl_version}
 Requires:   rubygem(psych) >= %{psych_version}
