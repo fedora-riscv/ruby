@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview3
+#%%global milestone preview3
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 61414
+%global revision 65928
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -33,7 +33,7 @@
 %global molinillo_version 0.5.7
 
 %global bigdecimal_version 1.3.4
-%global bundler_version 1.17.1
+%global bundler_version 2.0.0.pre.1
 %global did_you_mean_version 1.2.1
 %global io_console_version 0.4.6
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -770,10 +770,6 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 # https://github.com/rubygems/rubygems/issues/2388
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
 
-# Test failures due to `-fcf-protection' compiler option.
-# https://bugs.ruby-lang.org/issues/15307
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(catching_deep_exception\|compile_insn_throw\|lambda_longjmp\)/"
-
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
@@ -1111,8 +1107,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Thu Nov 15 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.preview3
-- Update to Ruby 2.6.0.preview3.
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.65928
+- Upgrade to Ruby 2.6.0 (r65928).
 
 * Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
 - Fix Tokyo TZ tests.
