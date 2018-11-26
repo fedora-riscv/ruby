@@ -10,7 +10,7 @@
 #%%global milestone preview3
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 65928
+%global revision 65990
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1107,8 +1107,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.65928
-- Upgrade to Ruby 2.6.0 (r65928).
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.65990
+- Upgrade to Ruby 2.6.0 (r65990).
 
 * Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
 - Fix Tokyo TZ tests.
