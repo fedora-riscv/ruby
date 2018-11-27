@@ -36,8 +36,6 @@
 %global bundler_version 2.0.0.pre.1
 %global did_you_mean_version 1.2.1
 %global io_console_version 0.4.6
-# TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
-# http://redmine.ruby-lang.org/issues/5313
 %global irb_version 0.9.6
 %global json_version 2.1.0
 %global minitest_version 5.11.3
@@ -270,16 +268,20 @@ Rake is a Make-like program implemented in Ruby. Tasks and dependencies are
 specified in standard Ruby syntax.
 
 
-%package irb
+%package -n rubygem-irb
 Summary:    The Interactive Ruby
 Version:    %{irb_version}
 Group:      Development/Libraries
 Requires:   %{name}-libs = %{ruby_version}
 Provides:   irb = %{version}-%{release}
-Provides:   ruby(irb) = %{version}-%{release}
+Provides:   rubygem(irb) = %{version}-%{release}
+# Obsoleted by Ruby 2.6 in F30 timeframe.
+Provides:   ruby(irb) = %{ruby_version}-%{release}
+Provides:   ruby-irb = %{ruby_version}-%{release}
+Obsoletes:  ruby-irb < %{ruby_version}-%{release}
 BuildArch:  noarch
 
-%description irb
+%description -n rubygem-irb
 The irb is acronym for Interactive Ruby.  It evaluates ruby expression
 from the terminal.
 
@@ -292,7 +294,7 @@ Group:      Development/Libraries
 License:    GPLv2 and Ruby and MIT and OFL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
-Requires:   ruby(irb) = %{irb_version}
+Requires:   rubygem(irb) >= %{irb_version}
 Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
@@ -621,6 +623,10 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{name}
 
 # Move bundled rubygems to %%gem_dir and %%gem_extdir_mri
 # make symlinks for io-console and bigdecimal, which are considered to be part of stdlib by other Gems
+mkdir -p %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
+mv %{buildroot}%{ruby_libdir}/irb* %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
+mv %{buildroot}%{gem_dir}/specifications/default/irb-%{irb_version}.gemspec %{buildroot}%{gem_dir}/specifications
+
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{ruby_libdir}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
@@ -680,10 +686,6 @@ rm -rf %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.
 rm %{buildroot}%{_bindir}/bundle*
 rm %{buildroot}%{_mandir}/man1/bundle*
 rm %{buildroot}%{_mandir}/man5/gemfile*
-
-# TODO: Gemify IRB.
-rm -rf %{buildroot}%{gem_dir}/gems/irb-%{irb_version}
-rm %{buildroot}%{gem_dir}/specifications/default/irb-%{irb_version}.gemspec
 
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
@@ -814,7 +816,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 # Platform independent libraries.
 %dir %{ruby_libdir}
 %{ruby_libdir}/*.rb
-%exclude %{ruby_libdir}/irb.rb
 %exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
@@ -826,7 +827,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/fiddle
 %{ruby_libdir}/fileutils
 %{ruby_libdir}/forwardable
-%exclude %{ruby_libdir}/irb
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
@@ -1014,10 +1014,10 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/rake-%{rake_version}.gemspec
 %{_mandir}/man1/rake.1*
 
-%files irb
+%files -n rubygem-irb
 %{_bindir}/irb
-%{ruby_libdir}/irb.rb
-%{ruby_libdir}/irb
+%{gem_dir}/gems/irb-%{irb_version}
+%{gem_dir}/specifications/irb-%{irb_version}.gemspec
 %{_mandir}/man1/irb.1*
 
 %files -n rubygem-rdoc
@@ -1109,6 +1109,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %changelog
 * Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.65990
 - Upgrade to Ruby 2.6.0 (r65990).
+- Extract IRB into rubygem- subpackage.
 
 * Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
 - Fix Tokyo TZ tests.
