@@ -30,10 +30,18 @@
 
 # Bundled libraries versions
 %global rubygems_version 3.0.0.beta2
-%global molinillo_version 0.5.7
+%global rubygems_molinillo_version 0.5.7
+
+%global bundler_version 2.0.0.pre.1
+# FileUtils had not used to have separate versioning from Ruby :/ Lets use
+# date of bundling for now. The gemified version of FileUtils has already proper
+# version (if it's going to be bundled).
+%global bundler_fileutils_version 0.20170425
+%global bundler_molinillo_version 0.6.6
+%global bundler_net_http_persistent_version 2.9.4
+%global bundler_thor_version 0.20.0
 
 %global bigdecimal_version 1.3.4
-%global bundler_version 2.0.0.pre.1
 %global did_you_mean_version 1.2.1
 %global io_console_version 0.4.6
 %global irb_version 0.9.6
@@ -229,7 +237,7 @@ Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
-Provides:   bundled(rubygem-molinillo) = %{molinillo_version}
+Provides:   bundled(rubygem-molinillo) = %{rubygems_molinillo_version}
 BuildArch:  noarch
 
 %description -n rubygems
@@ -511,6 +519,27 @@ XMLRPC is a lightweight protocol that enables remote procedure calls over
 HTTP.
 
 
+%package -n rubygem-bundler
+Summary:    Library and utilities to manage a Ruby application's gem dependencies
+Version:    %{bundler_version}
+Group:      Development/Libraries
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Requires:   rubygem(io-console)
+Provides:   rubygem(bundler) = %{version}-%{release}
+# https://github.com/bundler/bundler/issues/3647
+Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
+Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
+Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
+Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
+BuildArch:  noarch
+
+%description -n rubygem-bundler
+Bundler manages an application's dependencies through its entire life, across
+many machines, systematically and repeatably.
+
+
 %prep
 %setup -q -n %{ruby_archive}
 
@@ -639,6 +668,13 @@ mv %{buildroot}%{gem_dir}/specifications/default/bigdecimal-%{bigdecimal_version
 ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/bigdecimal
 ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
 
+# TODO: Put help files into proper location.
+# https://bugs.ruby-lang.org/issues/15359
+mkdir -p %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
+mv %{buildroot}%{ruby_libdir}/bundler.rb %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
+mv %{buildroot}%{ruby_libdir}/bundler %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
+mv %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec %{buildroot}%{gem_dir}/specifications
+
 mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/io
 mv %{buildroot}%{ruby_libdir}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
@@ -678,14 +714,6 @@ mv %{buildroot}%{gem_dir}/specifications/default/psych-%{psych_version}.gemspec 
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir}/psych
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
-
-# TODO: Move bundler into subpackage.
-rm -rf %{buildroot}%{ruby_libdir}/bundler
-rm -rf %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}
-rm -rf %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec
-rm %{buildroot}%{_bindir}/bundle*
-rm %{buildroot}%{_mandir}/man1/bundle*
-rm %{buildroot}%{_mandir}/man5/gemfile*
 
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
@@ -736,7 +764,35 @@ checksec -f libruby.so.%{ruby_version} | \
   module Gem; module Resolver; end; end; \
   require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; \
   puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
-  == '%{molinillo_version}' ]
+  == '%{rubygems_molinillo_version}' ]
+
+# Check Bundler bundled dependencies versions.
+
+# FileUtils.
+# TODO: There is no version in bundled FileUtils yet.
+#%%{global bundler_fileutils_version}
+
+# Molinillo.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/molinillo/lib/molinillo/gem_metadata'; \
+  puts Bundler::Molinillo::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_molinillo_version}' ]
+
+# Net::HTTP::Persistent.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; module Persistent; module Net; module HTTP; \
+  end; end; end; end; \
+  require 'bundler/vendor/net-http-persistent/lib/net/http/persistent'; \
+  puts Bundler::Persistent::Net::HTTP::Persistent::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_net_http_persistent_version}' ]
+
+# Thor.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/thor/lib/thor/version'; \
+  puts Bundler::Thor::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_thor_version}' ]
 
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
@@ -1106,10 +1162,23 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
+%files -n rubygem-bundler
+%{_bindir}/bundle
+%{_bindir}/bundler
+%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/index.rubygems.org
+%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/rubygems.global.ssl.fastly.net
+%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/rubygems.org
+%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/.document
+%{gem_dir}/gems/bundler-%{bundler_version}
+%{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
+%{_mandir}/man1/bundle*.1*
+%{_mandir}/man5/gemfile.5*
+
 %changelog
 * Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.65990
 - Upgrade to Ruby 2.6.0 (r65990).
 - Extract IRB into rubygem- subpackage.
+- Extract Bundler into subpackage.
 
 * Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
 - Fix Tokyo TZ tests.
