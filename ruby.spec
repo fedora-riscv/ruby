@@ -10,7 +10,7 @@
 #%%global milestone preview3
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 65990
+%global revision 66092
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -32,7 +32,7 @@
 %global rubygems_version 3.0.0.beta2
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.0.0.pre.1
+%global bundler_version 2.0.0.pre.2
 # FileUtils had not used to have separate versioning from Ruby :/ Lets use
 # date of bundling for now. The gemified version of FileUtils has already proper
 # version (if it's going to be bundled).
@@ -1049,7 +1049,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/shell-0.7.gemspec
-%{gem_dir}/specifications/default/stringio-0.0.1.gemspec
+%{gem_dir}/specifications/default/stringio-0.0.2.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.0.gemspec
 %{gem_dir}/specifications/default/sync-0.1.0.gemspec
 %{gem_dir}/specifications/default/thwait-0.1.0.gemspec
@@ -1175,8 +1175,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
-* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.65990
-- Upgrade to Ruby 2.6.0 (r65990).
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.66092
+- Upgrade to Ruby 2.6.0 (r66092).
 - Extract IRB into rubygem- subpackage.
 - Extract Bundler into subpackage.
 
