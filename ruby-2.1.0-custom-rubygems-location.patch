@@ -75,16 +75,19 @@ index b47b6e1..0b99408 100755
  mandir = CONFIG["mandir", true]
  docdir = CONFIG["docdir", true]
  enable_shared = CONFIG["ENABLE_SHARED"] == 'yes'
-@@ -560,7 +561,13 @@ def stub
+@@ -560,7 +564,16 @@ def stub
  install?(:local, :comm, :lib) do
    prepare "library scripts", rubylibdir
    noinst = %w[*.txt *.rdoc *.gemspec]
-+  noinst += %w[rubygems.rb rubygems/ datadir.rb] if rubygemsdir
++  # Bundler carries "rubygems.rb" file, so it must be specialcased :/
++  noinst += %w[rubygems.rb rubygems/ bundler.rb bundler/] if rubygemsdir
    install_recursive(File.join(srcdir, "lib"), rubylibdir, :no_install => noinst, :mode => $data_mode)
 +  if rubygemsdir
-+    noinst = %w[obsolete.rb]
-+    install_recursive(File.join(srcdir, "lib", "rubygems"), File.join(rubygemsdir, "rubygems"), :mode => $data_mode)
++    noinst = %w[*.txt *.rdoc *.gemspec]
++    install_recursive(File.join(srcdir, "lib", "rubygems"), File.join(rubygemsdir, "rubygems"), :no_install => noinst, :mode => $data_mode)
 +    install(File.join(srcdir, "lib", "rubygems.rb"), File.join(rubygemsdir, "rubygems.rb"), :mode => $data_mode)
++    install_recursive(File.join(srcdir, "lib", "bundler"), File.join(rubylibdir, "bundler"), :no_install => noinst, :mode => $data_mode)
++    install(File.join(srcdir, "lib", "bundler.rb"), rubylibdir, :mode => $data_mode)
 +  end
  end
  
