@@ -618,9 +618,13 @@ for cert in \
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
   rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
+  rm %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert
+  rm -r $(dirname %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert)
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
+test "$(ls -A  %{buildroot}%{ruby_libdir}/bundler/ssl_certs/ 2>/dev/null)" \
+  = "certificate_manager.rb"
 
 # Move macros file into proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
@@ -1165,10 +1169,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %files -n rubygem-bundler
 %{_bindir}/bundle
 %{_bindir}/bundler
-%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/index.rubygems.org
-%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/rubygems.global.ssl.fastly.net
-%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/rubygems.org
-%exclude %{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/ssl_certs/.document
 %{gem_dir}/gems/bundler-%{bundler_version}
 %{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
 %{_mandir}/man1/bundle*.1*
