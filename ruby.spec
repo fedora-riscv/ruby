@@ -830,10 +830,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
-# For now, disable test incompatible with OpenSSL 1.1.1:
-# https://github.com/rubygems/rubygems/issues/2388
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
-
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
