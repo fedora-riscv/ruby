@@ -39,7 +39,7 @@ diff --git a/configure.ac b/configure.ac
 index 028ef7ca3e..cdeff87871 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3841,6 +3841,13 @@ AC_SUBST(rubyarchhdrdir)dnl
+@@ -3842,6 +3842,13 @@ AC_SUBST(rubyarchhdrdir)dnl
  AC_SUBST(sitearchhdrdir)dnl
  AC_SUBST(vendorarchhdrdir)dnl
  

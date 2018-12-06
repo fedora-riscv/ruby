@@ -10,7 +10,7 @@
 #%%global milestone preview3
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 66224
+%global revision 66252
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1173,8 +1173,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
-* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.66224
-- Upgrade to Ruby 2.6.0 (r66224).
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.66252
+- Upgrade to Ruby 2.6.0 (r66252).
 - Extract IRB into rubygem- subpackage.
 - Extract Bundler into subpackage.
 
