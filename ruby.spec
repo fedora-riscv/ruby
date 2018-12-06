@@ -10,7 +10,7 @@
 #%%global milestone preview3
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 66092
+%global revision 66224
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -29,10 +29,10 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.0.0.beta2
+%global rubygems_version 3.0.0.beta3
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.0.0.pre.2
+%global bundler_version 2.0.0
 # FileUtils had not used to have separate versioning from Ruby :/ Lets use
 # date of bundling for now. The gemified version of FileUtils has already proper
 # version (if it's going to be bundled).
@@ -41,7 +41,7 @@
 %global bundler_net_http_persistent_version 2.9.4
 %global bundler_thor_version 0.20.0
 
-%global bigdecimal_version 1.3.4
+%global bigdecimal_version 1.4.0.pre.20181204a
 %global did_you_mean_version 1.2.1
 %global io_console_version 0.4.6
 %global irb_version 0.9.6
@@ -53,7 +53,7 @@
 %global psych_version 3.1.0.pre2
 %global rake_version 12.3.1
 %global rdoc_version 6.1.0.beta2
-%global test_unit_version 3.2.8
+%global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -665,12 +665,14 @@ mv %{buildroot}%{ruby_libdir}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_vers
 mv %{buildroot}%{gem_dir}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
+mkdir -p %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{ruby_libdir}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/bigdecimal.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
+mv %{buildroot}%{ruby_libarchdir}/bigdecimal/util.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{gem_dir}/specifications/default/bigdecimal-%{bigdecimal_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/bigdecimal
 ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
+ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal/util.so %{buildroot}%{ruby_libarchdir}/bigdecimal/util.so
 
 # TODO: Put help files into proper location.
 # https://bugs.ruby-lang.org/issues/15359
@@ -1095,7 +1097,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files -n rubygem-bigdecimal
 %{ruby_libdir}/bigdecimal
-%{ruby_libarchdir}/bigdecimal.so
+%{ruby_libarchdir}/bigdecimal*
 %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
@@ -1175,8 +1177,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
-* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.66092
-- Upgrade to Ruby 2.6.0 (r66092).
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.66224
+- Upgrade to Ruby 2.6.0 (r66224).
 - Extract IRB into rubygem- subpackage.
 - Extract Bundler into subpackage.
 
