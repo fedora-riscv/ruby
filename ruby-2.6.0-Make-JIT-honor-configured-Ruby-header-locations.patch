@@ -1,0 +1,80 @@
+From 07e33ea50d005b793cdd0cbad727b8f8b6cb05c5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Thu, 6 Dec 2018 16:28:45 +0100
+Subject: [PATCH] Make JIT honor configured Ruby header locations.
+
+---
+ Makefile.in  | 2 +-
+ common.mk    | 2 --
+ configure.ac | 5 ++---
+ mjit.c       | 5 ++---
+ 4 files changed, 5 insertions(+), 9 deletions(-)
+
+diff --git a/Makefile.in b/Makefile.in
+index 1f5fda1b7f..0f724e4927 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -598,7 +598,7 @@ mjit_config.h:
+ 	echo '#define RUBY_MJIT_CONFIG_H 1'; \
+ 	echo; \
+ 	sep=; \
+-	quote MJIT_MIN_HEADER_NAME "/$(MJIT_HEADER_INSTALL_DIR)/$(MJIT_MIN_HEADER_NAME)"; \
++	quote MJIT_MIN_HEADER_NAME "$(MJIT_HEADER_INSTALL_DIR)/$(MJIT_MIN_HEADER_NAME)"; \
+ 	sep=,; \
+ 	quote "MJIT_CC_COMMON  " $(MJIT_CC); \
+ 	quote "MJIT_CFLAGS      MJIT_ARCHFLAG" $(MJIT_CFLAGS); \
+diff --git a/common.mk b/common.mk
+index 78ea778424..a10d51a8bb 100644
+--- a/common.mk
++++ b/common.mk
+@@ -230,8 +230,6 @@ $(MJIT_MIN_HEADER:.h=)$(MJIT_HEADER_SUFFIX).h: \
+ 		$(MJIT_HEADER:.h=)$(MJIT_HEADER_SUFFIX).h
+ 	$(ECHO) building $@
+ 	$(MINIRUBY) $(srcdir)/tool/transform_mjit_header.rb "$(CC) $(ARCH_FLAG)" $(MJIT_HEADER:.h=)$(MJIT_HEADER_ARCH).h $@
+-	$(Q) $(MAKEDIRS) $(MJIT_HEADER_INSTALL_DIR)
+-	$(Q) $(MAKE_LINK) $@ $(MJIT_HEADER_INSTALL_DIR)/$(@F)
+ 
+ .PHONY: showflags
+ exts enc trans: $(SHOWFLAGS)
+diff --git a/configure.ac b/configure.ac
+index fb62a93c87..91f35f0320 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3066,9 +3066,6 @@ AC_ARG_ENABLE(multiarch,
+ 	      [multiarch=], [unset multiarch])
+ AS_IF([test ${multiarch+set}], [
+    AC_DEFINE(ENABLE_MULTIARCH)
+-   MJIT_HEADER_INSTALL_DIR=include/'${arch}/${RUBY_VERSION_NAME}'
+-], [
+-   MJIT_HEADER_INSTALL_DIR=include/'${RUBY_VERSION_NAME}/${arch}'
+ ])
+ 
+ archlibdir='${libdir}/${arch}'
+@@ -3842,6 +3839,8 @@ AC_SUBST(rubyarchhdrdir)dnl
+ AC_SUBST(sitearchhdrdir)dnl
+ AC_SUBST(vendorarchhdrdir)dnl
+ 
++MJIT_HEADER_INSTALL_DIR=${rubyarchhdrdir}
++
+ AC_ARG_WITH(prelude,
+ 		AS_HELP_STRING([--with-prelude=FILE-LIST], [specify additional preludes separated by space]),
+ 		[prelude=$withval])
+diff --git a/mjit.c b/mjit.c
+index 0f4b9fddc6..856657ea71 100644
+--- a/mjit.c
++++ b/mjit.c
+@@ -428,9 +428,8 @@ init_header_filename(void)
+         static const char header_name[] = MJIT_MIN_HEADER_NAME;
+         const size_t header_name_len = sizeof(header_name) - 1;
+ 
+-        header_file = xmalloc(baselen + header_name_len + 1);
+-        p = append_str2(header_file, basedir, baselen);
+-        p = append_str2(p, header_name, header_name_len + 1);
++        header_file = xmalloc(header_name_len + 1);
++        p = append_str2(header_file, header_name, header_name_len);
+         if ((fd = rb_cloexec_open(header_file, O_RDONLY, 0)) < 0) {
+             verbose(1, "Cannot access header file: %s", header_file);
+             xfree(header_file);
+-- 
+2.20.0.rc2
+

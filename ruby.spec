@@ -140,6 +140,8 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# JIT does not respect locations for its headers.
+Patch10: ruby-2.6.0-Make-JIT-honor-configured-Ruby-header-locations.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -556,6 +558,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
+%patch10 -p1
 %patch22 -p1
 %patch23 -p1
 
@@ -602,6 +605,7 @@ make install DESTDIR=%{buildroot}
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
 %multilib_fix_c_header --file %{_includedir}/%{name}/config.h
+%multilib_fix_c_header --file %{_includedir}/%{name}/rb_mjit_min_header-%{ruby_version}.h
 
 # Rename the ruby executable. It is replaced by RubyPick.
 %{?with_rubypick:mv %{buildroot}%{_bindir}/%{name}{,-mri}}
