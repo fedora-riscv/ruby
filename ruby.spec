@@ -283,7 +283,8 @@ specified in standard Ruby syntax.
 Summary:    The Interactive Ruby
 Version:    %{irb_version}
 Group:      Development/Libraries
-Requires:   %{name}-libs = %{ruby_version}
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   irb = %{version}-%{release}
 Provides:   rubygem(irb) = %{version}-%{release}
 # Obsoleted by Ruby 2.6 in F30 timeframe.
