@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview3
+#%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 66252
+#%%global revision 66252
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 1
+%global release 103
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,10 +29,10 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.0.0.beta3
+%global rubygems_version 3.0.1
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.0.0
+%global bundler_version 1.17.2
 # FileUtils had not used to have separate versioning from Ruby :/ Lets use
 # date of bundling for now. The gemified version of FileUtils has already proper
 # version (if it's going to be bundled).
@@ -41,18 +41,18 @@
 %global bundler_net_http_persistent_version 2.9.4
 %global bundler_thor_version 0.20.0
 
-%global bigdecimal_version 1.4.0.pre.20181204a
-%global did_you_mean_version 1.2.1
-%global io_console_version 0.4.6
-%global irb_version 0.9.6
+%global bigdecimal_version 1.4.1
+%global did_you_mean_version 1.3.0
+%global io_console_version 0.4.7
+%global irb_version 1.0.0
 %global json_version 2.1.0
 %global minitest_version 5.11.3
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.3
-%global psych_version 3.1.0.pre2
-%global rake_version 12.3.1
-%global rdoc_version 6.1.0.beta2
+%global psych_version 3.1.0
+%global rake_version 12.3.2
+%global rdoc_version 6.1.0
 %global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
 
@@ -140,8 +140,9 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# JIT does not respect locations for its headers.
-Patch10: ruby-2.6.0-Make-JIT-honor-configured-Ruby-header-locations.patch
+# Refresh expired certificates.
+# https://bugs.ruby-lang.org/issues/15502
+Patch10: ruby-2.6.0-Try-to-update-cert.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -605,7 +606,9 @@ make install DESTDIR=%{buildroot}
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
 %multilib_fix_c_header --file %{_includedir}/%{name}/config.h
-%multilib_fix_c_header --file %{_includedir}/%{name}/rb_mjit_min_header-%{ruby_version}.h
+# TODO: The correct patch should be %%{_includedir}/%%{name}/rb_mjit_min_header-%{ruby_version}.h
+# https://bugs.ruby-lang.org/issues/15425
+%multilib_fix_c_header --file %{_includedir}/rb_mjit_min_header-%{ruby_version}.h
 
 # Rename the ruby executable. It is replaced by RubyPick.
 %{?with_rubypick:mv %{buildroot}%{_bindir}/%{name}{,-mri}}
@@ -1034,7 +1037,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-3.0.1.gemspec
+%{gem_dir}/specifications/default/csv-3.0.2.gemspec
 %{gem_dir}/specifications/default/date-1.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
@@ -1044,20 +1047,20 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/fileutils-1.1.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.2.0.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
-%{gem_dir}/specifications/default/ipaddr-1.2.0.gemspec
-%{gem_dir}/specifications/default/logger-1.2.7.gemspec
+%{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
+%{gem_dir}/specifications/default/logger-1.3.0.gemspec
 %{gem_dir}/specifications/default/matrix-0.1.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
-%{gem_dir}/specifications/default/rexml-3.1.7.3.gemspec
+%{gem_dir}/specifications/default/rexml-3.1.9.gemspec
 %{gem_dir}/specifications/default/rss-0.2.7.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/shell-0.7.gemspec
 %{gem_dir}/specifications/default/stringio-0.0.2.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.0.gemspec
-%{gem_dir}/specifications/default/sync-0.1.0.gemspec
+%{gem_dir}/specifications/default/sync-0.5.0.gemspec
 %{gem_dir}/specifications/default/thwait-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.4.2.gemspec
@@ -1177,8 +1180,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
-* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-0.1.66252
-- Upgrade to Ruby 2.6.0 (r66252).
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-103
+- Upgrade to Ruby 2.6.0.
 - Extract IRB into rubygem- subpackage.
 - Extract Bundler into subpackage.
 
