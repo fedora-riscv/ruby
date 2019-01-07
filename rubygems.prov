@@ -9,9 +9,9 @@ module RubyGemsProv
     def self.normalize_prerelease(version)
       if version.prerelease?
         prerelease = version.version.sub /^#{version.release}\./, ''
-        "#{version.release}-0.1.#{prerelease}"
+        "#{version.release}~#{prerelease}"
       else
-        "#{version.release}-1"
+        version.release
       end
     end
   end
