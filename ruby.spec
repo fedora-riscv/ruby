@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 103
+%global release 110
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1181,7 +1181,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
-* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-103
+* Tue Nov 20 2018 Vít Ondruch <vondruch@redhat.com> - 2.6.0-110
 - Upgrade to Ruby 2.6.0.
 - Extract IRB into rubygem- subpackage.
 - Extract Bundler into subpackage.
