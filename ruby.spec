@@ -143,6 +143,10 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Refresh expired certificates.
 # https://bugs.ruby-lang.org/issues/15502
 Patch10: ruby-2.6.0-Try-to-update-cert.patch
+# `gem build ../foo.gemspec` changes directory, which does not play well with
+# gems unpacked by setup macro.
+# https://github.com/rubygems/rubygems/issues/2587
+Patch11: ruby-2.6.0-No-chdir-for-build.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -561,6 +565,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch22 -p1
 %patch23 -p1
 
