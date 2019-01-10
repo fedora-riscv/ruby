@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 102
+%global release 103
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -150,6 +150,10 @@ Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
 # Fix Tokyo TZ tests.
 # https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
 Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
+# Refresh expired certificates.
+# https://bugs.ruby-lang.org/issues/15502
+# https://github.com/ruby/ruby/commit/6f9b40ea53d8f3fb2a5b1c7ac55c207d42c77ef4
+Patch11: ruby-2.6.0-Try-to-update-cert.patch
 
 # Fix some OpenSSL 1.1.1 test failures.
 # https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
@@ -542,6 +546,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch15 -p1
 %patch16 -p1
 %patch19 -p1
@@ -1096,6 +1101,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Fri Jan 11 2019 Jun Aruga <jaruga@redhat.com> - 2.5.3-103
+- Refresh expired certificates to fix FTBFS.
+
 * Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-102
 - Fix Tokyo TZ tests.
 
