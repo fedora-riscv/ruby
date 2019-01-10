@@ -138,6 +138,10 @@ Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
 # Fix Tokyo TZ tests.
 # https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
 Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
+# Refresh expired certificates.
+# https://bugs.ruby-lang.org/issues/15502
+# https://github.com/ruby/ruby/commit/6f9b40ea53d8f3fb2a5b1c7ac55c207d42c77ef4
+Patch11: ruby-2.6.0-Try-to-update-cert.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -521,6 +525,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch25 -p1
 
 # Provide an example of usage of the tapset:
@@ -1064,8 +1069,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Tue Nov 13 2018 Vít Ondruch <vondruch@redhat.com> - 2.5.3-95
+* Fri Jan 11 2019 Jun Aruga <jaruga@redhat.com> - 2.5.3-95
 - Fix Tokyo TZ tests.
+- Refresh expired certificates to fix FTBFS.
 
 * Fri Oct 19 2018 Jun Aruga <jaruga@redhat.com> - 2.5.3-94
 - Update to Ruby 2.5.3.
