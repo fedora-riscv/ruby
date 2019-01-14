@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 103
+%global release 104
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1101,6 +1101,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 2.5.3-104
+- Rebuilt for libcrypt.so.2 (#1666033)
+
 * Fri Jan 11 2019 Jun Aruga <jaruga@redhat.com> - 2.5.3-103
 - Refresh expired certificates to fix FTBFS.
 
