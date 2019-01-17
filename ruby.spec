@@ -1,16 +1,16 @@
 %global major_version 2
-%global minor_version 5
-%global teeny_version 3
+%global minor_version 6
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone rc1
+#%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 61414
+#%%global revision 66252
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 104
+%global release 110
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,25 +29,31 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.7.6
-%global molinillo_version 0.5.7
+%global rubygems_version 3.0.1
+%global rubygems_molinillo_version 0.5.7
 
-# TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
-# http://redmine.ruby-lang.org/issues/5313
-%global irb_version %{ruby_version}
+%global bundler_version 1.17.2
+# FileUtils had not used to have separate versioning from Ruby :/ Lets use
+# date of bundling for now. The gemified version of FileUtils has already proper
+# version (if it's going to be bundled).
+%global bundler_fileutils_version 0.20170425
+%global bundler_molinillo_version 0.6.6
+%global bundler_net_http_persistent_version 2.9.4
+%global bundler_thor_version 0.20.0
 
-%global bigdecimal_version 1.3.4
-%global did_you_mean_version 1.2.0
-%global io_console_version 0.4.6
+%global bigdecimal_version 1.4.1
+%global did_you_mean_version 1.3.0
+%global io_console_version 0.4.7
+%global irb_version 1.0.0
 %global json_version 2.1.0
-%global minitest_version 5.10.3
-%global net_telnet_version 0.1.1
+%global minitest_version 5.11.3
+%global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
-%global power_assert_version 1.1.1
-%global psych_version 3.0.2
-%global rake_version 12.3.0
-%global rdoc_version 6.0.1
-%global test_unit_version 3.2.7
+%global power_assert_version 1.1.3
+%global psych_version 3.1.0
+%global rake_version 12.3.2
+%global rdoc_version 6.1.0
+%global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -62,10 +68,11 @@
 %bcond_without rubypick
 %endif
 
-%bcond_without systemtap
-%bcond_without git
 %bcond_without cmake
+%bcond_without git
 %bcond_without gmp
+%bcond_without hostname
+%bcond_without systemtap
 
 %if 0%{?fedora}
 %bcond_without hardening_test
@@ -127,37 +134,20 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # http://bugs.ruby-lang.org/issues/8566
 Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
 # Use miniruby to regenerate prelude.c.
-# https://bugs.ruby-lang.org/issues/10554
+# https://bugs.ruby-lang.org/issues/15306
 Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # Workaround "an invalid stdio handle" error on PPC, due to recently introduced
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Add Gem.operating_system_defaults to allow packagers to override defaults.
-# https://github.com/rubygems/rubygems/pull/2116
-Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
-# Don't force libraries used to build Ruby to its dependencies.
-# https://bugs.ruby-lang.org/issues/14422
-Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
-# Do not require C++ compiler.
-# https://github.com/rubygems/rubygems/pull/2367
-Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
-# https://github.com/ruby/rdoc/commit/d05e6269d4a4dfd701f5ddb3ae34306cba891511
-Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
-# Properly harden package using -fstack-protector-strong.
-# https://bugs.ruby-lang.org/issues/15053
-Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
-# Fix Tokyo TZ tests.
-# https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
-Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
 # Refresh expired certificates.
 # https://bugs.ruby-lang.org/issues/15502
-# https://github.com/ruby/ruby/commit/6f9b40ea53d8f3fb2a5b1c7ac55c207d42c77ef4
-Patch11: ruby-2.6.0-Try-to-update-cert.patch
+Patch10: ruby-2.6.0-Try-to-update-cert.patch
+# `gem build ../foo.gemspec` changes directory, which does not play well with
+# gems unpacked by setup macro.
+# https://github.com/rubygems/rubygems/issues/2587
+Patch11: ruby-2.6.0-No-chdir-for-build.patch
 
-# Fix some OpenSSL 1.1.1 test failures.
-# https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
-Patch19: ruby-2.6.0-net-http-net-ftp-fix-session-resumption-with-TLS-1.3.patch
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
@@ -187,6 +177,7 @@ BuildRequires: procps
 %{?with_cmake:BuildRequires: %{_bindir}/cmake}
 # Required to test hardening.
 %{?with_hardening_test:BuildRequires: %{_bindir}/checksec}
+%{?with_hostname:BuildRequires: %{_bindir}/hostname}
 BuildRequires: multilib-rpm-config
 BuildRequires: gcc
 
@@ -244,14 +235,16 @@ Version:    %{rubygems_version}
 Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
-Recommends: rubygem(rdoc) >= %{rdoc_version}
+# RDoc is hard dependency for now :(
+# https://github.com/rubygems/rubygems/issues/2483
+Requires: rubygem(rdoc) >= %{rdoc_version}
 Recommends: rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(openssl) >= %{openssl_version}
 Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
 # https://github.com/rubygems/rubygems/pull/1189#issuecomment-121600910
-Provides:   bundled(rubygem-molinillo) = %{molinillo_version}
+Provides:   bundled(rubygem-molinillo) = %{rubygems_molinillo_version}
 BuildArch:  noarch
 
 %description -n rubygems
@@ -290,16 +283,21 @@ Rake is a Make-like program implemented in Ruby. Tasks and dependencies are
 specified in standard Ruby syntax.
 
 
-%package irb
+%package -n rubygem-irb
 Summary:    The Interactive Ruby
 Version:    %{irb_version}
 Group:      Development/Libraries
-Requires:   %{name}-libs = %{ruby_version}
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   irb = %{version}-%{release}
-Provides:   ruby(irb) = %{version}-%{release}
+Provides:   rubygem(irb) = %{version}-%{release}
+# Obsoleted by Ruby 2.6 in F30 timeframe.
+Provides:   ruby(irb) = %{ruby_version}-%{release}
+Provides:   ruby-irb = %{ruby_version}-%{release}
+Obsoletes:  ruby-irb < %{ruby_version}-%{release}
 BuildArch:  noarch
 
-%description irb
+%description -n rubygem-irb
 The irb is acronym for Interactive Ruby.  It evaluates ruby expression
 from the terminal.
 
@@ -312,7 +310,7 @@ Group:      Development/Libraries
 License:    GPLv2 and Ruby and MIT and OFL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
-Requires:   ruby(irb) = %{irb_version}
+Requires:   rubygem(irb) >= %{irb_version}
 Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
@@ -529,6 +527,27 @@ XMLRPC is a lightweight protocol that enables remote procedure calls over
 HTTP.
 
 
+%package -n rubygem-bundler
+Summary:    Library and utilities to manage a Ruby application's gem dependencies
+Version:    %{bundler_version}
+Group:      Development/Libraries
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Requires:   rubygem(io-console)
+Provides:   rubygem(bundler) = %{version}-%{release}
+# https://github.com/bundler/bundler/issues/3647
+Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
+Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
+Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
+Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
+BuildArch:  noarch
+
+%description -n rubygem-bundler
+Bundler manages an application's dependencies through its entire life, across
+many machines, systematically and repeatably.
+
+
 %prep
 %setup -q -n %{ruby_archive}
 
@@ -547,14 +566,8 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
-%patch15 -p1
-%patch16 -p1
-%patch19 -p1
-%patch20 -p1
 %patch22 -p1
 %patch23 -p1
-%patch24 -p1
-%patch25 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -599,6 +612,9 @@ make install DESTDIR=%{buildroot}
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
 %multilib_fix_c_header --file %{_includedir}/%{name}/config.h
+# TODO: The correct patch should be %%{_includedir}/%%{name}/rb_mjit_min_header-%{ruby_version}.h
+# https://bugs.ruby-lang.org/issues/15425
+%multilib_fix_c_header --file %{_includedir}/rb_mjit_min_header-%{ruby_version}.h
 
 # Rename the ruby executable. It is replaced by RubyPick.
 %{?with_rubypick:mv %{buildroot}%{_bindir}/%{name}{,-mri}}
@@ -615,9 +631,13 @@ for cert in \
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
   rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
+  rm %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert
+  rm -r $(dirname %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert)
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
+test "$(ls -A  %{buildroot}%{ruby_libdir}/bundler/ssl_certs/ 2>/dev/null)" \
+  = "certificate_manager.rb"
 
 # Move macros file into proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
@@ -649,17 +669,30 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{name}
 
 # Move bundled rubygems to %%gem_dir and %%gem_extdir_mri
 # make symlinks for io-console and bigdecimal, which are considered to be part of stdlib by other Gems
+mkdir -p %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
+mv %{buildroot}%{ruby_libdir}/irb* %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
+mv %{buildroot}%{gem_dir}/specifications/default/irb-%{irb_version}.gemspec %{buildroot}%{gem_dir}/specifications
+
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{ruby_libdir}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/rdoc-%{rdoc_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
+mkdir -p %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{ruby_libdir}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/bigdecimal.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
+mv %{buildroot}%{ruby_libarchdir}/bigdecimal/util.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{gem_dir}/specifications/default/bigdecimal-%{bigdecimal_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/bigdecimal
 ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
+ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal/util.so %{buildroot}%{ruby_libarchdir}/bigdecimal/util.so
+
+# TODO: Put help files into proper location.
+# https://bugs.ruby-lang.org/issues/15359
+mkdir -p %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
+mv %{buildroot}%{ruby_libdir}/bundler.rb %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
+mv %{buildroot}%{ruby_libdir}/bundler %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
+mv %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/io
@@ -750,7 +783,35 @@ checksec -f libruby.so.%{ruby_version} | \
   module Gem; module Resolver; end; end; \
   require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; \
   puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
-  == '%{molinillo_version}' ]
+  == '%{rubygems_molinillo_version}' ]
+
+# Check Bundler bundled dependencies versions.
+
+# FileUtils.
+# TODO: There is no version in bundled FileUtils yet.
+#%%{global bundler_fileutils_version}
+
+# Molinillo.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/molinillo/lib/molinillo/gem_metadata'; \
+  puts Bundler::Molinillo::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_molinillo_version}' ]
+
+# Net::HTTP::Persistent.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; module Persistent; module Net; module HTTP; \
+  end; end; end; end; \
+  require 'bundler/vendor/net-http-persistent/lib/net/http/persistent'; \
+  puts Bundler::Persistent::Net::HTTP::Persistent::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_net_http_persistent_version}' ]
+
+# Thor.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/thor/lib/thor/version'; \
+  puts Bundler::Thor::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_thor_version}' ]
 
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
@@ -766,6 +827,10 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 %{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
 
 DISABLE_TESTS=""
+MSPECOPTS=""
+
+# Avoid `hostname' dependency.
+%{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
 # SIGSEV handler does not provide correct output on AArch64.
 # https://bugs.ruby-lang.org/issues/13758
@@ -778,11 +843,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
-# For now, disable test incompatible with OpenSSL 1.1.1:
-# https://github.com/rubygems/rubygems/issues/2388
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
-
-make check TESTS="-v $DISABLE_TESTS"
+make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
@@ -826,16 +887,17 @@ make check TESTS="-v $DISABLE_TESTS"
 # Platform independent libraries.
 %dir %{ruby_libdir}
 %{ruby_libdir}/*.rb
-%exclude %{ruby_libdir}/irb.rb
 %exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
 %{ruby_libdir}/cgi
+%{ruby_libdir}/csv
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
+%{ruby_libdir}/e2mmap
 %{ruby_libdir}/fiddle
+%{ruby_libdir}/fileutils
 %{ruby_libdir}/forwardable
-%exclude %{ruby_libdir}/irb
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
@@ -846,6 +908,8 @@ make check TESTS="-v $DISABLE_TESTS"
 %{ruby_libdir}/rss
 %{ruby_libdir}/shell
 %{ruby_libdir}/syslog
+%{ruby_libdir}/thwait
+%{ruby_libdir}/tracer
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
 %{ruby_libdir}/webrick
@@ -979,19 +1043,32 @@ make check TESTS="-v $DISABLE_TESTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-1.0.0.gemspec
+%{gem_dir}/specifications/default/csv-3.0.2.gemspec
 %{gem_dir}/specifications/default/date-1.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
-%{gem_dir}/specifications/default/etc-1.0.0.gemspec
+%{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
+%{gem_dir}/specifications/default/etc-1.0.1.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.0.2.gemspec
+%{gem_dir}/specifications/default/fileutils-1.1.0.gemspec
+%{gem_dir}/specifications/default/forwardable-1.2.0.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
-%{gem_dir}/specifications/default/ipaddr-1.2.0.gemspec
+%{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
+%{gem_dir}/specifications/default/logger-1.3.0.gemspec
+%{gem_dir}/specifications/default/matrix-0.1.0.gemspec
+%{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
+%{gem_dir}/specifications/default/prime-0.1.0.gemspec
+%{gem_dir}/specifications/default/rexml-3.1.9.gemspec
+%{gem_dir}/specifications/default/rss-0.2.7.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
-%{gem_dir}/specifications/default/stringio-0.0.1.gemspec
+%{gem_dir}/specifications/default/shell-0.7.gemspec
+%{gem_dir}/specifications/default/stringio-0.0.2.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.0.gemspec
+%{gem_dir}/specifications/default/sync-0.5.0.gemspec
+%{gem_dir}/specifications/default/thwait-0.1.0.gemspec
+%{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.4.2.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
@@ -1008,10 +1085,10 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/rake-%{rake_version}.gemspec
 %{_mandir}/man1/rake.1*
 
-%files irb
+%files -n rubygem-irb
 %{_bindir}/irb
-%{ruby_libdir}/irb.rb
-%{ruby_libdir}/irb
+%{gem_dir}/gems/irb-%{irb_version}
+%{gem_dir}/specifications/irb-%{irb_version}.gemspec
 %{_mandir}/man1/irb.1*
 
 %files -n rubygem-rdoc
@@ -1029,7 +1106,7 @@ make check TESTS="-v $DISABLE_TESTS"
 
 %files -n rubygem-bigdecimal
 %{ruby_libdir}/bigdecimal
-%{ruby_libarchdir}/bigdecimal.so
+%{ruby_libarchdir}/bigdecimal*
 %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
@@ -1100,7 +1177,18 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
+%files -n rubygem-bundler
+%{_bindir}/bundle
+%{_bindir}/bundler
+%{gem_dir}/gems/bundler-%{bundler_version}
+%{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
+%{_mandir}/man1/bundle*.1*
+%{_mandir}/man5/gemfile.5*
+
 %changelog
+* Thu Jan 17 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.0-110
+- Upgrade to Ruby 2.6.0.
+
 * Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 2.5.3-104
 - Rebuilt for libcrypt.so.2 (#1666033)
 

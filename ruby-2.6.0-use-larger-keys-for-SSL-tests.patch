@@ -9,7 +9,7 @@ prevent stacking forever.
 
 Reference: https://github.com/ruby/openssl/issues/214
 ---
- test/openssl/test_pair.rb | 51 ++++++++++++++++++++---------------------------
+ test/openssl/test_pair.rb | 51 +++++++++++++++++----------------------
  1 file changed, 22 insertions(+), 29 deletions(-)
 
 diff --git a/test/openssl/test_pair.rb b/test/openssl/test_pair.rb
@@ -107,14 +107,14 @@ to the tree, and SSL tests now use them instead of the fixed-size keys.
 
 Reference: https://github.com/ruby/openssl/issues/215
 ---
- test/openssl/fixtures/pkey/dh-1.pem  | 13 +++++++++
- test/openssl/fixtures/pkey/rsa-1.pem | 51 ++++++++++++++++++++++++++++++++++++
- test/openssl/fixtures/pkey/rsa-2.pem | 51 ++++++++++++++++++++++++++++++++++++
- test/openssl/fixtures/pkey/rsa-3.pem | 51 ++++++++++++++++++++++++++++++++++++
- test/openssl/test_pair.rb            |  8 +++---
- test/openssl/test_pkey_dh.rb         |  8 +++---
- test/openssl/test_ssl.rb             | 11 ++++----
- test/openssl/utils.rb                | 14 +++++-----
+ test/openssl/fixtures/pkey/dh-1.pem  | 13 +++++++
+ test/openssl/fixtures/pkey/rsa-1.pem | 51 ++++++++++++++++++++++++++++
+ test/openssl/fixtures/pkey/rsa-2.pem | 51 ++++++++++++++++++++++++++++
+ test/openssl/fixtures/pkey/rsa-3.pem | 51 ++++++++++++++++++++++++++++
+ test/openssl/test_pair.rb            |  8 ++---
+ test/openssl/test_pkey_dh.rb         |  8 ++---
+ test/openssl/test_ssl.rb             | 11 +++---
+ test/openssl/utils.rb                | 14 ++++----
  8 files changed, 186 insertions(+), 21 deletions(-)
  create mode 100644 test/openssl/fixtures/pkey/dh-1.pem
  create mode 100644 test/openssl/fixtures/pkey/rsa-1.pem
@@ -394,7 +394,7 @@ diff --git a/test/openssl/test_ssl.rb b/test/openssl/test_ssl.rb
 index 408c7d82..2633f7c4 100644
 --- a/test/openssl/test_ssl.rb
 +++ b/test/openssl/test_ssl.rb
-@@ -708,7 +708,7 @@ def socketpair
+@@ -712,7 +712,7 @@ def socketpair
  
    def test_tlsext_hostname
      fooctx = OpenSSL::SSL::SSLContext.new
@@ -403,7 +403,7 @@ index 408c7d82..2633f7c4 100644
      fooctx.cert = @cli_cert
      fooctx.key = @cli_key
  
-@@ -760,7 +760,7 @@ def test_servername_cb_raises_an_exception_on_unknown_objects
+@@ -764,7 +764,7 @@ def test_servername_cb_raises_an_exception_on_unknown_objects
      ctx2 = OpenSSL::SSL::SSLContext.new
      ctx2.cert = @svr_cert
      ctx2.key = @svr_key
@@ -412,7 +412,7 @@ index 408c7d82..2633f7c4 100644
      ctx2.servername_cb = lambda { |args| Object.new }
  
      sock1, sock2 = socketpair
-@@ -1140,7 +1140,7 @@ def test_alpn_protocol_selection_cancel
+@@ -1144,7 +1144,7 @@ def test_alpn_protocol_selection_cancel
      ctx1 = OpenSSL::SSL::SSLContext.new
      ctx1.cert = @svr_cert
      ctx1.key = @svr_key
@@ -421,7 +421,7 @@ index 408c7d82..2633f7c4 100644
      ctx1.alpn_select_cb = -> (protocols) { nil }
      ssl1 = OpenSSL::SSL::SSLSocket.new(sock1, ctx1)
  
-@@ -1382,20 +1382,21 @@ def test_get_ephemeral_key
+@@ -1386,20 +1386,21 @@ def test_fallback_scsv
    def test_dh_callback
      pend "TLS 1.2 is not supported" unless tls12_supported?
  

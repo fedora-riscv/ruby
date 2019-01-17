@@ -13,8 +13,8 @@ versions. So continue to use the Ruby implementation for now.
 
 Reference: https://github.com/ruby/openssl/issues/208
 ---
- ext/openssl/lib/openssl/config.rb | 54 ++++++++++++++++++++++++++++---------------
- test/openssl/test_config.rb   | 54 +++++++++++++++++++++++++++++++++++++++++++
+ ext/openssl/lib/openssl/config.rb | 54 ++++++++++++++++++++-----------
+ test/openssl/test_config.rb       | 54 +++++++++++++++++++++++++++++++
  2 files changed, 90 insertions(+), 18 deletions(-)
 
 diff --git a/ext/openssl/lib/openssl/config.rb b/ext/openssl/lib/openssl/config.rb
