@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 110
+%global release 111
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1186,6 +1186,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Jan 24 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.0-111
+- Properly generate versioned ruby(rubygems) dependencies.
+
 * Thu Jan 17 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.0-110
 - Upgrade to Ruby 2.6.0.
 

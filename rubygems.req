@@ -42,11 +42,14 @@ module RubyGemsReq
 
   # Report RubyGems dependency, versioned if required.
   def self.rubygems_dependency(specification)
-    Helpers::requirement_versions_to_rpm(specification.required_rubygems_version).each do |requirement|
-      dependency_string = "ruby(rubygems)"
-      dependency_string += " #{specification.required_rubygems_version}" if requirement&.length > 0
-      puts dependency_string
+    dependency_strings = Helpers::requirement_versions_to_rpm(specification.required_rubygems_version).map do |requirement|
+      requirement_string = "ruby(rubygems)"
+      requirement_string += " #{requirement}" if requirement&.length > 0
+      requirement_string
     end
+    dependency_string = dependency_strings.join(' with ')
+    dependency_string.prepend('(').concat(')') if dependency_strings.length > 1
+    puts dependency_string
   end
 
   # Report all gem dependencies including their version.
