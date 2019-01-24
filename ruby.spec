@@ -147,6 +147,9 @@ Patch10: ruby-2.6.0-Try-to-update-cert.patch
 # gems unpacked by setup macro.
 # https://github.com/rubygems/rubygems/issues/2587
 Patch11: ruby-2.6.0-No-chdir-for-build.patch
+# This allows to loosen the RDoc dependency again.
+# https://github.com/rubygems/rubygems/pull/2604
+Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -235,9 +238,7 @@ Version:    %{rubygems_version}
 Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
-# RDoc is hard dependency for now :(
-# https://github.com/rubygems/rubygems/issues/2483
-Requires: rubygem(rdoc) >= %{rdoc_version}
+Recommends: rubygem(rdoc) >= %{rdoc_version}
 Recommends: rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(openssl) >= %{openssl_version}
 Requires:   rubygem(psych) >= %{psych_version}
@@ -566,6 +567,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 %patch22 -p1
 %patch23 -p1
 
@@ -1188,6 +1190,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %changelog
 * Thu Jan 24 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.0-111
 - Properly generate versioned ruby(rubygems) dependencies.
+- Loosen RDoc dependency.
 
 * Thu Jan 17 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.0-110
 - Upgrade to Ruby 2.6.0.
