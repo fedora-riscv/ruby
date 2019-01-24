@@ -146,7 +146,7 @@ Patch10: ruby-2.6.0-Try-to-update-cert.patch
 # `gem build ../foo.gemspec` changes directory, which does not play well with
 # gems unpacked by setup macro.
 # https://github.com/rubygems/rubygems/issues/2587
-Patch11: ruby-2.6.0-No-chdir-for-build.patch
+Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-gem-build.patch
 # This allows to loosen the RDoc dependency again.
 # https://github.com/rubygems/rubygems/pull/2604
 Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch

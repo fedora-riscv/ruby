@@ -1,0 +1,88 @@
+From f4061357d812e9033f07ae3f8f44c4e26839f1e5 Mon Sep 17 00:00:00 2001
+From: bronzdoc <lsagastume1990@gmail.com>
+Date: Mon, 14 Jan 2019 09:46:29 -0600
+Subject: [PATCH] Restore gem build behavior and introdcue the "-C" flag to gem
+ build
+
+---
+ lib/rubygems/commands/build_command.rb        | 41 +++++++++++++------
+ .../test_gem_commands_build_command.rb        |  1 +
+ 2 files changed, 29 insertions(+), 13 deletions(-)
+
+diff --git a/lib/rubygems/commands/build_command.rb b/lib/rubygems/commands/build_command.rb
+index e59471e976..761b80ee94 100644
+--- a/lib/rubygems/commands/build_command.rb
++++ b/lib/rubygems/commands/build_command.rb
+@@ -18,6 +18,10 @@ def initialize
+     add_option '-o', '--output FILE', 'output gem with the given filename' do |value, options|
+       options[:output] = value
+     end
++
++    add_option '-C PATH', '', 'Run as if gem build was started in <PATH> instead of the current working directory.' do |value, options|
++      options[:build_path] = value
++    end
+   end
+ 
+   def arguments # :nodoc:
+@@ -60,25 +64,36 @@ def execute
+     end
+ 
+     if File.exist? gemspec
+-      Dir.chdir(File.dirname(gemspec)) do
+-        spec = Gem::Specification.load File.basename(gemspec)
+-
+-        if spec
+-          Gem::Package.build(
+-            spec,
+-            options[:force],
+-            options[:strict],
+-            options[:output]
+-          )
+-        else
+-          alert_error "Error loading gemspec. Aborting."
+-          terminate_interaction 1
++      spec = Gem::Specification.load(gemspec)
++
++      if options[:build_path]
++        Dir.chdir(File.dirname(gemspec)) do
++          spec = Gem::Specification.load File.basename(gemspec)
++          build_package(spec)
+         end
++      else
++        build_package(spec)
+       end
++
+     else
+       alert_error "Gemspec file not found: #{gemspec}"
+       terminate_interaction 1
+     end
+   end
+ 
++  private
++
++  def build_package(spec)
++    if spec
++      Gem::Package.build(
++        spec,
++        options[:force],
++        options[:strict],
++        options[:output]
++      )
++    else
++      alert_error "Error loading gemspec. Aborting."
++      terminate_interaction 1
++    end
++  end
+ end
+diff --git a/test/rubygems/test_gem_commands_build_command.rb b/test/rubygems/test_gem_commands_build_command.rb
+index ac82a408c7..02d1b98e8f 100644
+--- a/test/rubygems/test_gem_commands_build_command.rb
++++ b/test/rubygems/test_gem_commands_build_command.rb
+@@ -207,6 +207,7 @@ def test_execute_outside_dir
+       gs.write @gem.to_ruby
+     end
+ 
++    @cmd.options[:build_path] = gemspec_dir
+     @cmd.options[:args] = [gemspec_file]
+ 
+     use_ui @ui do
