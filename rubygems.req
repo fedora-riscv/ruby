@@ -35,34 +35,35 @@ module RubyGemsReq
     # with RPM .spec file.
     def self.requirement_versions_to_rpm(requirement)
       self.expand_requirement(requirement.requirements).map do |op, version|
-        version == Gem::Version.new(0) ? "" : "#{op} #{version}"
+        version == Gem::Version.new(0) ? "" : " #{op} #{version}"
       end
+    end
+
+    # Compose dependency together with its requirements in RPM rich dependency
+    # string.
+    def self.compose_dependency_string(name, requirements)
+      dependency_strings = requirements.map { |requirement| name + requirement }
+      dependency_string = dependency_strings.join(' with ')
+      dependency_string.prepend('(').concat(')') if dependency_strings.length > 1
+      dependency_string
     end
   end
 
   # Report RubyGems dependency, versioned if required.
   def self.rubygems_dependency(specification)
-    dependency_strings = Helpers::requirement_versions_to_rpm(specification.required_rubygems_version).map do |requirement|
-      requirement_string = "ruby(rubygems)"
-      requirement_string += " #{requirement}" if requirement&.length > 0
-      requirement_string
-    end
-    dependency_string = dependency_strings.join(' with ')
-    dependency_string.prepend('(').concat(')') if dependency_strings.length > 1
-    puts dependency_string
+    dependency_name = "ruby(rubygems)"
+    requirements = Helpers::requirement_versions_to_rpm(specification.required_rubygems_version)
+
+    puts Helpers::compose_dependency_string(dependency_name, requirements)
   end
 
   # Report all gem dependencies including their version.
   def self.gem_depenencies(specification)
     specification.runtime_dependencies.each do |dependency|
-      dependency_strings = Helpers::requirement_versions_to_rpm(dependency.requirement).map do |requirement|
-        requirement_string = "rubygem(#{dependency.name})"
-        requirement_string += " #{requirement}" if requirement&.length > 0
-        requirement_string
-      end
-      dependency_string = dependency_strings.join(' with ')
-      dependency_string.prepend('(').concat(')') if dependency_strings.length > 1
-      puts dependency_string
+      dependency_name = "rubygem(#{dependency.name})"
+      requirements = Helpers::requirement_versions_to_rpm(dependency.requirement)
+
+      puts Helpers::compose_dependency_string(dependency_name, requirements)
     end
   end
 
