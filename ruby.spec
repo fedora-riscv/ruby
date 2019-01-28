@@ -82,7 +82,6 @@ Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}
 Release: %{release_string}
-Group: Development/Languages
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
 # MIT and CCO: ccan/*
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
@@ -197,7 +196,6 @@ straight-forward, and extensible.
 
 %package devel
 Summary:    A Ruby development environment
-Group:      Development/Languages
 Requires:   %{name}%{?_isa} = %{version}-%{release}
 # This would not be needed if ~50 packages depending on -devel used
 # --disable-gems
@@ -209,7 +207,6 @@ Ruby or an application embedding Ruby.
 
 %package libs
 Summary:    Libraries necessary to run Ruby
-Group:      Development/Libraries
 License:    Ruby or BSD
 Provides:   ruby(release) = %{ruby_release}
 
@@ -235,7 +232,6 @@ This package includes the libruby, necessary to run Ruby.
 %package -n rubygems
 Summary:    The Ruby standard for packaging ruby libraries
 Version:    %{rubygems_version}
-Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(release)
 Recommends: rubygem(rdoc) >= %{rdoc_version}
@@ -256,7 +252,6 @@ libraries.
 %package -n rubygems-devel
 Summary:    Macros and development tools for packaging RubyGems
 Version:    %{rubygems_version}
-Group:      Development/Libraries
 License:    Ruby or MIT
 Requires:   ruby(rubygems) = %{version}-%{release}
 # Needed for RDoc documentation format generation.
@@ -271,7 +266,6 @@ Macros and development tools for packaging RubyGems.
 %package -n rubygem-rake
 Summary:    Ruby based make-like utility
 Version:    %{rake_version}
-Group:      Development/Libraries
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -287,7 +281,6 @@ specified in standard Ruby syntax.
 %package -n rubygem-irb
 Summary:    The Interactive Ruby
 Version:    %{irb_version}
-Group:      Development/Libraries
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   irb = %{version}-%{release}
@@ -306,7 +299,6 @@ from the terminal.
 %package -n rubygem-rdoc
 Summary:    A tool to generate HTML and command-line documentation for Ruby projects
 Version:    %{rdoc_version}
-Group:      Development/Libraries
 # SIL: lib/rdoc/generator/template/darkfish/css/fonts.css
 License:    GPLv2 and Ruby and MIT and OFL
 Requires:   ruby(release)
@@ -327,7 +319,6 @@ documentation.
 
 %package doc
 Summary:    Documentation for %{name}
-Group:      Documentation
 Requires:   %{_bindir}/ri
 BuildArch:  noarch
 
@@ -338,7 +329,6 @@ This package contains documentation for %{name}.
 %package -n rubygem-bigdecimal
 Summary:    BigDecimal provides arbitrary-precision floating point decimal arithmetic
 Version:    %{bigdecimal_version}
-Group:      Development/Libraries
 License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -360,7 +350,6 @@ conversion between base 10 and base 2.
 %package -n rubygem-did_you_mean
 Summary:    "Did you mean?" experience in Ruby
 Version:    %{did_you_mean_version}
-Group:      Development/Libraries
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -375,7 +364,6 @@ one when you misspelled something.
 %package -n rubygem-io-console
 Summary:    IO/Console is a simple console utilizing library
 Version:    %{io_console_version}
-Group:      Development/Libraries
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(io-console) = %{version}-%{release}
@@ -388,7 +376,6 @@ provide higher layer features, such like curses and readline.
 %package -n rubygem-json
 Summary:    This is a JSON implementation as a Ruby extension in C
 Version:    %{json_version}
-Group:      Development/Libraries
 # UCD: ext/json/generator/generator.c
 License:    (Ruby or GPLv2) and UCD
 Requires:   ruby(release)
@@ -405,7 +392,6 @@ markup language.
 %package -n rubygem-minitest
 Summary:    Minitest provides a complete suite of testing facilities
 Version:    %{minitest_version}
-Group:      Development/Libraries
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -430,7 +416,6 @@ output.
 %package -n rubygem-openssl
 Summary:    OpenSSL provides SSL, TLS and general purpose cryptography
 Version:    %{openssl_version}
-Group:      Development/Libraries
 License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -444,7 +429,6 @@ OpenSSL library.
 %package -n rubygem-power_assert
 Summary:    Power Assert for Ruby
 Version:    %{power_assert_version}
-Group:      Development/Libraries
 License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -460,7 +444,6 @@ condition is not satisfied.
 %package -n rubygem-psych
 Summary:    A libyaml wrapper for Ruby
 Version:    %{psych_version}
-Group:      Development/Libraries
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -476,7 +459,6 @@ serialize and de-serialize most Ruby objects to and from the YAML format.
 %package -n rubygem-net-telnet
 Summary:    Provides telnet client functionality
 Version:    %{net_telnet_version}
-Group:      Development/Libraries
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(net-telnet) = %{version}-%{release}
@@ -496,7 +478,6 @@ the output through preprocess() to extract telnet command sequences.
 %package -n rubygem-test-unit
 Summary:    An xUnit family unit testing framework for Ruby
 Version:    %{test_unit_version}
-Group:      Development/Libraries
 # lib/test/unit/diff.rb is a double license of the Ruby license and PSF license.
 # lib/test-unit.rb is a dual license of the Ruby license and LGPLv2.1 or later.
 License:    (Ruby or BSD) and (Ruby or BSD or Python) and (Ruby or BSD or LGPLv2+)
@@ -516,7 +497,6 @@ writing tests, checking results and automated testing in Ruby.
 %package -n rubygem-xmlrpc
 Summary:    XMLRPC is a lightweight protocol that enables remote procedure calls over HTTP
 Version:    %{xmlrpc_version}
-Group:      Development/Libraries
 License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -531,7 +511,6 @@ HTTP.
 %package -n rubygem-bundler
 Summary:    Library and utilities to manage a Ruby application's gem dependencies
 Version:    %{bundler_version}
-Group:      Development/Libraries
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
