@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 0
+%global teeny_version 1
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 111
+%global release 112
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -139,9 +139,6 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Refresh expired certificates.
-# https://bugs.ruby-lang.org/issues/15502
-Patch10: ruby-2.6.0-Try-to-update-cert.patch
 # `gem build ../foo.gemspec` changes directory, which does not play well with
 # gems unpacked by setup macro.
 # https://github.com/rubygems/rubygems/issues/2587
@@ -149,6 +146,10 @@ Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-g
 # This allows to loosen the RDoc dependency again.
 # https://github.com/rubygems/rubygems/pull/2604
 Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
+# Fix "IO#ungetbyte is an RangeError if the integer is not in 8bit FAILED"
+# test failure.
+# https://bugs.ruby-lang.org/issues/15460
+Patch13: ruby-2.6.1-Fix-rubyspec-to-follow-IO-ungetbyte-fix.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -544,9 +545,9 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 %patch22 -p1
 %patch23 -p1
 
@@ -1024,8 +1025,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-3.0.2.gemspec
-%{gem_dir}/specifications/default/date-1.0.0.gemspec
+%{gem_dir}/specifications/default/csv-3.0.4.gemspec
+%{gem_dir}/specifications/default/date-2.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
 %{gem_dir}/specifications/default/etc-1.0.1.gemspec
@@ -1167,6 +1168,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Jan 31 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.1-112
+- Upgrade to Ruby 2.6.1.
+
 * Thu Jan 24 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.0-111
 - Properly generate versioned ruby(rubygems) dependencies.
 - Loosen RDoc dependency.
