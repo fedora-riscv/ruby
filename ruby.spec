@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 112
+%global release 113
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -729,12 +729,14 @@ sed -i '/^end$/ i\
 # Move man pages into proper location
 mv %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
 
+%if %{with systemtap}
 # Install a tapset and fix up the path to the library.
 mkdir -p %{buildroot}%{tapset_dir}
 sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
   %{SOURCE2} > %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
 # Escape '*/' in comment.
 sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
+%endif
 
 # Prepare -doc subpackage file lists.
 find doc -maxdepth 1 -type f ! -name '.*' ! -name '*.ja*' > .ruby-doc.en
@@ -1000,7 +1002,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/syslog.so
 %{ruby_libarchdir}/zlib.so
 
-%{tapset_root}
+%{?with_systemtap:%{tapset_root}}
 
 %files -n rubygems
 %{_bindir}/gem
@@ -1083,7 +1085,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %files doc -f .ruby-doc.en -f .ruby-doc.ja
 %doc README.md
 %doc ChangeLog
-%doc ruby-exercise.stp
+%{?with_systemtap:%doc ruby-exercise.stp}
 %{_datadir}/ri
 
 %files -n rubygem-bigdecimal
@@ -1168,6 +1170,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Feb 07 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.1-113
+- Don't ship .stp files when SystemTap support is disabled.
+
 * Thu Jan 31 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.1-112
 - Upgrade to Ruby 2.6.1.
 
