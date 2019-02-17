@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 113
+%global release 114
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1170,6 +1170,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Sun Feb 17 2019 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 2.6.1-114
+- Rebuild for readline 8.0
+
 * Thu Feb 07 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.1-113
 - Don't ship .stp files when SystemTap support is disabled.
 
