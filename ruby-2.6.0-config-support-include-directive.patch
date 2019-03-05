@@ -46,8 +46,8 @@ index 88225451..ba3a54c8 100644
 -                key = $2
 -              else
 -                key = $1
-+          when /\A\.include (.+)\z/
-+            path = $1
++          when /\A\.include (\s*=\s*)?(.+)\z/
++            path = $2
 +            if File.directory?(path)
 +              files = Dir.glob(File.join(path, "*.{cnf,conf}"), File::FNM_EXTGLOB)
 +            else
@@ -141,7 +141,7 @@ index 99dcc497..5653b5d0 100644
 +        file-main = unnamed
 +        [sec-main]
 +        main = 123
-+        .include include-child.conf
++        .include = include-child.conf
 +      __EOC__
 +
 +      # Include a file by relative path

@@ -1091,6 +1091,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
+- Fix ".include =" support in openssl.cnf (rhbz#1668916).
 
 * Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 2.5.3-104
 - Rebuilt for libcrypt.so.2 (#1666033)
