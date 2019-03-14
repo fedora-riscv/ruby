@@ -245,7 +245,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index 0428bea..b6e090e 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1280,7 +1280,8 @@ def test_self_use_paths
+@@ -1288,7 +1288,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -255,7 +255,7 @@ index 0428bea..b6e090e 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1357,7 +1358,7 @@ def test_self_gzip
+@@ -1365,7 +1366,7 @@ def test_self_gzip
    def test_self_vendor_dir
      expected =
        File.join RbConfig::CONFIG['vendordir'], 'gems',

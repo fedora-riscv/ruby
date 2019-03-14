@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 115
+%global release 116
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.0.1
+%global rubygems_version 3.0.3
 %global rubygems_molinillo_version 0.5.7
 
 %global bundler_version 1.17.2
@@ -146,10 +146,6 @@ Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-g
 # This allows to loosen the RDoc dependency again.
 # https://github.com/rubygems/rubygems/pull/2604
 Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
-# Fix "IO#ungetbyte is an RangeError if the integer is not in 8bit FAILED"
-# test failure.
-# https://bugs.ruby-lang.org/issues/15460
-Patch13: ruby-2.6.1-Fix-rubyspec-to-follow-IO-ungetbyte-fix.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -547,7 +543,6 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch11 -p1
 %patch12 -p1
-%patch13 -p1
 %patch22 -p1
 %patch23 -p1
 
@@ -1170,6 +1165,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Mar 14 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.2-116
+- Upgrade to Ruby 2.6.2.
+
 * Tue Mar 05 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.1-115
 - Fix ".include =" support in openssl.cnf (rhbz#1668916).
 
