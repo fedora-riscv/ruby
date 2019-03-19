@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 116
+%global release 117
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -649,6 +649,8 @@ mkdir -p %{buildroot}%{_exec_prefix}/lib{,64}/gems/%{name}
 mkdir -p %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
 mv %{buildroot}%{ruby_libdir}/irb* %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/irb-%{irb_version}.gemspec %{buildroot}%{gem_dir}/specifications
+ln -s %{gem_dir}/gems/irb-%{irb_version}/lib/irb.rb %{buildroot}%{ruby_libdir}/irb.rb
+ln -s %{gem_dir}/gems/irb-%{irb_version}/lib/irb %{buildroot}%{ruby_libdir}/irb
 
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{ruby_libdir}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
@@ -1066,6 +1068,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files -n rubygem-irb
 %{_bindir}/irb
+%{ruby_libdir}/irb*
 %{gem_dir}/gems/irb-%{irb_version}
 %{gem_dir}/specifications/irb-%{irb_version}.gemspec
 %{_mandir}/man1/irb.1*
@@ -1165,6 +1168,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Tue Mar 19 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.2-117
+- Link IRB back to StdLib.
+
 * Thu Mar 14 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.2-116
 - Upgrade to Ruby 2.6.2.
 
