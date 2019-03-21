@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 117
+%global release 118
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -650,7 +650,13 @@ mkdir -p %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
 mv %{buildroot}%{ruby_libdir}/irb* %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/irb-%{irb_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/irb-%{irb_version}/lib/irb.rb %{buildroot}%{ruby_libdir}/irb.rb
-ln -s %{gem_dir}/gems/irb-%{irb_version}/lib/irb %{buildroot}%{ruby_libdir}/irb
+# TODO: This should be possible to replaced by simple directory symlink
+# after ~ F31 EOL (rhbz#1691039).
+mkdir -p %{buildroot}%{ruby_libdir}/irb
+pushd %{buildroot}%{gem_dir}/gems/irb-%{irb_version}/lib
+find irb -type d -mindepth 1 -exec mkdir %{buildroot}%{ruby_libdir}/'{}' \;
+find irb -type f -exec ln -s %{gem_dir}/gems/irb-%{irb_version}/lib/'{}' %{buildroot}%{ruby_libdir}/'{}' \;
+popd
 
 mkdir -p %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
 mv %{buildroot}%{ruby_libdir}/rdoc* %{buildroot}%{gem_dir}/gems/rdoc-%{rdoc_version}/lib
@@ -1168,6 +1174,10 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Mar 21 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.2-118
+- Link IRB files instead of directories, which RPM cannot handle
+  during updates (rhbz#1691039).
+
 * Tue Mar 19 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.2-117
 - Link IRB back to StdLib.
 
