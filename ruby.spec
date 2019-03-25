@@ -874,6 +874,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 # Platform independent libraries.
 %dir %{ruby_libdir}
 %{ruby_libdir}/*.rb
+%exclude %{ruby_libdir}/irb.rb
 %exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
