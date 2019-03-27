@@ -179,6 +179,7 @@ BuildRequires: procps
 %{?with_hostname:BuildRequires: %{_bindir}/hostname}
 BuildRequires: multilib-rpm-config
 BuildRequires: gcc
+BuildRequires: zlib-devel
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
