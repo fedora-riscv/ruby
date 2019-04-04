@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 5
-%global teeny_version 3
+%global teeny_version 5
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 95
+%global release 101
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.7.6
+%global rubygems_version 2.7.6.2
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -135,13 +135,6 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Add Gem.operating_system_defaults to allow packagers to override defaults.
 # https://github.com/rubygems/rubygems/pull/2116
 Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
-# Fix Tokyo TZ tests.
-# https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
-Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
-# Refresh expired certificates.
-# https://bugs.ruby-lang.org/issues/15502
-# https://github.com/ruby/ruby/commit/6f9b40ea53d8f3fb2a5b1c7ac55c207d42c77ef4
-Patch11: ruby-2.6.0-Try-to-update-cert.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -525,8 +518,6 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
-%patch25 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1069,6 +1060,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Thu Apr 04 2019 Pavel Valena <pvalena@redhat.com> - 2.5.5-101
+- Update to Ruby 2.5.5.
+
 * Fri Jan 11 2019 Jun Aruga <jaruga@redhat.com> - 2.5.3-95
 - Fix Tokyo TZ tests.
 - Refresh expired certificates to fix FTBFS.
