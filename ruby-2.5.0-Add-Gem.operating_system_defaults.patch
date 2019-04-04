@@ -64,7 +64,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index 3225a05c6b..62b80c4945 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1802,6 +1802,13 @@ def test_use_gemdeps_specific
+@@ -1837,6 +1837,13 @@ def test_use_gemdeps_specific
      ENV['RUBYGEMS_GEMDEPS'] = rubygems_gemdeps
    end
  

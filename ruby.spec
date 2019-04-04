@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 5
-%global teeny_version 3
+%global teeny_version 5
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 104
+%global release 105
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 2.7.6
+%global rubygems_version 2.7.6.2
 %global molinillo_version 0.5.7
 
 # TODO: The IRB has strange versioning. Keep the Ruby's versioning ATM.
@@ -147,17 +147,7 @@ Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
 # Properly harden package using -fstack-protector-strong.
 # https://bugs.ruby-lang.org/issues/15053
 Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
-# Fix Tokyo TZ tests.
-# https://github.com/ruby/ruby/commit/e71ca6cdcf108e6a2fa47ec9fadefe7554717908
-Patch25: ruby-2.6.0-Update-for-tzdata-2018f.patch
-# Refresh expired certificates.
-# https://bugs.ruby-lang.org/issues/15502
-# https://github.com/ruby/ruby/commit/6f9b40ea53d8f3fb2a5b1c7ac55c207d42c77ef4
-Patch11: ruby-2.6.0-Try-to-update-cert.patch
 
-# Fix some OpenSSL 1.1.1 test failures.
-# https://github.com/ruby/ruby/commit/1dfc377ae3b174b043d3f0ed36de57b0296b34d0
-Patch19: ruby-2.6.0-net-http-net-ftp-fix-session-resumption-with-TLS-1.3.patch
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
@@ -546,15 +536,12 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
 %patch15 -p1
 %patch16 -p1
-%patch19 -p1
 %patch20 -p1
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
-%patch25 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1101,6 +1088,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
+- Update to Ruby 2.5.5.
+
 * Mon Jan 14 2019 Björn Esser <besser82@fedoraproject.org> - 2.5.3-104
 - Rebuilt for libcrypt.so.2 (#1666033)
 
