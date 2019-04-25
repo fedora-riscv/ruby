@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 2
+%global teeny_version 3
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 119
+%global release 120
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -754,6 +754,12 @@ echo 'doc/pty' >> .ruby-doc.ja
 sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
+# https://github.com/yuki24/did_you_mean/issues/122
+rm -rf %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/tmp/
+
+# https://github.com/ruby/rake/issues/316
+rm -f %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.gitignore
+
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
@@ -1032,7 +1038,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-3.0.4.gemspec
+%{gem_dir}/specifications/default/csv-3.0.9.gemspec
 %{gem_dir}/specifications/default/date-2.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
@@ -1176,6 +1182,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Apr 25 2019 Pavel Valena <pvalena@redhat.com> - 2.6.3-120
+- Update to Ruby 2.6.3.
+
 * Thu Mar 28 2019 Arjen Heidinga <dexter@beetjevreemd.nl> - 2.6.2-119
 - Add zlib-devel explicitly as BuildRequirement.
 
