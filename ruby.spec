@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 102
+%global release 108
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1060,7 +1060,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Thu Apr 04 2019 Pavel Valena <pvalena@redhat.com> - 2.5.5-102
+* Thu Apr 04 2019 Pavel Valena <pvalena@redhat.com> - 2.5.5-108
 - Update to Ruby 2.5.5.
 
 * Fri Jan 11 2019 Jun Aruga <jaruga@redhat.com> - 2.5.3-95
