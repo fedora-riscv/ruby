@@ -60,7 +60,7 @@ gem install \\\
 #
 %gemspec_add_dep(g:s:d) \
 read -d '' gemspec_add_dep_script << 'EOR' || : \
-  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}.gemspec}' \
+  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}%{?prerelease}.gemspec}' \
   \
   name = '%{-g*}' \
   requirements = %{*}%{!?1:nil} \
@@ -97,7 +97,7 @@ unset -v gemspec_add_dep_script \
 #
 %gemspec_remove_dep(g:s:d) \
 read -d '' gemspec_remove_dep_script << 'EOR' || : \
-  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}.gemspec}' \
+  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}%{?prerelease}.gemspec}' \
   \
   name = '%{-g*}' \
   requirements = %{*}%{!?1:nil} \
@@ -144,7 +144,7 @@ unset -v gemspec_remove_dep_script \
 #
 %gemspec_add_file(s:tr) \
 read -d '' gemspec_add_file_script << 'EOR' || : \
-  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}.gemspec}' \
+  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}%{?prerelease}.gemspec}' \
   \
   abort("gemspec_add_file: Use only one '-t' or '-r' at a time.") if "%{?-t}%{?-r}" == "-t-r" \
   \
@@ -177,7 +177,7 @@ unset -v gemspec_add_file_script \
 #
 %gemspec_remove_file(s:tr) \
 read -d '' gemspec_remove_file_script << 'EOR' || : \
-  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}.gemspec}' \
+  gemspec_file = '%{-s*}%{!?-s:%{_builddir}/%{gem_name}-%{version}%{?prerelease}.gemspec}' \
   \
   abort("gemspec_remove_file: Use only one '-t' or '-r' at a time.") if "%{?-t}%{?-r}" == "-t-r" \
   \
