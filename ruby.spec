@@ -10,7 +10,7 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 76851381cb
+%global revision e44c9b1147
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -824,10 +824,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
-# Disable failing TestFileExhaustive#test_birthtime test.
-# https://bugs.ruby-lang.org/issues/15972
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_birthtime/"
-
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
@@ -1184,7 +1180,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (76851381cb).
+- Upgrade to Ruby 2.7.0 (e44c9b1147).
 
 * Tue Jun 25 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.3-121
 - Properly support %%prerelease in %%gemspec_ macros.
