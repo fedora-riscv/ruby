@@ -524,6 +524,7 @@ Version:    %{racc_version}
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(racc) = %{version}-%{release}
 
 %description -n rubygem-racc
 Racc is a LALR(1) parser generator. It is written in Ruby itself, and
