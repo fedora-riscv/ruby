@@ -52,6 +52,7 @@
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.4
 %global psych_version 3.1.0
+%global racc_version 1.4.16.pre.1
 %global rake_version 12.3.2
 %global rdoc_version 6.1.0
 %global test_unit_version 3.3.3
@@ -517,6 +518,18 @@ Bundler manages an application's dependencies through its entire life, across
 many machines, systematically and repeatably.
 
 
+%package -n rubygem-racc
+Summary:    Racc is a LALR(1) parser generator
+Version:    %{racc_version}
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+
+%description -n rubygem-racc
+Racc is a LALR(1) parser generator. It is written in Ruby itself, and
+generates Ruby program.
+
+
 %prep
 %setup -q -n %{ruby_archive}
 
@@ -704,6 +717,18 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
+# These has wrong shebangs. Exclude them for now and let's see what upstream
+# thinks about them.
+# https://bugs.ruby-lang.org/issues/15982
+rm %{buildroot}%{_bindir}/{racc2y,y2racc}
+rm %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
+mkdir -p %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
+mkdir -p %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}
+mv %{buildroot}%{ruby_libdir}/racc* %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
+mv %{buildroot}%{ruby_libarchdir}/racc/ %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}/
+touch %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}/gem.build_complete
+mv %{buildroot}%{gem_dir}/specifications/default/racc-%{racc_version}.gemspec %{buildroot}%{gem_dir}/specifications
+
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
@@ -833,9 +858,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %license GPL
 %license LEGAL
 %{_bindir}/erb
-%{_bindir}/racc
-%{_bindir}/racc2y
-%{_bindir}/y2racc
 %{_bindir}/%{name}%{?with_rubypick:-mri}
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
@@ -886,7 +908,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
-%{ruby_libdir}/racc
 %{ruby_libdir}/reline
 %{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
@@ -991,8 +1012,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/objspace.so
 %{ruby_libarchdir}/pathname.so
 %{ruby_libarchdir}/pty.so
-%dir %{ruby_libarchdir}/racc
-%{ruby_libarchdir}/racc/cparse.so
 %dir %{ruby_libarchdir}/rbconfig
 %{ruby_libarchdir}/rbconfig.rb
 %{ruby_libarchdir}/rbconfig/sizeof.so
@@ -1046,7 +1065,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
-%{gem_dir}/specifications/default/racc-1.4.16.pre.1.gemspec
 %{gem_dir}/specifications/default/reline-0.0.0.gemspec
 %{gem_dir}/specifications/default/rexml-3.1.9.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
@@ -1060,9 +1078,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.4.2.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
-
-# TODO: Gemify racc
-%{gem_dir}/gems/racc-1.4.16.pre.1
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -1177,6 +1192,12 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
 %{_mandir}/man1/bundle*.1*
 %{_mandir}/man5/gemfile.5*
+
+%files -n rubygem-racc
+%{_bindir}/racc
+%{_libdir}/gems/%{name}/racc-%{racc_version}
+%{gem_dir}/gems/racc-%{racc_version}
+%{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
