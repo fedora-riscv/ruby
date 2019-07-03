@@ -11,7 +11,7 @@ diff --git a/common.mk b/common.mk
 index 168dc52..20c218a 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -1052,9 +1052,9 @@ $(MINIPRELUDE_C): $(COMPILE_PRELUDE)
+@@ -1059,9 +1059,9 @@ $(MINIPRELUDE_C): $(COMPILE_PRELUDE)
  		$(srcdir)/template/prelude.c.tmpl
  
  $(PRELUDE_C): $(COMPILE_PRELUDE) \

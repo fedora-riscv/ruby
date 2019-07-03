@@ -1,6 +1,6 @@
 %global major_version 2
-%global minor_version 6
-%global teeny_version 3
+%global minor_version 7
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -10,50 +10,51 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision 66252
+%global revision 76851381cb
 
 %global ruby_archive %{name}-%{ruby_version}
 
 # If revision and milestone are removed/commented out, the official release build is expected.
 %if 0%{?milestone:1}%{?revision:1} != 0
-%global development_release %{?milestone}%{?!milestone:%{?revision:r%{revision}}}
-%global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision:r%{revision}}}
+%global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision}}
+%define ruby_archive_timestamp %%(stat --printf='@%Y' %%{ruby_archive}.tar.xz | date -f - +"%Y%m%d")
+%global development_release %{?milestone}%{?!milestone:%{?revision:%{ruby_archive_timestamp}git%{revision}}}
 %endif
 
 
-%global release 121
-%{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
+%global release 1
+%{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
 # RubyGems should be share by all Ruby implementations.
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.0.3
+%global rubygems_version 3.1.0.pre1
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 1.17.2
+%global bundler_version 2.1.0.pre.1
 # FileUtils had not used to have separate versioning from Ruby :/ Lets use
 # date of bundling for now. The gemified version of FileUtils has already proper
 # version (if it's going to be bundled).
-%global bundler_fileutils_version 0.20170425
+%global bundler_fileutils_version 1.2.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 2.9.4
-%global bundler_thor_version 0.20.0
+%global bundler_thor_version 0.20.3
 
-%global bigdecimal_version 1.4.1
+%global bigdecimal_version 1.4.2
 %global did_you_mean_version 1.3.0
 %global io_console_version 0.4.7
-%global irb_version 1.0.0
-%global json_version 2.1.0
+%global irb_version 1.1.0.pre.1
+%global json_version 2.2.0
 %global minitest_version 5.11.3
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
-%global power_assert_version 1.1.3
+%global power_assert_version 1.1.4
 %global psych_version 3.1.0
 %global rake_version 12.3.2
 %global rdoc_version 6.1.0
-%global test_unit_version 3.2.9
+%global test_unit_version 3.3.3
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -139,20 +140,10 @@ Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# `gem build ../foo.gemspec` changes directory, which does not play well with
-# gems unpacked by setup macro.
-# https://github.com/rubygems/rubygems/issues/2587
-Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-gem-build.patch
-# This allows to loosen the RDoc dependency again.
-# https://github.com/rubygems/rubygems/pull/2604
-Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
-# Use larger keys to prevent test failures.
-# https://github.com/ruby/openssl/pull/217
-Patch23: ruby-2.6.0-use-larger-keys-for-SSL-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -542,10 +533,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch9 -p1
-%patch11 -p1
-%patch12 -p1
 %patch22 -p1
-%patch23 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -609,13 +597,9 @@ for cert in \
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
   rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
-  rm %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert
-  rm -r $(dirname %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert)
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
-test "$(ls -A  %{buildroot}%{ruby_libdir}/bundler/ssl_certs/ 2>/dev/null)" \
-  = "certificate_manager.rb"
 
 # Move macros file into proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
@@ -782,8 +766,11 @@ checksec -f libruby.so.%{ruby_version} | \
 # Check Bundler bundled dependencies versions.
 
 # FileUtils.
-# TODO: There is no version in bundled FileUtils yet.
-#%%{global bundler_fileutils_version}
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/fileutils/lib/fileutils/version'; \
+  puts Bundler::FileUtils::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_fileutils_version}' ]
 
 # Molinillo.
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
@@ -837,6 +824,10 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
+# Disable failing TestFileExhaustive#test_birthtime test.
+# https://bugs.ruby-lang.org/issues/15972
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_birthtime/"
+
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
@@ -846,6 +837,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %license GPL
 %license LEGAL
 %{_bindir}/erb
+%{_bindir}/racc
+%{_bindir}/racc2y
+%{_bindir}/y2racc
 %{_bindir}/%{name}%{?with_rubypick:-mri}
 %{_mandir}/man1/erb*
 %{_mandir}/man1/ruby*
@@ -897,6 +891,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
 %{ruby_libdir}/racc
+%{ruby_libdir}/reline
 %{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper
@@ -928,6 +923,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/digest/sha2.so
 %dir %{ruby_libarchdir}/enc
 %{ruby_libarchdir}/enc/big5.so
+%{ruby_libarchdir}/enc/cesu_8.so
 %{ruby_libarchdir}/enc/cp949.so
 %{ruby_libarchdir}/enc/emacs_mule.so
 %{ruby_libarchdir}/enc/encdb.so
@@ -1045,7 +1041,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/etc-1.0.1.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.1.0.gemspec
+%{gem_dir}/specifications/default/fileutils-1.2.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.2.0.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
@@ -1054,8 +1050,10 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
+%{gem_dir}/specifications/default/racc-1.4.16.pre.1.gemspec
+%{gem_dir}/specifications/default/reline-0.0.0.gemspec
 %{gem_dir}/specifications/default/rexml-3.1.9.gemspec
-%{gem_dir}/specifications/default/rss-0.2.7.gemspec
+%{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/shell-0.7.gemspec
@@ -1066,6 +1064,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.4.2.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
+
+# TODO: Gemify racc
+%{gem_dir}/gems/racc-1.4.16.pre.1
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -1182,6 +1183,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
+- Upgrade to Ruby 2.7.0 (76851381cb).
+
 * Tue Jun 25 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.3-121
 - Properly support %%prerelease in %%gemspec_ macros.
 
