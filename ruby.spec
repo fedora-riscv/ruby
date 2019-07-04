@@ -850,6 +850,13 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
+# Avoid TestJIT#test_block_handler_with_possible_frame_omitted_inlining filure
+# on s390x and arm arches.
+# https://bugs.ruby-lang.org/issues/15986
+%ifarch s390x %arm
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_block_handler_with_possible_frame_omitted_inlining/"
+%endif
+
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
