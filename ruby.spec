@@ -10,7 +10,7 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision d9f8b88b47
+%global revision 0c6c937904
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -45,7 +45,7 @@
 %global bigdecimal_version 1.4.2
 %global did_you_mean_version 1.3.0
 %global io_console_version 0.4.7
-%global irb_version 1.1.0.pre.1
+%global irb_version 1.1.0.pre.2
 %global json_version 2.2.0
 %global minitest_version 5.11.3
 %global net_telnet_version 0.2.0
@@ -54,7 +54,7 @@
 %global psych_version 3.1.0
 %global racc_version 1.4.16.pre.1
 %global rake_version 12.3.2
-%global rdoc_version 6.1.0
+%global rdoc_version 6.1.1
 %global test_unit_version 3.3.3
 %global xmlrpc_version 0.3.0
 
@@ -850,11 +850,11 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
-# Avoid TestJIT#test_block_handler_with_possible_frame_omitted_inlining filure
-# on s390x and arm arches.
-# https://bugs.ruby-lang.org/issues/15986
-%ifarch s390x %arm
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_block_handler_with_possible_frame_omitted_inlining/"
+# Disable "Process.clock_getres matches the clock in practice for
+# Process::CLOCK_{PROCESS,THREAD}_CPUTIME_ID" failing spec on arm.
+# https://bugs.ruby-lang.org/issues/16007
+%ifarch %arm
+MSPECOPTS="$MSPECOPTS -P 'Process.clock_getres matches the clock in practice for Process::CLOCK'"
 %endif
 
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
@@ -913,6 +913,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/fiddle
 %{ruby_libdir}/fileutils
 %{ruby_libdir}/forwardable
+%{ruby_libdir}/logger
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
 %{ruby_libdir}/optparse
@@ -978,6 +979,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/enc/shift_jis.so
 %dir %{ruby_libarchdir}/enc/trans
 %{ruby_libarchdir}/enc/trans/big5.so
+%{ruby_libarchdir}/enc/trans/cesu_8.so
 %{ruby_libarchdir}/enc/trans/chinese.so
 %{ruby_libarchdir}/enc/trans/ebcdic.so
 %{ruby_libarchdir}/enc/trans/emoji.so
@@ -1057,7 +1059,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-3.0.9.gemspec
+%{gem_dir}/specifications/default/csv-3.1.1.gemspec
 %{gem_dir}/specifications/default/date-2.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
@@ -1073,7 +1075,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.0.0.gemspec
+%{gem_dir}/specifications/default/reline-0.0.1.gemspec
 %{gem_dir}/specifications/default/rexml-3.1.9.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
@@ -1209,7 +1211,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (d9f8b88b47).
+- Upgrade to Ruby 2.7.0 (0c6c937904).
 
 * Tue Jun 25 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.3-121
 - Properly support %%prerelease in %%gemspec_ macros.
