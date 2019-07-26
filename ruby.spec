@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 121
+%global release 122
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1182,6 +1182,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.3-122
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
 * Tue Jun 25 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.3-121
 - Properly support %%prerelease in %%gemspec_ macros.
 
