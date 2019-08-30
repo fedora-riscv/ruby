@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 3
+%global teeny_version 5
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 120
+%global release 124
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -33,10 +33,7 @@
 %global rubygems_molinillo_version 0.5.7
 
 %global bundler_version 1.17.2
-# FileUtils had not used to have separate versioning from Ruby :/ Lets use
-# date of bundling for now. The gemified version of FileUtils has already proper
-# version (if it's going to be bundled).
-%global bundler_fileutils_version 0.20170425
+%global bundler_fileutils_version 1.1.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 2.9.4
 %global bundler_thor_version 0.20.0
@@ -52,7 +49,7 @@
 %global power_assert_version 1.1.3
 %global psych_version 3.1.0
 %global rake_version 12.3.2
-%global rdoc_version 6.1.0
+%global rdoc_version 6.1.2
 %global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
 
@@ -150,9 +147,6 @@ Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.pat
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
-# Use larger keys to prevent test failures.
-# https://github.com/ruby/openssl/pull/217
-Patch23: ruby-2.6.0-use-larger-keys-for-SSL-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -545,7 +539,6 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch12 -p1
 %patch22 -p1
-%patch23 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1182,6 +1175,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Wed Oct 09 2019 Pavel Valena <pvalena@redhat.com> - 2.6.5-124
+- Update to Ruby 2.6.5.
+
 * Thu Apr 25 2019 Pavel Valena <pvalena@redhat.com> - 2.6.3-120
 - Update to Ruby 2.6.3.
 
