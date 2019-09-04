@@ -34,9 +34,6 @@
 %global rubygems_molinillo_version 0.5.7
 
 %global bundler_version 2.1.0.pre.1
-# FileUtils had not used to have separate versioning from Ruby :/ Lets use
-# date of bundling for now. The gemified version of FileUtils has already proper
-# version (if it's going to be bundled).
 %global bundler_fileutils_version 1.2.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 3.1.0
