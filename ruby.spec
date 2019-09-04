@@ -773,7 +773,7 @@ rm -f %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.gitignore
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
-checksec -f libruby.so.%{ruby_version} | \
+checksec --file=libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
 %endif
 
@@ -1213,6 +1213,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
 - Upgrade to Ruby 2.7.0 (0c6c937904).
 - Drop useless %%{rubygems_default_filter}.
+- Fix checksec 2.0+ compatibility.
 
 * Tue Jun 25 2019 Vít Ondruch <vondruch@redhat.com> - 2.6.3-121
 - Properly support %%prerelease in %%gemspec_ macros.
