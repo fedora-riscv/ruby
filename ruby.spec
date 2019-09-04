@@ -756,7 +756,7 @@ rm -f %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.gitignore
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
-checksec -f libruby.so.%{ruby_version} | \
+checksec --file=libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
 %endif
 
@@ -1177,6 +1177,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %changelog
 * Fri Aug 30 2019 Pavel Valena <pvalena@redhat.com> - 2.6.4-123
 - Update to Ruby 2.6.4.
+- Fix checksec 2.0+ compatibility.
 
 * Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.6.3-122
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
