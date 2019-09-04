@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 105
+%global release 106
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -724,7 +724,7 @@ sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
-checksec -f libruby.so.%{ruby_version} | \
+checksec --file=libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
 %endif
 
@@ -1089,6 +1089,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Oct 14 2020 Jun Aruga <jaruga@redhat.com> - 2.5.5-106
+- Fix checksec 2.0+ compatibility.
+
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
 - Fix ".include =" support in openssl.cnf (rhbz#1668916).
