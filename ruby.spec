@@ -34,6 +34,7 @@
 %global rubygems_molinillo_version 0.5.7
 
 %global bundler_version 2.1.0.pre.1
+%global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.2.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 3.1.0
@@ -507,6 +508,7 @@ Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   rubygem(io-console)
 Provides:   rubygem(bundler) = %{version}-%{release}
 # https://github.com/bundler/bundler/issues/3647
+Provides:   bundled(connection_pool) = %{bundler_connection_pool_version}
 Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
 Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
 Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
@@ -791,6 +793,13 @@ checksec --file=libruby.so.%{ruby_version} | \
   == '%{rubygems_molinillo_version}' ]
 
 # Check Bundler bundled dependencies versions.
+
+# connection_pool.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/connection_pool/lib/connection_pool/version'; \
+  puts Bundler::ConnectionPool::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_connection_pool_version}' ]
 
 # FileUtils.
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
