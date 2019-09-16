@@ -10,7 +10,7 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 36a0c668b6
+%global revision 4a403e3f98
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1221,7 +1221,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (36a0c668b6).
+- Upgrade to Ruby 2.7.0 (4a403e3f98).
 - Drop useless %%{rubygems_default_filter}.
 - Fix checksec 2.0+ compatibility.
 
