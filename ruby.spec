@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 4
+%global teeny_version 5
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 123
+%global release 124
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1175,6 +1175,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Tue Oct 08 2019 Slava Kardakov <ojab@ojab.ru> - 2.6.5-124
+- Update to Ruby 2.6.5.
+
 * Fri Aug 30 2019 Pavel Valena <pvalena@redhat.com> - 2.6.4-123
 - Update to Ruby 2.6.4.
 - Fix checksec 2.0+ compatibility.
