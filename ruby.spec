@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 5
-%global teeny_version 5
+%global teeny_version 7
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 101
+%global release 102
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -46,7 +46,7 @@
 %global power_assert_version 1.1.1
 %global psych_version 3.0.2
 %global rake_version 12.3.0
-%global rdoc_version 6.0.1
+%global rdoc_version 6.0.1.1
 %global test_unit_version 3.2.7
 %global xmlrpc_version 0.3.0
 
@@ -157,6 +157,8 @@ BuildRequires: libffi-devel
 BuildRequires: openssl-devel
 BuildRequires: libyaml-devel
 BuildRequires: readline-devel
+# For test TestExtLibs#test_existence_of_zlib
+BuildRequires: zlib-devel
 # Needed to pass test_set_program_name(TestRubyOptions)
 BuildRequires: procps
 %{?with_systemtap:BuildRequires: %{_bindir}/dtrace}
@@ -1075,6 +1077,9 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Oct 09 2019 Pavel Valena <pvalena@redhat.com> - 2.6.5-102
+- Update to Ruby 2.5.7.
+
 * Thu Apr 04 2019 Pavel Valena <pvalena@redhat.com> - 2.5.5-101
 - Update to Ruby 2.5.5.
 
