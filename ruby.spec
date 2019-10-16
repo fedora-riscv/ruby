@@ -1077,7 +1077,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
-* Wed Oct 09 2019 Pavel Valena <pvalena@redhat.com> - 2.6.5-102
+* Wed Oct 09 2019 Pavel Valena <pvalena@redhat.com> - 2.5.7-102
 - Update to Ruby 2.5.7.
 
 * Thu Apr 04 2019 Pavel Valena <pvalena@redhat.com> - 2.5.5-101
