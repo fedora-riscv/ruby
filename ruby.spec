@@ -10,7 +10,7 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 4a403e3f98
+%global revision 053f78e139
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,30 +30,30 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.0.pre1
+%global rubygems_version 3.1.0.pre3
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.1.0.pre.1
+%global bundler_version 2.1.0.pre.3
 %global bundler_connection_pool_version 2.2.2
-%global bundler_fileutils_version 1.2.0
+%global bundler_fileutils_version 1.3.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 3.1.0
 %global bundler_thor_version 0.20.3
 
-%global bigdecimal_version 1.4.2
-%global did_you_mean_version 1.3.0
+%global bigdecimal_version 2.0.0.dev
+%global did_you_mean_version 1.3.1
 %global io_console_version 0.4.9
-%global irb_version 1.1.0.pre.3
+%global irb_version 1.1.0
 %global json_version 2.2.0
-%global minitest_version 5.11.3
+%global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.5
 %global psych_version 3.1.0
 %global racc_version 1.4.16.pre.1
-%global rake_version 12.3.3
+%global rake_version 13.0.1
 %global rdoc_version 6.2.0
-%global test_unit_version 3.3.3
+%global test_unit_version 3.3.4
 %global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
@@ -537,7 +537,7 @@ generates Ruby program.
 %setup -q -n %{ruby_archive}
 
 # Remove bundled libraries to be sure they are not used.
-rm -rf ext/psych/yaml
+#rm -rf ext/psych/yaml
 rm -rf ext/fiddle/libffi*
 
 %patch0 -p1
@@ -668,11 +668,9 @@ mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{ruby_libdir}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/bigdecimal.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
-mv %{buildroot}%{ruby_libarchdir}/bigdecimal/util.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{gem_dir}/specifications/default/bigdecimal-%{bigdecimal_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/bigdecimal
 ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
-ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal/util.so %{buildroot}%{ruby_libarchdir}/bigdecimal/util.so
 
 # TODO: Put help files into proper location.
 # https://bugs.ruby-lang.org/issues/15359
@@ -867,6 +865,10 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 MSPECOPTS="$MSPECOPTS -P 'Process.clock_getres matches the clock in practice for Process::CLOCK'"
 %endif
 
+# Avoid TestEnv#test_fetch test failure due to did_you_mean gem presence.
+# https://bugs.ruby-lang.org/issues/16361
+sed -i "/'key not found: \"test\"'/ s/'/\//g" test/ruby/test_env.rb
+
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
@@ -915,26 +917,32 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
+%{ruby_libdir}/benchmark
 %{ruby_libdir}/cgi
 %{ruby_libdir}/csv
+%{ruby_libdir}/delegate
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
 %{ruby_libdir}/e2mmap
 %{ruby_libdir}/fiddle
 %{ruby_libdir}/fileutils
 %{ruby_libdir}/forwardable
+%{ruby_libdir}/getoptlong
 %{ruby_libdir}/logger
 %{ruby_libdir}/matrix
 %{ruby_libdir}/net
+%{ruby_libdir}/observer
+%{ruby_libdir}/open3
 %{ruby_libdir}/optparse
+%{ruby_libdir}/pstore
 %{ruby_libdir}/reline
 %{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper
 %{ruby_libdir}/rss
-%{ruby_libdir}/shell
+%{ruby_libdir}/singleton
 %{ruby_libdir}/syslog
-%{ruby_libdir}/thwait
+%{ruby_libdir}/timeout
 %{ruby_libdir}/tracer
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
@@ -1028,6 +1036,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %dir %{ruby_libarchdir}/io
 %{ruby_libarchdir}/io/nonblock.so
 %{ruby_libarchdir}/io/wait.so
+%{ruby_libarchdir}/monitor.so
 %{ruby_libarchdir}/nkf.so
 %{ruby_libarchdir}/objspace.so
 %{ruby_libarchdir}/pathname.so
@@ -1068,35 +1077,45 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %exclude %{gem_dir}/cache/*
 
 # TODO: Gemify these libraries
-%{gem_dir}/specifications/default/cmath-1.0.0.gemspec
-%{gem_dir}/specifications/default/csv-3.1.1.gemspec
+%{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
+%{gem_dir}/specifications/default/cgi-0.1.0.gemspec
+%{gem_dir}/specifications/default/csv-3.1.2.gemspec
 %{gem_dir}/specifications/default/date-2.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
+%{gem_dir}/specifications/default/delegate-0.1.0.gemspec
 %{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
 %{gem_dir}/specifications/default/etc-1.0.1.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.2.0.gemspec
+%{gem_dir}/specifications/default/fileutils-1.3.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.2.0.gemspec
 %{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
+%{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
 %{gem_dir}/specifications/default/logger-1.3.0.gemspec
 %{gem_dir}/specifications/default/matrix-0.1.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-smtp-0.1.0.gemspec
+%{gem_dir}/specifications/default/observer-0.1.0.gemspec
+%{gem_dir}/specifications/default/open3-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.0.2.gemspec
-%{gem_dir}/specifications/default/rexml-3.2.2.gemspec
+%{gem_dir}/specifications/default/pstore-0.1.0.gemspec
+%{gem_dir}/specifications/default/readline-0.0.1.pre.1.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
+%{gem_dir}/specifications/default/reline-0.0.7.gemspec
+%{gem_dir}/specifications/default/rexml-3.2.3.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
-%{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
-%{gem_dir}/specifications/default/shell-0.7.gemspec
-%{gem_dir}/specifications/default/stringio-0.0.2.gemspec
-%{gem_dir}/specifications/default/strscan-1.0.0.gemspec
-%{gem_dir}/specifications/default/sync-0.5.0.gemspec
-%{gem_dir}/specifications/default/thwait-0.1.0.gemspec
+%{gem_dir}/specifications/default/singleton-0.1.0.gemspec
+%{gem_dir}/specifications/default/stringio-0.0.3.gemspec
+%{gem_dir}/specifications/default/strscan-1.0.3.gemspec
+%{gem_dir}/specifications/default/timeout-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
-%{gem_dir}/specifications/default/webrick-1.4.2.gemspec
+%{gem_dir}/specifications/default/uri-0.10.0.gemspec
+%{gem_dir}/specifications/default/webrick-1.5.0.gemspec
+%{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
 %files -n rubygems-devel
@@ -1221,7 +1240,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (4a403e3f98).
+- Upgrade to Ruby 2.7.0 (053f78e139).
 - Drop useless %%{rubygems_default_filter}.
 - Fix checksec 2.0+ compatibility.
 

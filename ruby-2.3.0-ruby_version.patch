@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 80b137e380..63cd3b4f8b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3671,9 +3671,6 @@ AS_CASE(["$target_os"],
+@@ -3678,9 +3678,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 80b137e380..63cd3b4f8b 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -3696,56 +3693,62 @@ AC_ARG_WITH(ridir,
+@@ -3703,56 +3700,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 80b137e380..63cd3b4f8b 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -3762,6 +3765,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -3769,6 +3772,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -237,7 +237,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index b25068405d..e9fef4a311 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1315,7 +1315,8 @@ def test_self_use_paths
+@@ -1353,7 +1353,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -247,7 +247,7 @@ index b25068405d..e9fef4a311 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1391,7 +1392,7 @@ def test_self_vendor_dir
+@@ -1429,7 +1430,7 @@ def test_self_vendor_dir
      vendordir(File.join(@tempdir, 'vendor')) do
        expected =
          File.join RbConfig::CONFIG['vendordir'], 'gems',
@@ -274,7 +274,7 @@ diff --git a/configure.ac b/configure.ac
 index a00f2b6776..999e2d6d5d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -96,7 +96,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -98,7 +98,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)
