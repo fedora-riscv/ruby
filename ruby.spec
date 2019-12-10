@@ -10,7 +10,7 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision c2dc27d643
+%global revision af11efd377
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -42,7 +42,7 @@
 
 %global bigdecimal_version 2.0.0.dev
 %global did_you_mean_version 1.3.1
-%global io_console_version 0.4.9
+%global io_console_version 0.5.1
 %global irb_version 1.2.0
 %global json_version 2.2.0
 %global minitest_version 5.13.0
@@ -50,7 +50,7 @@
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.5
 %global psych_version 3.1.0
-%global racc_version 1.4.16.pre.1
+%global racc_version 1.4.16
 %global rake_version 13.0.1
 %global rdoc_version 6.2.0
 %global test_unit_version 3.3.4
@@ -1240,7 +1240,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (c2dc27d643).
+- Upgrade to Ruby 2.7.0 (af11efd377).
 - Drop useless %%{rubygems_default_filter}.
 - Fix checksec 2.0+ compatibility.
 
