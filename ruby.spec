@@ -10,7 +10,7 @@
 #%%global milestone rc2
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 053f78e139
+%global revision c2dc27d643
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -43,7 +43,7 @@
 %global bigdecimal_version 2.0.0.dev
 %global did_you_mean_version 1.3.1
 %global io_console_version 0.4.9
-%global irb_version 1.1.0
+%global irb_version 1.2.0
 %global json_version 2.2.0
 %global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
@@ -537,7 +537,7 @@ generates Ruby program.
 %setup -q -n %{ruby_archive}
 
 # Remove bundled libraries to be sure they are not used.
-#rm -rf ext/psych/yaml
+rm -rf ext/psych/yaml
 rm -rf ext/fiddle/libffi*
 
 %patch0 -p1
@@ -678,6 +678,11 @@ mkdir -p %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
 mv %{buildroot}%{ruby_libdir}/bundler.rb %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
 mv %{buildroot}%{ruby_libdir}/bundler %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec %{buildroot}%{gem_dir}/specifications
+
+mkdir -p %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/lib
+mv %{buildroot}%{ruby_libdir}/did_you_mean.rb %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/lib
+mv %{buildroot}%{ruby_libdir}/did_you_mean %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/lib
+mv %{buildroot}%{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/io
@@ -858,12 +863,10 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 
-# Disable "Process.clock_getres matches the clock in practice for
-# Process::CLOCK_{PROCESS,THREAD}_CPUTIME_ID" failing spec on arm.
-# https://bugs.ruby-lang.org/issues/16007
-%ifarch %arm
-MSPECOPTS="$MSPECOPTS -P 'Process.clock_getres matches the clock in practice for Process::CLOCK'"
-%endif
+# Disable "File.utime allows Time instances in the far future to set
+# mtime and atime".
+# https://bugs.ruby-lang.org/issues/16410
+MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
 
 # Avoid TestEnv#test_fetch test failure due to did_you_mean gem presence.
 # https://bugs.ruby-lang.org/issues/16361
@@ -923,9 +926,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/delegate
 %{ruby_libdir}/digest
 %{ruby_libdir}/drb
-%{ruby_libdir}/e2mmap
 %{ruby_libdir}/fiddle
-%{ruby_libdir}/fileutils
 %{ruby_libdir}/forwardable
 %{ruby_libdir}/getoptlong
 %{ruby_libdir}/logger
@@ -1080,19 +1081,18 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
 %{gem_dir}/specifications/default/cgi-0.1.0.gemspec
 %{gem_dir}/specifications/default/csv-3.1.2.gemspec
-%{gem_dir}/specifications/default/date-2.0.0.gemspec
-%{gem_dir}/specifications/default/dbm-1.0.0.gemspec
+%{gem_dir}/specifications/default/date-3.0.0.gemspec
+%{gem_dir}/specifications/default/dbm-1.1.0.gemspec
 %{gem_dir}/specifications/default/delegate-0.1.0.gemspec
-%{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
-%{gem_dir}/specifications/default/etc-1.0.1.gemspec
+%{gem_dir}/specifications/default/etc-1.1.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.3.0.gemspec
-%{gem_dir}/specifications/default/forwardable-1.2.0.gemspec
-%{gem_dir}/specifications/default/gdbm-2.0.0.gemspec
+%{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
+%{gem_dir}/specifications/default/forwardable-1.3.0.gemspec
+%{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
 %{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
-%{gem_dir}/specifications/default/logger-1.3.0.gemspec
+%{gem_dir}/specifications/default/logger-1.4.1.gemspec
 %{gem_dir}/specifications/default/matrix-0.1.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
@@ -1103,20 +1103,20 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/readline-0.0.1.pre.1.gemspec
-%{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.0.pre.1.gemspec
 %{gem_dir}/specifications/default/reline-0.0.7.gemspec
 %{gem_dir}/specifications/default/rexml-3.2.3.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.0.gemspec
-%{gem_dir}/specifications/default/stringio-0.0.3.gemspec
+%{gem_dir}/specifications/default/stringio-0.1.0.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.3.gemspec
 %{gem_dir}/specifications/default/timeout-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/uri-0.10.0.gemspec
-%{gem_dir}/specifications/default/webrick-1.5.0.gemspec
+%{gem_dir}/specifications/default/webrick-1.6.0.gemspec
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
-%{gem_dir}/specifications/default/zlib-1.0.0.gemspec
+%{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
 %files -n rubygems-devel
 %{_rpmconfigdir}/macros.d/macros.rubygems
@@ -1240,7 +1240,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (053f78e139).
+- Upgrade to Ruby 2.7.0 (c2dc27d643).
 - Drop useless %%{rubygems_default_filter}.
 - Fix checksec 2.0+ compatibility.
 
