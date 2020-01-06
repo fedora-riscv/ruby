@@ -7,7 +7,7 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone rc2
+%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
 %global revision af11efd377
@@ -30,21 +30,21 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.0.pre3
+%global rubygems_version 3.1.1
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.1.0.pre.3
+%global bundler_version 2.1.0
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.3.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 3.1.0
-%global bundler_thor_version 0.20.3
+%global bundler_thor_version 1.0.0
 
 %global bigdecimal_version 2.0.0.dev
 %global did_you_mean_version 1.3.1
-%global io_console_version 0.5.1
+%global io_console_version 0.5.2
 %global irb_version 1.2.0
-%global json_version 2.2.0
+%global json_version 2.3.0
 %global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
@@ -95,7 +95,6 @@ Source2: libruby.stp
 Source3: ruby-exercise.stp
 Source4: macros.ruby
 Source5: macros.rubygems
-Source6: abrt_prelude.rb
 # RPM dependency generators.
 Source8: rubygems.attr
 Source9: rubygems.req
@@ -128,13 +127,15 @@ Patch3: ruby-2.1.0-always-use-i386.patch
 Patch4: ruby-2.1.0-custom-rubygems-location.patch
 # Make mkmf verbose by default
 Patch5: ruby-1.9.3-mkmf-verbose.patch
-# Adds support for '--with-prelude' configuration option. This allows to built
-# in support for ABRT.
-# http://bugs.ruby-lang.org/issues/8566
-Patch6: ruby-2.1.0-Allow-to-specify-additional-preludes-by-configuratio.patch
-# Use miniruby to regenerate prelude.c.
+# The ABRT hook used to be initialized by preludes via following patches:
+# https://bugs.ruby-lang.org/issues/8566
 # https://bugs.ruby-lang.org/issues/15306
-Patch7: ruby-2.2.3-Generate-preludes-using-miniruby.patch
+# Unfortunately, due to https://bugs.ruby-lang.org/issues/16254
+# and especially since https://github.com/ruby/ruby/pull/2735
+# this would require boostrapping:
+# https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/LH6L6YJOYQT4Y5ZNOO4SLIPTUWZ5V45Q/
+# For now, load the ABRT hook via this simple patch:
+Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # Workaround "an invalid stdio handle" error on PPC, due to recently introduced
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
@@ -547,18 +548,12 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch7 -p1
 %patch9 -p1
 %patch10 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
-
-# Make abrt_prelude.rb available for compilation process. The prelude must be
-# available together with Ruby's source due to
-# https://github.com/ruby/ruby/blob/trunk/tool/compile_prelude.rb#L26
-cp -a %{SOURCE6} .
 
 %build
 autoconf
@@ -582,7 +577,6 @@ autoconf
         --enable-shared \
         --with-ruby-version='' \
         --enable-multiarch \
-        --with-prelude=./abrt_prelude.rb \
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
@@ -1088,11 +1082,11 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
 %{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
-%{gem_dir}/specifications/default/forwardable-1.3.0.gemspec
+%{gem_dir}/specifications/default/forwardable-1.3.1.gemspec
 %{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
 %{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
-%{gem_dir}/specifications/default/logger-1.4.1.gemspec
+%{gem_dir}/specifications/default/logger-1.4.2.gemspec
 %{gem_dir}/specifications/default/matrix-0.1.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
@@ -1240,7 +1234,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0 (af11efd377).
+- Upgrade to Ruby 2.7.0-rc1.
 - Drop useless %%{rubygems_default_filter}.
 - Fix checksec 2.0+ compatibility.
 
