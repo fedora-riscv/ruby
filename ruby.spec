@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone rc1
+#%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision af11efd377
+#%%global revision af11efd377
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,20 +30,20 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.1
+%global rubygems_version 3.1.2
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.1.0
+%global bundler_version 2.1.2
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.3.0
 %global bundler_molinillo_version 0.6.6
 %global bundler_net_http_persistent_version 3.1.0
 %global bundler_thor_version 1.0.0
 
-%global bigdecimal_version 2.0.0.dev
-%global did_you_mean_version 1.3.1
-%global io_console_version 0.5.2
-%global irb_version 1.2.0
+%global bigdecimal_version 2.0.0
+%global did_you_mean_version 1.4.0
+%global io_console_version 0.5.3
+%global irb_version 1.2.1
 %global json_version 2.3.0
 %global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
@@ -52,7 +52,7 @@
 %global psych_version 3.1.0
 %global racc_version 1.4.16
 %global rake_version 13.0.1
-%global rdoc_version 6.2.0
+%global rdoc_version 6.2.1
 %global test_unit_version 3.3.4
 %global xmlrpc_version 0.3.0
 
@@ -929,6 +929,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/observer
 %{ruby_libdir}/open3
 %{ruby_libdir}/optparse
+%{ruby_libdir}/ostruct
 %{ruby_libdir}/pstore
 %{ruby_libdir}/reline
 %{ruby_libdir}/rexml
@@ -1087,18 +1088,18 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
 %{gem_dir}/specifications/default/logger-1.4.2.gemspec
-%{gem_dir}/specifications/default/matrix-0.1.0.gemspec
+%{gem_dir}/specifications/default/matrix-0.2.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-smtp-0.1.0.gemspec
 %{gem_dir}/specifications/default/observer-0.1.0.gemspec
 %{gem_dir}/specifications/default/open3-0.1.0.gemspec
-%{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
-%{gem_dir}/specifications/default/prime-0.1.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
+%{gem_dir}/specifications/default/prime-0.1.1.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
-%{gem_dir}/specifications/default/readline-0.0.1.pre.1.gemspec
-%{gem_dir}/specifications/default/readline-ext-0.1.0.pre.1.gemspec
-%{gem_dir}/specifications/default/reline-0.0.7.gemspec
+%{gem_dir}/specifications/default/readline-0.0.2.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
+%{gem_dir}/specifications/default/reline-0.1.2.gemspec
 %{gem_dir}/specifications/default/rexml-3.2.3.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
@@ -1233,8 +1234,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
-* Mon Jul 01 2019 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
-- Upgrade to Ruby 2.7.0-rc1.
+* Tue Jan 07 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-1
+- Upgrade to Ruby 2.7.0.
 - Drop useless %%{rubygems_default_filter}.
 - Fix checksec 2.0+ compatibility.
 
