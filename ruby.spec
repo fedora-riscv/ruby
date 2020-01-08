@@ -853,11 +853,6 @@ MSPECOPTS=""
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_features\)/"
 %endif
 
-# Disable failing TestResolvMDNS#test_mdns_each_address test,
-# which fails on Koji.
-# https://bugs.ruby-lang.org/issues/14175
-sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
-
 # Disable "File.utime allows Time instances in the far future to set
 # mtime and atime".
 # https://bugs.ruby-lang.org/issues/16410
