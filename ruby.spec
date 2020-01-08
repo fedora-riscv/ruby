@@ -863,10 +863,6 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 # https://bugs.ruby-lang.org/issues/16410
 MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
 
-# Avoid TestEnv#test_fetch test failure due to did_you_mean gem presence.
-# https://bugs.ruby-lang.org/issues/16361
-sed -i "/'key not found: \"test\"'/ s/'/\//g" test/ruby/test_env.rb
-
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
