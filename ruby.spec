@@ -17,8 +17,8 @@
 # If revision and milestone are removed/commented out, the official release build is expected.
 %if 0%{?milestone:1}%{?revision:1} != 0
 %global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision}}
-%define ruby_archive_timestamp %%(stat --printf='@%Y' %%{ruby_archive}.tar.xz | date -f - +"%Y%m%d")
-%global development_release %{?milestone}%{?!milestone:%{?revision:%{ruby_archive_timestamp}git%{revision}}}
+%define ruby_archive_timestamp %(stat --printf='@%Y' %{ruby_archive}.tar.xz | date -f - +"%Y%m%d")
+%define development_release %{?milestone}%{?!milestone:%{?revision:%{ruby_archive_timestamp}git%{revision}}}
 %endif
 
 
