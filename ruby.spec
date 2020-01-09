@@ -858,6 +858,13 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # https://bugs.ruby-lang.org/issues/16410
 MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
 
+# Increase timeout for TestBugReporter#test_bug_reporter_add test, which fails
+# quite often.
+# https://bugs.ruby-lang.org/issues/16492
+%ifarch s390x
+sed -i '/assert_in_out_err/ s/)/, timeout: 30)/' test/-ext-/bug_reporter/test_bug_reporter.rb
+%endif
+
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
