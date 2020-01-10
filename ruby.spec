@@ -847,12 +847,6 @@ MSPECOPTS=""
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
-# SIGSEV handler does not provide correct output on AArch64.
-# https://bugs.ruby-lang.org/issues/13758
-%ifarch aarch64
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_features\)/"
-%endif
-
 # Disable "File.utime allows Time instances in the far future to set
 # mtime and atime".
 # https://bugs.ruby-lang.org/issues/16410
