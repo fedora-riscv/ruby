@@ -590,7 +590,7 @@ make install DESTDIR=%{buildroot}
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
 %multilib_fix_c_header --file %{_includedir}/%{name}/config.h
-# TODO: The correct patch should be %%{_includedir}/%%{name}/rb_mjit_min_header-%{ruby_version}.h
+# TODO: The correct patch should be %%{_includedir}/%%{name}/rb_mjit_min_header-%%{ruby_version}.h
 # https://bugs.ruby-lang.org/issues/15425
 %multilib_fix_c_header --file %{_includedir}/rb_mjit_min_header-%{ruby_version}.h
 
