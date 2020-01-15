@@ -17,10 +17,10 @@ string.
  2 files changed, 35 insertions(+), 30 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index 8ea969412f..a00f2b6776 100644
+index 80b137e380..63cd3b4f8b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3661,9 +3661,6 @@ AS_CASE(["$target_os"],
+@@ -3691,9 +3691,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 8ea969412f..a00f2b6776 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -3686,56 +3683,62 @@ AC_ARG_WITH(ridir,
+@@ -3716,56 +3713,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 8ea969412f..a00f2b6776 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -3752,6 +3755,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -3782,6 +3785,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -171,7 +171,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index d4c110e..d39c9a6 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -424,7 +424,7 @@ def CONFIG.[](name, mandatory = false)
+@@ -428,7 +428,7 @@ def CONFIG.[](name, mandatory = false)
  
  install?(:doc, :rdoc) do
    if $rdocdir
@@ -181,48 +181,40 @@ index d4c110e..d39c9a6 100755
      install_recursive($rdocdir, ridatadir, :no_install => rdoc_noinst, :mode => $data_mode)
    end
 -- 
-2.1.0
+2.23.0
 
 
-From f8d136f9a46d1fe87eba622ab9665935d05e981b Mon Sep 17 00:00:00 2001
+From 9f0ec0233f618cbb862629816b22491c3df79578 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
 Date: Tue, 31 Mar 2015 16:37:44 +0200
 Subject: [PATCH 3/4] Add ruby_version_dir_name support for RubyGems.
 
 ---
- lib/rubygems/defaults.rb  | 11 ++++++-----
- test/rubygems/test_gem.rb |  5 +++--
- 2 files changed, 9 insertions(+), 7 deletions(-)
+ lib/rubygems/defaults.rb  | 9 +++++----
+ test/rubygems/test_gem.rb | 5 +++--
+ 2 files changed, 8 insertions(+), 6 deletions(-)
 
 diff --git a/lib/rubygems/defaults.rb b/lib/rubygems/defaults.rb
-index 55ca080..75eea2b 100644
+index d4ff4a262c..3f9a5bf590 100644
 --- a/lib/rubygems/defaults.rb
 +++ b/lib/rubygems/defaults.rb
-@@ -32,20 +32,20 @@ def self.default_dir
+@@ -32,13 +32,13 @@ def self.default_dir
               [
                 File.dirname(RbConfig::CONFIG['sitedir']),
                 'Gems',
 -               RbConfig::CONFIG['ruby_version']
 +               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
               ]
-            elsif RbConfig::CONFIG['rubylibprefix']
+            else
               [
                 RbConfig::CONFIG['rubylibprefix'],
                 'gems',
 -               RbConfig::CONFIG['ruby_version']
 +               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
               ]
-            else
-              [
-                RbConfig::CONFIG['libdir'],
-                ruby_engine,
-                'gems',
--               RbConfig::CONFIG['ruby_version']
-+               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
-              ]
             end
  
-@@ -75,7 +75,8 @@ def self.default_rubygems_dirs
+@@ -75,7 +75,8 @@ def self.default_specifications_dir
  
    def self.user_dir
      parts = [Gem.user_home, '.gem', ruby_engine]
@@ -232,7 +224,7 @@ index 55ca080..75eea2b 100644
      File.join parts
    end
  
-@@ -172,7 +173,7 @@ def self.vendor_dir # :nodoc:
+@@ -158,7 +159,7 @@ def self.vendor_dir # :nodoc:
      return nil unless RbConfig::CONFIG.key? 'vendordir'
  
      File.join RbConfig::CONFIG['vendordir'], 'gems',
@@ -242,10 +234,10 @@ index 55ca080..75eea2b 100644
  
    ##
 diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
-index 0428bea..b6e090e 100644
+index b25068405d..e9fef4a311 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1288,7 +1288,8 @@ def test_self_use_paths
+@@ -1353,7 +1353,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -255,15 +247,15 @@ index 0428bea..b6e090e 100644
  
      assert_equal File.join(parts), Gem.user_dir
    end
-@@ -1365,7 +1366,7 @@ def test_self_gzip
-   def test_self_vendor_dir
-     expected =
-       File.join RbConfig::CONFIG['vendordir'], 'gems',
--                RbConfig::CONFIG['ruby_version']
-+                RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+@@ -1429,7 +1430,7 @@ def test_self_vendor_dir
+     vendordir(File.join(@tempdir, 'vendor')) do
+       expected =
+         File.join RbConfig::CONFIG['vendordir'], 'gems',
+-                  RbConfig::CONFIG['ruby_version']
++                  RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
  
-     assert_equal expected, Gem.vendor_dir
-   end
+       assert_equal expected, Gem.vendor_dir
+     end
 -- 
 2.1.0
 
@@ -282,7 +274,7 @@ diff --git a/configure.ac b/configure.ac
 index a00f2b6776..999e2d6d5d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -101,7 +101,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -98,7 +98,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)

@@ -12,10 +12,10 @@ Subject: [PATCH] Allow to install RubyGems into custom location, outside of
  4 files changed, 22 insertions(+)
 
 diff --git a/configure.ac b/configure.ac
-index 6bba453e3c..028ef7ca3e 100644
+index 93af30321d..bc13397e0e 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3746,6 +3746,10 @@ AC_ARG_WITH(vendorarchdir,
+@@ -3776,6 +3776,10 @@ AC_ARG_WITH(vendorarchdir,
              [vendorarchdir=$withval],
              [vendorarchdir=${multiarch+'${rubysitearchprefix}/vendor_ruby'${ruby_version_dir}}${multiarch-'${vendorlibdir}/${sitearch}'}])
  
@@ -26,7 +26,7 @@ index 6bba453e3c..028ef7ca3e 100644
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
      RUBY_EXEC_PREFIX=''
-@@ -3770,6 +3774,7 @@ AC_SUBST(sitearchdir)dnl
+@@ -3800,6 +3804,7 @@ AC_SUBST(sitearchdir)dnl
  AC_SUBST(vendordir)dnl
  AC_SUBST(vendorlibdir)dnl
  AC_SUBST(vendorarchdir)dnl
@@ -67,7 +67,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index b47b6e1..0b99408 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -334,6 +334,7 @@ def CONFIG.[](name, mandatory = false)
+@@ -338,6 +338,7 @@ def CONFIG.[](name, mandatory = false)
  sitearchlibdir = CONFIG["sitearchdir"]
  vendorlibdir = CONFIG["vendorlibdir"]
  vendorarchlibdir = CONFIG["vendorarchdir"]
@@ -75,7 +75,7 @@ index b47b6e1..0b99408 100755
  mandir = CONFIG["mandir", true]
  docdir = CONFIG["docdir", true]
  enable_shared = CONFIG["ENABLE_SHARED"] == 'yes'
-@@ -560,7 +561,16 @@ def stub
+@@ -565,7 +566,16 @@ def stub
  install?(:local, :comm, :lib) do
    prepare "library scripts", rubylibdir
    noinst = %w[*.txt *.rdoc *.gemspec]
