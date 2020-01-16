@@ -765,9 +765,6 @@ echo 'doc/pty' >> .ruby-doc.ja
 sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
-# https://github.com/ruby/rake/issues/316
-rm -f %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.gitignore
-
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
