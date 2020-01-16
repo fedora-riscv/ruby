@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 125
+%global release 126
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -152,7 +152,9 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
 Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
-Recommends: rubygem(did_you_mean) >= %{did_you_mean_version}
+# Change this to requires, hopefully just as temporary measure.
+# https://bugs.ruby-lang.org/issues/16431
+Requires: rubygem(did_you_mean) >= %{did_you_mean_version}
 Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
@@ -1225,6 +1227,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
+* Thu Jan 16 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-126
+- Make rubygem(did_you_mean) hard dependency.
+
 * Tue Jan 07 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-125
 - Upgrade to Ruby 2.7.0.
 - Drop useless %%{rubygems_default_filter}.
