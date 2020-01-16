@@ -765,6 +765,10 @@ echo 'doc/pty' >> .ruby-doc.ja
 sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
+# Remove useless .github directory from Rake.
+# https://github.com/ruby/rake/pull/333
+rm -rf %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.github
+
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
