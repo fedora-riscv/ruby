@@ -765,9 +765,6 @@ echo 'doc/pty' >> .ruby-doc.ja
 sed -i 's/^/%doc /' .ruby-doc.*
 sed -i 's/^/%lang(ja) /' .ruby-doc.ja
 
-# https://github.com/yuki24/did_you_mean/issues/122
-rm -rf %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/tmp/
-
 # https://github.com/ruby/rake/issues/316
 rm -f %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.gitignore
 
