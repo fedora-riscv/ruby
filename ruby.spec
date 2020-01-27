@@ -726,6 +726,9 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 # https://bugs.ruby-lang.org/issues/15982
 rm %{buildroot}%{_bindir}/{racc2y,y2racc}
 rm %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
+# The 'rdoc' directory is empty and useless ATM.
+# https://bugs.ruby-lang.org/issues/16596
+rm -r %{buildroot}%{ruby_libdir}/racc/rdoc
 mkdir -p %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}
 mv %{buildroot}%{ruby_libdir}/racc* %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
