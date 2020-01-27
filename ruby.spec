@@ -739,10 +739,6 @@ find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdep
   -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \; \
   || echo "No gem binary extensions to move."
 
-# Adjust the gemspec files so that the gems will load properly
-sed -i '/^end$/ i\
-  s.extensions = ["json/ext/parser.so", "json/ext/generator.so"]' %{buildroot}%{gem_dir}/specifications/json-%{json_version}.gemspec
-
 # Move man pages into proper location
 mv %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
 
