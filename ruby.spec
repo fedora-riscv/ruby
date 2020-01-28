@@ -156,6 +156,7 @@ Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
 # https://bugs.ruby-lang.org/issues/16431
 Requires: rubygem(did_you_mean) >= %{did_you_mean_version}
 Recommends: rubygem(openssl) >= %{openssl_version}
+Recommends: rubygem(racc) >= %{racc_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
@@ -1239,7 +1240,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Tue Jan 28 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-127
-- Provide StdLib links for Racc.
+- Provide StdLib links for Racc and install it by default.
 
 * Thu Jan 16 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-126
 - Make rubygem(did_you_mean) hard dependency.
