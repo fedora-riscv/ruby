@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 126
+%global release 127
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -735,6 +735,15 @@ mv %{buildroot}%{ruby_libdir}/racc* %{buildroot}%{gem_dir}/gems/racc-%{racc_vers
 mv %{buildroot}%{ruby_libarchdir}/racc/ %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}/
 touch %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}/gem.build_complete
 mv %{buildroot}%{gem_dir}/specifications/default/racc-%{racc_version}.gemspec %{buildroot}%{gem_dir}/specifications
+# This used to be directories when racc was integral part of StdLib => Keep
+# them as directories and link everything in them to prevent directory =>
+# symlink conversion RPM issues.
+mkdir -p %{buildroot}%{ruby_libdir}/racc
+mkdir -p %{buildroot}%{ruby_libarchdir}/racc
+find %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib/racc -maxdepth 1 -type f -exec \
+  sh -c 'ln -s %{gem_dir}/gems/racc-%{racc_version}/lib/racc/`basename {}` %{buildroot}%{ruby_libdir}/racc' \;
+ln -s %{gem_dir}/gems/racc-%{racc_version}/lib/racc.rb %{buildroot}%{ruby_libdir}/racc.rb
+ln -s %{_libdir}/gems/%{name}/racc-%{racc_version}/racc/cparse.so %{buildroot}%{ruby_libarchdir}/racc/cparse.so
 
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
@@ -906,6 +915,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/openssl.rb
 %exclude %{ruby_libdir}/psych.rb
+%exclude %{ruby_libdir}/racc.rb
 %{ruby_libdir}/benchmark
 %{ruby_libdir}/cgi
 %{ruby_libdir}/csv
@@ -1220,12 +1230,17 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %files -n rubygem-racc
+%{ruby_libdir}/racc*
+%{ruby_libarchdir}/racc
 %{_bindir}/racc
 %{_libdir}/gems/%{name}/racc-%{racc_version}
 %{gem_dir}/gems/racc-%{racc_version}
 %{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
+* Tue Jan 28 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-127
+- Provide StdLib links for Racc.
+
 * Thu Jan 16 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-126
 - Make rubygem(did_you_mean) hard dependency.
 
