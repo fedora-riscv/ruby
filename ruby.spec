@@ -46,7 +46,6 @@
 %global irb_version 1.2.3
 %global json_version 2.3.0
 %global minitest_version 5.13.0
-%global net_telnet_version 0.2.0
 %global openssl_version 2.2.0
 %global power_assert_version 1.1.5
 %global psych_version 3.1.0
