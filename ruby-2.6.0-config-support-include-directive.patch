@@ -21,7 +21,7 @@ diff --git a/ext/openssl/lib/openssl/config.rb b/ext/openssl/lib/openssl/config.
 index 88225451..ba3a54c8 100644
 --- a/ext/openssl/lib/openssl/config.rb
 +++ b/ext/openssl/lib/openssl/config.rb
-@@ -77,29 +77,44 @@ def get_key_string(data, section, key) # :nodoc:
+@@ -76,29 +76,44 @@ def get_key_string(data, section, key) # :nodoc:
        def parse_config_lines(io)
          section = 'default'
          data = {section => {}}
@@ -78,7 +78,7 @@ index 88225451..ba3a54c8 100644
            end
          end
          data
-@@ -212,10 +227,10 @@ def clear_comments(line)
+@@ -211,10 +226,10 @@ def clear_comments(line)
          scanned.join
        end
  
@@ -92,7 +92,7 @@ index 88225451..ba3a54c8 100644
                line += extra
              else
                break
-@@ -225,9 +240,12 @@ def get_definition(io)
+@@ -224,9 +239,12 @@ def get_definition(io)
          end
        end
  

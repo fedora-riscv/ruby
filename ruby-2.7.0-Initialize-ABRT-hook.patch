@@ -15,7 +15,7 @@ To keep the things simple for now, load the ABRT hook via C.
 [4]: https://github.com/ruby/ruby/pull/2735
 [5]: https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/LH6L6YJOYQT4Y5ZNOO4SLIPTUWZ5V45Q/
 ---
- abrt.c    | 12 ++++++++++++++
+ abrt.c    | 12 ++++++++++++
  common.mk |  3 ++-
  ruby.c    |  4 ++++
  3 files changed, 18 insertions(+), 1 deletion(-)
@@ -57,7 +57,7 @@ diff --git a/ruby.c b/ruby.c
 index 60c57d6259..1eec16f2c8 100644
 --- a/ruby.c
 +++ b/ruby.c
-@@ -1439,10 +1439,14 @@ proc_options(long argc, char **argv, ruby_cmdline_options_t *opt, int envopt)
+@@ -1455,10 +1455,14 @@ proc_options(long argc, char **argv, ruby_cmdline_options_t *opt, int envopt)
  
  void Init_builtin_features(void);
  

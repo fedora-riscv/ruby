@@ -1,5 +1,5 @@
 %global major_version 2
-%global minor_version 7
+%global minor_version 8
 %global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-#%%global revision af11efd377
+%global revision 3e12b65861
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 127
+%global release 1
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,10 +30,10 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.2
+%global rubygems_version 3.2.0.pre1
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.1.2
+%global bundler_version 2.1.4
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.3.0
 %global bundler_molinillo_version 0.6.6
@@ -42,19 +42,20 @@
 
 %global bigdecimal_version 2.0.0
 %global did_you_mean_version 1.4.0
-%global io_console_version 0.5.3
-%global irb_version 1.2.1
+%global io_console_version 0.5.6
+%global irb_version 1.2.3
 %global json_version 2.3.0
 %global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
-%global openssl_version 2.1.2
+%global openssl_version 2.2.0
 %global power_assert_version 1.1.5
 %global psych_version 3.1.0
 %global racc_version 1.4.16
 %global rake_version 13.0.1
 %global rdoc_version 6.2.1
+%global rexml_version 3.2.3
+%global rss_version 0.2.8
 %global test_unit_version 3.3.4
-%global xmlrpc_version 0.3.0
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -212,11 +213,14 @@ Provides: bundled(ccan-check_type)
 Provides: bundled(ccan-container_of)
 Provides: bundled(ccan-list)
 
-# Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe
-# so lets obsolete it. This is not the best place, but we don't have
-# better, unless https://fedorahosted.org/fpc/ticket/645 provides some
-# generic solution.
+# Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe.
 Obsoletes: ruby-tcltk < 2.4.0
+
+# The Net::Telnet and XMLRPC were removed in Ruby 2.8, i.e. F34 timeframe.
+# https://bugs.ruby-lang.org/issues/16484
+# TODO: Update the versions prior landing in Fedora.
+Obsoletes: rubygem-net-telnet < 0.2.0-%{release}
+Obsoletes: rubygem-xmlrpc < 0.3.0-%{release}
 
 
 %description libs
@@ -452,25 +456,6 @@ capabilities. In addition to wrapping libyaml, Psych also knows how to
 serialize and de-serialize most Ruby objects to and from the YAML format.
 
 
-%package -n rubygem-net-telnet
-Summary:    Provides telnet client functionality
-Version:    %{net_telnet_version}
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(net-telnet) = %{version}-%{release}
-BuildArch:  noarch
-
-%description -n rubygem-net-telnet
-Provides telnet client functionality.
-
-This class also has, through delegation, all the methods of a socket object
-(by default, a TCPSocket, but can be set by the Proxy option to new()). This
-provides methods such as close() to end the session and sysread() to read data
-directly from the host, instead of via the waitfor() mechanism. Note that if
-you do use sysread() directly when in telnet mode, you should probably pass
-the output through preprocess() to extract telnet command sequences.
-
-
 %package -n rubygem-test-unit
 Summary:    An xUnit family unit testing framework for Ruby
 Version:    %{test_unit_version}
@@ -488,20 +473,6 @@ Test::Unit (test-unit) is unit testing framework for Ruby, based on xUnit
 principles. These were originally designed by Kent Beck, creator of extreme
 programming software development methodology, for Smalltalk's SUnit. It allows
 writing tests, checking results and automated testing in Ruby.
-
-
-%package -n rubygem-xmlrpc
-Summary:    XMLRPC is a lightweight protocol that enables remote procedure calls over HTTP
-Version:    %{xmlrpc_version}
-License:    Ruby or BSD
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(xmlrpc) = %{version}-%{release}
-BuildArch:  noarch
-
-%description -n rubygem-xmlrpc
-XMLRPC is a lightweight protocol that enables remote procedure calls over
-HTTP.
 
 
 %package -n rubygem-bundler
@@ -536,6 +507,45 @@ Provides:   rubygem(racc) = %{version}-%{release}
 %description -n rubygem-racc
 Racc is a LALR(1) parser generator. It is written in Ruby itself, and
 generates Ruby program.
+
+
+%package -n rubygem-rexml
+Summary:    An XML toolkit for Ruby
+Version:    %{rexml_version}
+License:    BSD
+URL:        https://github.com/ruby/rexml
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(rexml) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-rexml
+REXML was inspired by the Electric XML library for Java, which features an
+easy-to-use API, small size, and speed. Hopefully, REXML, designed with the same
+philosophy, has these same features. I've tried to keep the API as intuitive as
+possible, and have followed the Ruby methodology for method naming and code
+flow, rather than mirroring the Java API.
+
+REXML supports both tree and stream document parsing. Stream parsing is faster
+(about 1.5 times as fast). However, with stream parsing, you don't get access to
+features such as XPath.
+
+
+%package -n rubygem-rss
+Summary:    Family of libraries that support various formats of XML "feeds"
+Version:    %{rss_version}
+License:    BSD
+URL:        https://github.com/ruby/rss
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(rss) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-rss
+Really Simple Syndication (RSS) is a family of formats that describe 'feeds',
+specially constructed XML documents that allow an interested person to subscribe
+and receive updates from a particular web service. This library provides tooling
+to read and create these feeds.
 
 
 %prep
@@ -722,14 +732,6 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
-# These have wrong shebangs. Exclude them for now and let's see what upstream
-# thinks about them.
-# https://bugs.ruby-lang.org/issues/15982
-rm %{buildroot}%{_bindir}/{racc2y,y2racc}
-rm %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
-# The 'rdoc' directory is empty and useless ATM.
-# https://bugs.ruby-lang.org/issues/16596
-rm -r %{buildroot}%{ruby_libdir}/racc/rdoc
 mkdir -p %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}
 mv %{buildroot}%{ruby_libdir}/racc* %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
@@ -900,7 +902,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %license GPL
 %license LEGAL
 %doc README.md
-%doc NEWS
+%doc NEWS.md
 # Exclude /usr/local directory since it is supposed to be managed by
 # local system administrator.
 %exclude %{ruby_sitelibdir}
@@ -935,16 +937,15 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libdir}/ostruct
 %{ruby_libdir}/pstore
 %{ruby_libdir}/reline
-%{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper
-%{ruby_libdir}/rss
 %{ruby_libdir}/singleton
 %{ruby_libdir}/syslog
 %{ruby_libdir}/timeout
 %{ruby_libdir}/tracer
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/uri
+%{ruby_libdir}/weakref
 %{ruby_libdir}/webrick
 %{ruby_libdir}/yaml
 
@@ -1076,6 +1077,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %exclude %{gem_dir}/cache/*
 
 # TODO: Gemify these libraries
+%{gem_dir}/specifications/default/English-0.1.0.gemspec
 %{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
 %{gem_dir}/specifications/default/cgi-0.1.0.gemspec
 %{gem_dir}/specifications/default/csv-3.1.2.gemspec
@@ -1093,7 +1095,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/logger-1.4.2.gemspec
 %{gem_dir}/specifications/default/matrix-0.2.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-imap-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-protocol-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-smtp-0.1.0.gemspec
 %{gem_dir}/specifications/default/observer-0.1.0.gemspec
 %{gem_dir}/specifications/default/open3-0.1.0.gemspec
@@ -1102,16 +1106,17 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.1.2.gemspec
-%{gem_dir}/specifications/default/rexml-3.2.3.gemspec
-%{gem_dir}/specifications/default/rss-0.2.8.gemspec
+%{gem_dir}/specifications/default/reline-0.1.3.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.0.gemspec
 %{gem_dir}/specifications/default/stringio-0.1.0.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.3.gemspec
+%{gem_dir}/specifications/default/tempfile-0.1.0.gemspec
 %{gem_dir}/specifications/default/timeout-0.1.0.gemspec
+%{gem_dir}/specifications/default/tmpdir-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/uri-0.10.0.gemspec
+%{gem_dir}/specifications/default/weakref-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.6.0.gemspec
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
@@ -1201,26 +1206,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/gems/psych-%{psych_version}
 %{gem_dir}/specifications/psych-%{psych_version}.gemspec
 
-%files -n rubygem-net-telnet
-%{gem_dir}/gems/net-telnet-%{net_telnet_version}
-%exclude %{gem_dir}/gems/net-telnet-%{net_telnet_version}/.*
-%{gem_dir}/specifications/net-telnet-%{net_telnet_version}.gemspec
-
 %files -n rubygem-test-unit
 %{gem_dir}/gems/test-unit-%{test_unit_version}
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
-
-%files -n rubygem-xmlrpc
-%license %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
-%dir %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}
-%exclude %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/.*
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
-%doc %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/README.md
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/bin
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/lib
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
-%{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %files -n rubygem-bundler
 %{_bindir}/bundle
@@ -1238,7 +1226,38 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/gems/racc-%{racc_version}
 %{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
+%files -n rubygem-rexml
+%dir %{gem_dir}/gems/rexml-%{rexml_version}
+%exclude %{gem_dir}/gems/rexml-%{rexml_version}/.*
+%license %{gem_dir}/gems/rexml-%{rexml_version}/LICENSE.txt
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/NEWS.md
+%{gem_dir}/gems/rexml-%{rexml_version}/lib
+%{gem_dir}/specifications/rexml-%{rexml_version}.gemspec
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/Gemfile
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/README.md
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/Rakefile
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/rexml.gemspec
+
+%files -n rubygem-rss
+%dir %{gem_dir}/gems/rss-%{rss_version}
+%exclude %{gem_dir}/gems/rss-%{rss_version}/.*
+%license %{gem_dir}/gems/rss-%{rss_version}/LICENSE.txt
+%doc %{gem_dir}/gems/rss-%{rss_version}/NEWS.md
+%{gem_dir}/gems/rss-%{rss_version}/lib
+%{gem_dir}/specifications/rss-%{rss_version}.gemspec
+%doc %{gem_dir}/gems/rss-%{rss_version}/Gemfile
+%doc %{gem_dir}/gems/rss-%{rss_version}/README.md
+%doc %{gem_dir}/gems/rss-%{rss_version}/Rakefile
+%doc %{gem_dir}/gems/rss-%{rss_version}/rss.gemspec
+
+
 %changelog
+* Mon Feb 24 2020 Vít Ondruch <vondruch@redhat.com> - 2.8.0-1
+- Upgrade to Ruby 2.8.0 (af11efd377).
+- Extract RSS and REXML into separate subpackages, because they were moved from
+  default gems to bundled gems.
+- Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
+
 * Tue Jan 28 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-127
 - Provide StdLib links for Racc and install it by default.
 
