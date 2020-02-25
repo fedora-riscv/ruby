@@ -56,10 +56,6 @@
 %global rss_version 0.2.8
 %global test_unit_version 3.3.4
 
-# Might not be needed in the future, if we are lucky enough.
-# https://bugzilla.redhat.com/show_bug.cgi?id=888262
-%global tapset_root %{_datadir}/systemtap
-%global tapset_dir %{tapset_root}/tapset
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
 %global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
@@ -758,11 +754,11 @@ mv %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_ma
 
 %if %{with systemtap}
 # Install a tapset and fix up the path to the library.
-mkdir -p %{buildroot}%{tapset_dir}
+mkdir -p %{buildroot}%{_systemtap_tapsetdir}
 sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
-  %{SOURCE2} > %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
+  %{SOURCE2} > %{buildroot}%{_systemtap_tapsetdir}/libruby.so.%{major_minor_version}.stp
 # Escape '*/' in comment.
-sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
+sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{_systemtap_tapsetdir}/libruby.so.%{major_minor_version}.stp
 %endif
 
 # Prepare -doc subpackage file lists.
@@ -1052,7 +1048,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/syslog.so
 %{ruby_libarchdir}/zlib.so
 
-%{?with_systemtap:%{tapset_root}}
+%{?with_systemtap:%{_systemtap_datadir}}
 
 %files -n rubygems
 %{_bindir}/gem
