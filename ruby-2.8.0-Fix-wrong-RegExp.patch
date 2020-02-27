@@ -1,0 +1,27 @@
+From 7e96ad15894dce6a1e0b06d5981580d4644c07d3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Thu, 27 Feb 2020 07:35:40 +0100
+Subject: [PATCH] Fix wrong RegExp.
+
+The missing `\` in PR #2922 causes the default gems to be installed from
+the .gem packages instead from the expanded sources.
+---
+ tool/rbinstall.rb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
+index 9cd99243a6..b1914d795b 100755
+--- a/tool/rbinstall.rb
++++ b/tool/rbinstall.rb
+@@ -894,7 +894,7 @@ def install_default_gem(dir, srcdir)
+   gem_ext_dir = "#$extout/gems/#{CONFIG['arch']}"
+   extensions_dir = Gem::StubSpecification.gemspec_stub("", gem_dir, gem_dir).extensions_dir
+   File.foreach("#{srcdir}/gems/bundled_gems") do |name|
+-    next unless /^(\S+)\s+(S+).*/ =~ name
++    next unless /^(\S+)\s+(\S+).*/ =~ name
+     gem_name = "#$1-#$2"
+     path = "#{srcdir}/.bundle/gems/#{gem_name}/#$1.gemspec"
+     next unless File.exist?(path)
+-- 
+2.25.0
+
