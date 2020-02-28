@@ -33,6 +33,7 @@
 %global rubygems_version 3.1.2
 %global rubygems_molinillo_version 0.5.7
 
+# Default gems.
 %global bundler_version 2.1.4
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.3.0
@@ -45,16 +46,18 @@
 %global io_console_version 0.5.6
 %global irb_version 1.2.3
 %global json_version 2.3.0
-%global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
-%global power_assert_version 1.1.7
 %global psych_version 3.1.0
 %global racc_version 1.4.16
-%global rake_version 13.0.1
 %global rdoc_version 6.2.1
-%global test_unit_version 3.3.4
 %global xmlrpc_version 0.3.0
+
+# Bundled gems.
+%global minitest_version 5.13.0
+%global power_assert_version 1.1.7
+%global rake_version 13.0.1
+%global test_unit_version 3.3.4
 
 # Might not be needed in the future, if we are lucky enough.
 # https://bugzilla.redhat.com/show_bug.cgi?id=888262
@@ -264,20 +267,10 @@ BuildArch:  noarch
 Macros and development tools for packaging RubyGems.
 
 
-%package -n rubygem-rake
-Summary:    Ruby based make-like utility
-Version:    %{rake_version}
-License:    MIT
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rake = %{version}-%{release}
-Provides:   rubygem(rake) = %{version}-%{release}
-BuildArch:  noarch
-
-%description -n rubygem-rake
-Rake is a Make-like program implemented in Ruby. Tasks and dependencies are
-specified in standard Ruby syntax.
-
+# Default gems
+#
+# These packages are part of Ruby StdLib and are expected to be loadable even
+# with disabled RubyGems.
 
 %package -n rubygem-irb
 Summary:    The Interactive Ruby
@@ -390,6 +383,73 @@ data to disk or transmit it over a network rather than use a verbose
 markup language.
 
 
+%package -n rubygem-openssl
+Summary:    OpenSSL provides SSL, TLS and general purpose cryptography
+Version:    %{openssl_version}
+License:    Ruby or BSD
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(openssl) = %{version}-%{release}
+
+%description -n rubygem-openssl
+OpenSSL provides SSL, TLS and general purpose cryptography. It wraps the
+OpenSSL library.
+
+
+%package -n rubygem-psych
+Summary:    A libyaml wrapper for Ruby
+Version:    %{psych_version}
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(psych) = %{version}-%{release}
+
+%description -n rubygem-psych
+Psych is a YAML parser and emitter. Psych leverages
+libyaml[http://pyyaml.org/wiki/LibYAML] for its YAML parsing and emitting
+capabilities. In addition to wrapping libyaml, Psych also knows how to
+serialize and de-serialize most Ruby objects to and from the YAML format.
+
+
+%package -n rubygem-bundler
+Summary:    Library and utilities to manage a Ruby application's gem dependencies
+Version:    %{bundler_version}
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Requires:   rubygem(io-console)
+Provides:   rubygem(bundler) = %{version}-%{release}
+# https://github.com/bundler/bundler/issues/3647
+Provides:   bundled(connection_pool) = %{bundler_connection_pool_version}
+Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
+Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
+Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
+Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
+BuildArch:  noarch
+
+%description -n rubygem-bundler
+Bundler manages an application's dependencies through its entire life, across
+many machines, systematically and repeatably.
+
+
+%package -n rubygem-racc
+Summary:    Racc is a LALR(1) parser generator
+Version:    %{racc_version}
+License:    MIT
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(racc) = %{version}-%{release}
+
+%description -n rubygem-racc
+Racc is a LALR(1) parser generator. It is written in Ruby itself, and
+generates Ruby program.
+
+
+# Bundled gems
+#
+# These are regular packages, which might be installed just optionally. Users
+# should list them among their dependencies (in Gemfile).
+
 %package -n rubygem-minitest
 Summary:    Minitest provides a complete suite of testing facilities
 Version:    %{minitest_version}
@@ -414,19 +474,6 @@ minitest/pride shows pride in testing and adds coloring to your test
 output.
 
 
-%package -n rubygem-openssl
-Summary:    OpenSSL provides SSL, TLS and general purpose cryptography
-Version:    %{openssl_version}
-License:    Ruby or BSD
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(openssl) = %{version}-%{release}
-
-%description -n rubygem-openssl
-OpenSSL provides SSL, TLS and general purpose cryptography. It wraps the
-OpenSSL library.
-
-
 %package -n rubygem-power_assert
 Summary:    Power Assert for Ruby
 Version:    %{power_assert_version}
@@ -442,19 +489,19 @@ It is useful for testing, providing which value wasn't correct when the
 condition is not satisfied.
 
 
-%package -n rubygem-psych
-Summary:    A libyaml wrapper for Ruby
-Version:    %{psych_version}
+%package -n rubygem-rake
+Summary:    Ruby based make-like utility
+Version:    %{rake_version}
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(psych) = %{version}-%{release}
+Provides:   rake = %{version}-%{release}
+Provides:   rubygem(rake) = %{version}-%{release}
+BuildArch:  noarch
 
-%description -n rubygem-psych
-Psych is a YAML parser and emitter. Psych leverages
-libyaml[http://pyyaml.org/wiki/LibYAML] for its YAML parsing and emitting
-capabilities. In addition to wrapping libyaml, Psych also knows how to
-serialize and de-serialize most Ruby objects to and from the YAML format.
+%description -n rubygem-rake
+Rake is a Make-like program implemented in Ruby. Tasks and dependencies are
+specified in standard Ruby syntax.
 
 
 %package -n rubygem-net-telnet
@@ -507,40 +554,6 @@ BuildArch:  noarch
 %description -n rubygem-xmlrpc
 XMLRPC is a lightweight protocol that enables remote procedure calls over
 HTTP.
-
-
-%package -n rubygem-bundler
-Summary:    Library and utilities to manage a Ruby application's gem dependencies
-Version:    %{bundler_version}
-License:    MIT
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Requires:   rubygem(io-console)
-Provides:   rubygem(bundler) = %{version}-%{release}
-# https://github.com/bundler/bundler/issues/3647
-Provides:   bundled(connection_pool) = %{bundler_connection_pool_version}
-Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
-Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
-Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
-Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
-BuildArch:  noarch
-
-%description -n rubygem-bundler
-Bundler manages an application's dependencies through its entire life, across
-many machines, systematically and repeatably.
-
-
-%package -n rubygem-racc
-Summary:    Racc is a LALR(1) parser generator
-Version:    %{racc_version}
-License:    MIT
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(racc) = %{version}-%{release}
-
-%description -n rubygem-racc
-Racc is a LALR(1) parser generator. It is written in Ruby itself, and
-generates Ruby program.
 
 
 %prep
@@ -1132,12 +1145,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_rpmconfigdir}/rubygems.prov
 %{_rpmconfigdir}/rubygems.con
 
-%files -n rubygem-rake
-%{_bindir}/rake
-%{gem_dir}/gems/rake-%{rake_version}
-%{gem_dir}/specifications/rake-%{rake_version}.gemspec
-%{_mandir}/man1/rake.1*
-
 %files -n rubygem-irb
 %{_bindir}/irb
 %{ruby_libdir}/irb*
@@ -1184,11 +1191,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/gems/json-%{json_version}
 %{gem_dir}/specifications/json-%{json_version}.gemspec
 
-%files -n rubygem-minitest
-%{gem_dir}/gems/minitest-%{minitest_version}
-%exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
-%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
-
 %files -n rubygem-openssl
 %{ruby_libdir}/openssl
 %{ruby_libdir}/openssl.rb
@@ -1196,11 +1198,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_libdir}/gems/%{name}/openssl-%{openssl_version}
 %{gem_dir}/gems/openssl-%{openssl_version}
 %{gem_dir}/specifications/openssl-%{openssl_version}.gemspec
-
-%files -n rubygem-power_assert
-%{gem_dir}/gems/power_assert-%{power_assert_version}
-%exclude %{gem_dir}/gems/power_assert-%{power_assert_version}/.*
-%{gem_dir}/specifications/power_assert-%{power_assert_version}.gemspec
 
 %files -n rubygem-psych
 %{ruby_libdir}/psych
@@ -1210,10 +1207,42 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/gems/psych-%{psych_version}
 %{gem_dir}/specifications/psych-%{psych_version}.gemspec
 
+%files -n rubygem-bundler
+%{_bindir}/bundle
+%{_bindir}/bundler
+%{gem_dir}/gems/bundler-%{bundler_version}
+%{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
+%{_mandir}/man1/bundle*.1*
+%{_mandir}/man5/gemfile.5*
+
+%files -n rubygem-racc
+%{ruby_libdir}/racc*
+%{ruby_libarchdir}/racc
+%{_bindir}/racc
+%{_libdir}/gems/%{name}/racc-%{racc_version}
+%{gem_dir}/gems/racc-%{racc_version}
+%{gem_dir}/specifications/racc-%{racc_version}.gemspec
+
+%files -n rubygem-minitest
+%{gem_dir}/gems/minitest-%{minitest_version}
+%exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
+%{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
+
 %files -n rubygem-net-telnet
 %{gem_dir}/gems/net-telnet-%{net_telnet_version}
 %exclude %{gem_dir}/gems/net-telnet-%{net_telnet_version}/.*
 %{gem_dir}/specifications/net-telnet-%{net_telnet_version}.gemspec
+
+%files -n rubygem-power_assert
+%{gem_dir}/gems/power_assert-%{power_assert_version}
+%exclude %{gem_dir}/gems/power_assert-%{power_assert_version}/.*
+%{gem_dir}/specifications/power_assert-%{power_assert_version}.gemspec
+
+%files -n rubygem-rake
+%{_bindir}/rake
+%{gem_dir}/gems/rake-%{rake_version}
+%{gem_dir}/specifications/rake-%{rake_version}.gemspec
+%{_mandir}/man1/rake.1*
 
 %files -n rubygem-test-unit
 %{gem_dir}/gems/test-unit-%{test_unit_version}
@@ -1231,21 +1260,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
-%files -n rubygem-bundler
-%{_bindir}/bundle
-%{_bindir}/bundler
-%{gem_dir}/gems/bundler-%{bundler_version}
-%{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
-%{_mandir}/man1/bundle*.1*
-%{_mandir}/man5/gemfile.5*
-
-%files -n rubygem-racc
-%{ruby_libdir}/racc*
-%{ruby_libarchdir}/racc
-%{_bindir}/racc
-%{_libdir}/gems/%{name}/racc-%{racc_version}
-%{gem_dir}/gems/racc-%{racc_version}
-%{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
 * Wed Apr 01 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-128
