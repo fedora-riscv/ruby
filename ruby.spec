@@ -58,8 +58,6 @@
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
-%global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
-
 %if 0%{?fedora} >= 19
 %bcond_without rubypick
 %endif
