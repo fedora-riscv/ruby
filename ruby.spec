@@ -934,6 +934,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 # Platform independent libraries.
 %dir %{ruby_libdir}
 %{ruby_libdir}/*.rb
+%exclude %{ruby_libdir}/bigdecimal.rb
 %exclude %{ruby_libdir}/irb.rb
 %exclude %{ruby_libdir}/json.rb
 %exclude %{ruby_libdir}/openssl.rb
@@ -1166,7 +1167,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_datadir}/ri
 
 %files -n rubygem-bigdecimal
-%{ruby_libdir}/bigdecimal
+%{ruby_libdir}/bigdecimal*
 %{ruby_libarchdir}/bigdecimal*
 %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}
