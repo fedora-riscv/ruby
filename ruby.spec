@@ -921,43 +921,77 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 # List all these files explicitly to prevent surprises
 # Platform independent libraries.
 %dir %{ruby_libdir}
-%{ruby_libdir}/*.rb
-%exclude %{ruby_libdir}/bigdecimal.rb
-%exclude %{ruby_libdir}/irb.rb
-%exclude %{ruby_libdir}/json.rb
-%exclude %{ruby_libdir}/openssl.rb
-%exclude %{ruby_libdir}/psych.rb
-%exclude %{ruby_libdir}/racc.rb
-%{ruby_libdir}/benchmark
-%{ruby_libdir}/cgi
-%{ruby_libdir}/csv
-%{ruby_libdir}/delegate
-%{ruby_libdir}/digest
-%{ruby_libdir}/drb
-%{ruby_libdir}/fiddle
-%{ruby_libdir}/forwardable
-%{ruby_libdir}/getoptlong
-%{ruby_libdir}/logger
-%{ruby_libdir}/matrix
+%exclude %{ruby_libdir}/bigdecimal*
+%exclude %{ruby_libdir}/irb*
+%exclude %{ruby_libdir}/json*
+%exclude %{ruby_libdir}/openssl*
+%exclude %{ruby_libdir}/psych*
+%exclude %{ruby_libdir}/racc*
+%{ruby_libdir}/abbrev.rb
+%{ruby_libdir}/base64.rb
+%{ruby_libdir}/benchmark*
+%{ruby_libdir}/cgi*
+%{ruby_libdir}/coverage.rb
+%{ruby_libdir}/csv*
+%{ruby_libdir}/date.rb
+%{ruby_libdir}/debug.rb
+%{ruby_libdir}/delegate*
+%{ruby_libdir}/digest*
+%{ruby_libdir}/drb*
+%{ruby_libdir}/English.rb
+%{ruby_libdir}/erb.rb
+%{ruby_libdir}/expect.rb
+%{ruby_libdir}/fiddle*
+%{ruby_libdir}/fileutils.rb
+%{ruby_libdir}/find.rb
+%{ruby_libdir}/forwardable*
+%{ruby_libdir}/getoptlong*
+%{ruby_libdir}/io
+%{ruby_libdir}/ipaddr.rb
+%{ruby_libdir}/kconv.rb
+%{ruby_libdir}/logger*
+%{ruby_libdir}/matrix*
+%{ruby_libdir}/mkmf.rb
+%{ruby_libdir}/monitor.rb
+%{ruby_libdir}/mutex_m.rb
 %{ruby_libdir}/net
-%{ruby_libdir}/observer
-%{ruby_libdir}/open3
-%{ruby_libdir}/optparse
-%{ruby_libdir}/ostruct
-%{ruby_libdir}/pstore
-%{ruby_libdir}/reline
+%{ruby_libdir}/observer*
+%{ruby_libdir}/open-uri.rb
+%{ruby_libdir}/open3*
+%{ruby_libdir}/optionparser.rb
+%{ruby_libdir}/optparse*
+%{ruby_libdir}/ostruct*
+%{ruby_libdir}/pathname.rb
+%{ruby_libdir}/pp.rb
+%{ruby_libdir}/prettyprint.rb
+%{ruby_libdir}/prime.rb
+%{ruby_libdir}/pstore*
+%{ruby_libdir}/readline.rb
+%{ruby_libdir}/reline*
+%{ruby_libdir}/resolv.rb
+%{ruby_libdir}/resolv-replace.rb
 %{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
-%{ruby_libdir}/ripper
-%{ruby_libdir}/rss
-%{ruby_libdir}/singleton
+%{ruby_libdir}/ripper*
+%{ruby_libdir}/rss*
+%{ruby_libdir}/securerandom.rb
+%{ruby_libdir}/set.rb
+%{ruby_libdir}/shellwords.rb
+%{ruby_libdir}/singleton*
+%{ruby_libdir}/socket.rb
 %{ruby_libdir}/syslog
-%{ruby_libdir}/timeout
-%{ruby_libdir}/tracer
+%{ruby_libdir}/tempfile.rb
+%{ruby_libdir}/timeout*
+%{ruby_libdir}/time.rb
+%{ruby_libdir}/tmpdir.rb
+%{ruby_libdir}/tracer*
+%{ruby_libdir}/tsort.rb
 %{ruby_libdir}/unicode_normalize
-%{ruby_libdir}/uri
-%{ruby_libdir}/webrick
-%{ruby_libdir}/yaml
+%{ruby_libdir}/un.rb
+%{ruby_libdir}/uri*
+%{ruby_libdir}/weakref*
+%{ruby_libdir}/webrick*
+%{ruby_libdir}/yaml*
 
 # Platform specific libraries.
 %{_libdir}/libruby.so.*
