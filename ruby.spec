@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 128
+%global release 129
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -266,6 +266,17 @@ Macros and development tools for packaging RubyGems.
 #
 # These packages are part of Ruby StdLib and are expected to be loadable even
 # with disabled RubyGems.
+
+%package default-gems
+Summary:    Default gems which are part of Ruby StdLib.
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Supplements: ruby(rubygems)
+BuildArch:  noarch
+
+%description default-gems
+The .gemspec files and executables of default gems, which are part of Ruby
+StdLib.
+
 
 %package -n rubygem-irb
 Summary:    The Interactive Ruby
@@ -1120,7 +1131,14 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %exclude %{gem_dir}/cache/*
 
-# TODO: Gemify these libraries
+%files -n rubygems-devel
+%{_rpmconfigdir}/macros.d/macros.rubygems
+%{_rpmconfigdir}/fileattrs/rubygems.attr
+%{_rpmconfigdir}/rubygems.req
+%{_rpmconfigdir}/rubygems.prov
+%{_rpmconfigdir}/rubygems.con
+
+%files default-gems
 %{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
 %{gem_dir}/specifications/default/cgi-0.1.0.gemspec
 %{gem_dir}/specifications/default/csv-3.1.2.gemspec
@@ -1161,12 +1179,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
-%files -n rubygems-devel
-%{_rpmconfigdir}/macros.d/macros.rubygems
-%{_rpmconfigdir}/fileattrs/rubygems.attr
-%{_rpmconfigdir}/rubygems.req
-%{_rpmconfigdir}/rubygems.prov
-%{_rpmconfigdir}/rubygems.con
 
 %files -n rubygem-irb
 %{_bindir}/irb
@@ -1285,6 +1297,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 
 %changelog
+* Thu Apr 02 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-129
+- Add ruby-default-gems subpackage shipping all extra default gem content.
+
 * Wed Apr 01 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-128
 - Upgrade to Ruby 2.7.1.
 
