@@ -159,7 +159,6 @@ Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
 # https://bugs.ruby-lang.org/issues/16431
 Requires: rubygem(did_you_mean) >= %{did_you_mean_version}
 Recommends: rubygem(openssl) >= %{openssl_version}
-Recommends: rubygem(racc) >= %{racc_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
@@ -214,6 +213,9 @@ Provides: bundled(ccan-build_assert)
 Provides: bundled(ccan-check_type)
 Provides: bundled(ccan-container_of)
 Provides: bundled(ccan-list)
+
+# StdLib default gems.
+Provides: bundled(rubygem-racc) = %{racc_version}
 
 # Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe
 # so lets obsolete it. This is not the best place, but we don't have
@@ -271,6 +273,8 @@ Macros and development tools for packaging RubyGems.
 Summary:    Default gems which are part of Ruby StdLib.
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Supplements: ruby(rubygems)
+# Obsoleted by Ruby 2.7 in F32 timeframe.
+Obsoletes: rubygem-racc < %{racc_version}-%{release}
 BuildArch:  noarch
 
 %description default-gems
@@ -436,19 +440,6 @@ BuildArch:  noarch
 %description -n rubygem-bundler
 Bundler manages an application's dependencies through its entire life, across
 many machines, systematically and repeatably.
-
-
-%package -n rubygem-racc
-Summary:    Racc is a LALR(1) parser generator
-Version:    %{racc_version}
-License:    MIT
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(racc) = %{version}-%{release}
-
-%description -n rubygem-racc
-Racc is a LALR(1) parser generator. It is written in Ruby itself, and
-generates Ruby program.
 
 
 # Bundled gems
@@ -746,27 +737,6 @@ ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
 ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby_libarchdir}/psych.so
 
-# These have wrong shebangs. Exclude them for now and let's see what upstream
-# thinks about them.
-# https://bugs.ruby-lang.org/issues/15982
-rm %{buildroot}%{_bindir}/{racc2y,y2racc}
-rm %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
-mkdir -p %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}
-mv %{buildroot}%{ruby_libdir}/racc* %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
-mv %{buildroot}%{ruby_libarchdir}/racc/ %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}/
-touch %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}/gem.build_complete
-mv %{buildroot}%{gem_dir}/specifications/default/racc-%{racc_version}.gemspec %{buildroot}%{gem_dir}/specifications
-# This used to be directories when racc was integral part of StdLib => Keep
-# them as directories and link everything in them to prevent directory =>
-# symlink conversion RPM issues.
-mkdir -p %{buildroot}%{ruby_libdir}/racc
-mkdir -p %{buildroot}%{ruby_libarchdir}/racc
-find %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib/racc -maxdepth 1 -type f -exec \
-  sh -c 'ln -s %{gem_dir}/gems/racc-%{racc_version}/lib/racc/`basename {}` %{buildroot}%{ruby_libdir}/racc' \;
-ln -s %{gem_dir}/gems/racc-%{racc_version}/lib/racc.rb %{buildroot}%{ruby_libdir}/racc.rb
-ln -s %{_libdir}/gems/%{name}/racc-%{racc_version}/racc/cparse.so %{buildroot}%{ruby_libarchdir}/racc/cparse.so
-
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
@@ -937,7 +907,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %exclude %{ruby_libdir}/json*
 %exclude %{ruby_libdir}/openssl*
 %exclude %{ruby_libdir}/psych*
-%exclude %{ruby_libdir}/racc*
 %{ruby_libdir}/abbrev.rb
 %{ruby_libdir}/base64.rb
 %{ruby_libdir}/benchmark*
@@ -1108,6 +1077,11 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/syslog.so
 %{ruby_libarchdir}/zlib.so
 
+# Default gems
+%{ruby_libdir}/racc*
+%dir %{ruby_libarchdir}/racc
+%{ruby_libarchdir}/racc/cparse.so
+
 %{?with_systemtap:%{tapset_root}}
 
 %files -n rubygems
@@ -1179,6 +1153,18 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
+# Use standalone rubygem-racc if Racc binary is required. Shipping this
+# executable in both packages might possibly cause conflicts. The situation
+# could be better if Ruby generated these files:
+# https://github.com/ruby/ruby/pull/2545
+%exclude %{_bindir}/racc
+# These have wrong shebangs. Exclude them for now and let's see what upstream
+# thinks about them.
+# https://bugs.ruby-lang.org/issues/15982
+%exclude %{_bindir}/{racc2y,y2racc}
+%exclude %{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
+%{gem_dir}/gems/racc-%{racc_version}
+%{gem_dir}/specifications/default/racc-1.4.16.gemspec
 
 %files -n rubygem-irb
 %{_bindir}/irb
@@ -1250,14 +1236,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man1/bundle*.1*
 %{_mandir}/man5/gemfile.5*
 
-%files -n rubygem-racc
-%{ruby_libdir}/racc*
-%{ruby_libarchdir}/racc
-%{_bindir}/racc
-%{_libdir}/gems/%{name}/racc-%{racc_version}
-%{gem_dir}/gems/racc-%{racc_version}
-%{gem_dir}/specifications/racc-%{racc_version}.gemspec
-
 %files -n rubygem-minitest
 %{gem_dir}/gems/minitest-%{minitest_version}
 %exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
@@ -1299,6 +1277,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %changelog
 * Thu Apr 02 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-129
 - Add ruby-default-gems subpackage shipping all extra default gem content.
+- Bundle Racc into StdLib.
 
 * Wed Apr 01 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-128
 - Upgrade to Ruby 2.7.1.
