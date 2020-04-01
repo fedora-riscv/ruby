@@ -154,6 +154,11 @@ Patch22: ruby-2.6.0-config-support-include-directive.patch
 # Use larger keys to prevent test failures.
 # https://github.com/ruby/openssl/pull/217
 Patch23: ruby-2.6.0-use-larger-keys-for-SSL-tests.patch
+# Fix lchmod test failures.
+# https://github.com/ruby/ruby/commit/a19228f878d955eaf2cce086bcf53f46fdf894b9
+Patch41: ruby-2.8.0-Brace-the-fact-that-lchmod-can-EOPNOTSUPP.patch
+# https://github.com/ruby/ruby/commit/72c02aa4b79731c7f25c9267f74b347f1946c704
+Patch42: ruby-2.8.0-Moved-not-implemented-method-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -543,6 +548,8 @@ rm -rf ext/fiddle/libffi*
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch41 -p1
+%patch42 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -770,7 +777,12 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 # https://github.com/rubygems/rubygems/issues/2388
 DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_connection/"
 
-make check TESTS="-v $DISABLE_TESTS"
+# Disable File.lchmod specs, which fails when building against glibc 2.31.9000.
+# https://bugs.ruby-lang.org/issues/16749
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod returns false from \#respond_to?'"
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
+
+make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
@@ -1091,6 +1103,7 @@ make check TESTS="-v $DISABLE_TESTS"
 %changelog
 * Wed Oct 14 2020 Jun Aruga <jaruga@redhat.com> - 2.5.5-106
 - Fix checksec 2.0+ compatibility.
+- Fix FTBFS due to glibc 2.31.9000 implementing lchmod(2).
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
