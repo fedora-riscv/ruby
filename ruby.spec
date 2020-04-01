@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 127
+%global release 128
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -143,6 +143,11 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert commit which breaks bundled net-http-persistent version check.
 # https://github.com/drbrain/net-http-persistent/pull/109
 Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
+# Fix lchmod test failures.
+# https://github.com/ruby/ruby/commit/a19228f878d955eaf2cce086bcf53f46fdf894b9
+Patch11: ruby-2.8.0-Brace-the-fact-that-lchmod-can-EOPNOTSUPP.patch
+# https://github.com/ruby/ruby/commit/72c02aa4b79731c7f25c9267f74b347f1946c704
+Patch12: ruby-2.8.0-Moved-not-implemented-method-tests.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -554,6 +559,8 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
+%patch12 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
@@ -860,6 +867,11 @@ MSPECOPTS=""
 # mtime and atime".
 # https://bugs.ruby-lang.org/issues/16410
 MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
+
+# Disable File.lchmod specs, which fails when building against glibc 2.31.9000.
+# https://bugs.ruby-lang.org/issues/16749
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod returns false from \#respond_to?'"
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 
 # Increase timeout for TestBugReporter#test_bug_reporter_add test, which fails
 # quite often.
@@ -1239,6 +1251,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
+* Wed Apr 01 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-128
+- Fix FTBFS due to glibc 2.31.9000 implementing lchmod(2).
+
 * Tue Jan 28 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-127
 - Provide StdLib links for Racc and install it by default.
 
