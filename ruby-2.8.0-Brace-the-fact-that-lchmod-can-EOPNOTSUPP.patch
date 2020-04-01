@@ -1,0 +1,88 @@
+From a19228f878d955eaf2cce086bcf53f46fdf894b9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?=E5=8D=9C=E9=83=A8=E6=98=8C=E5=B9=B3?=
+ <shyouhei@ruby-lang.org>
+Date: Thu, 23 Jan 2020 15:33:42 +0900
+Subject: [PATCH] brace the fact that lchmod(2) can EOPNOTSUPP
+
+Musl libc has this function as a tiny wrapper of fchmodat(3posix).  On
+the other hand Linux kernel does not support changing modes of a symlink.
+The operation always fails with EOPNOTSUPP.  This fchmodat behaviour is
+defined in POSIX.  We have to take care of such exceptions.
+---
+ lib/fileutils.rb               |  3 ++-
+ test/pathname/test_pathname.rb |  2 +-
+ test/ruby/test_notimp.rb       | 19 ++++++++++++-------
+ 3 files changed, 15 insertions(+), 9 deletions(-)
+
+diff --git a/lib/fileutils.rb b/lib/fileutils.rb
+index a7ad65ae5e98..04788e26ca9c 100644
+--- a/lib/fileutils.rb
++++ b/lib/fileutils.rb
+@@ -1345,6 +1345,7 @@ def chmod(mode)
+       else
+         File.chmod mode, path()
+       end
++    rescue Errno::EOPNOTSUPP
+     end
+ 
+     def chown(uid, gid)
+@@ -1439,7 +1440,7 @@ def copy_metadata(path)
+       if st.symlink?
+         begin
+           File.lchmod mode, path
+-        rescue NotImplementedError
++        rescue NotImplementedError, Errno::EOPNOTSUPP
+         end
+       else
+         File.chmod mode, path
+diff --git a/test/pathname/test_pathname.rb b/test/pathname/test_pathname.rb
+index 792510bdfb2d..2ce32a6c1208 100644
+--- a/test/pathname/test_pathname.rb
++++ b/test/pathname/test_pathname.rb
+@@ -818,7 +818,7 @@ def test_lchmod
+       old = path.lstat.mode
+       begin
+         path.lchmod(0444)
+-      rescue NotImplementedError
++      rescue NotImplementedError, Errno::EOPNOTSUPP
+         next
+       end
+       assert_equal(0444, path.lstat.mode & 0777)
+diff --git a/test/ruby/test_notimp.rb b/test/ruby/test_notimp.rb
+index b069154cfc3f..e13db692b50d 100644
+--- a/test/ruby/test_notimp.rb
++++ b/test/ruby/test_notimp.rb
+@@ -13,11 +13,11 @@ def test_respond_to_fork
+ 
+   def test_respond_to_lchmod
+     assert_include(File.methods, :lchmod)
+-    if /linux/ =~ RUBY_PLATFORM
+-      assert_equal(false, File.respond_to?(:lchmod))
+-    end
+-    if /freebsd/ =~ RUBY_PLATFORM
++    case RUBY_PLATFORM
++    when /freebsd/, /linux-musl/
+       assert_equal(true, File.respond_to?(:lchmod))
++    when /linux/
++      assert_equal(false, File.respond_to?(:lchmod))
+     end
+   end
+ 
+@@ -57,9 +57,14 @@ def test_call_lchmod
+         File.open(f, "w") {}
+         File.symlink f, g
+         newmode = 0444
+-        File.lchmod newmode, "#{d}/g"
+-        snew = File.lstat(g)
+-        assert_equal(newmode, snew.mode & 0777)
++        begin
++          File.lchmod newmode, "#{d}/g"
++        rescue Errno::EOPNOTSUPP
++          skip $!
++        else
++          snew = File.lstat(g)
++          assert_equal(newmode, snew.mode & 0777)
++        end
+       }
+     end
+   end

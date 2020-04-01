@@ -13,7 +13,7 @@ diff --git a/lib/bundler/vendor/net-http-persistent/lib/net/http/persistent.rb b
 index a54be2a..06739f1 100644
 --- a/lib/bundler/vendor/net-http-persistent/lib/net/http/persistent.rb
 +++ b/lib/bundler/vendor/net-http-persistent/lib/net/http/persistent.rb
-@@ -202,10 +202,10 @@ class Bundler::Persistent::Net::HTTP::Persistent
+@@ -197,10 +197,10 @@ class Bundler::Persistent::Net::HTTP::Persistent
    ##
    # The default connection pool size is 1/4 the allowed open files.
  
