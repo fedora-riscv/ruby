@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 7
-%global teeny_version 0
+%global teeny_version 1
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -33,7 +33,7 @@
 %global rubygems_version 3.1.2
 %global rubygems_molinillo_version 0.5.7
 
-%global bundler_version 2.1.2
+%global bundler_version 2.1.4
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.3.0
 %global bundler_molinillo_version 0.6.6
@@ -42,13 +42,13 @@
 
 %global bigdecimal_version 2.0.0
 %global did_you_mean_version 1.4.0
-%global io_console_version 0.5.3
-%global irb_version 1.2.1
+%global io_console_version 0.5.6
+%global irb_version 1.2.3
 %global json_version 2.3.0
 %global minitest_version 5.13.0
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
-%global power_assert_version 1.1.5
+%global power_assert_version 1.1.7
 %global psych_version 3.1.0
 %global racc_version 1.4.16
 %global rake_version 13.0.1
@@ -734,9 +734,6 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 # https://bugs.ruby-lang.org/issues/15982
 rm %{buildroot}%{_bindir}/{racc2y,y2racc}
 rm %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
-# The 'rdoc' directory is empty and useless ATM.
-# https://bugs.ruby-lang.org/issues/16596
-rm -r %{buildroot}%{ruby_libdir}/racc/rdoc
 mkdir -p %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/racc-%{racc_version}
 mv %{buildroot}%{ruby_libdir}/racc* %{buildroot}%{gem_dir}/gems/racc-%{racc_version}/lib
@@ -1114,7 +1111,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.1.2.gemspec
+%{gem_dir}/specifications/default/reline-0.1.3.gemspec
 %{gem_dir}/specifications/default/rexml-3.2.3.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
@@ -1251,7 +1248,8 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/racc-%{racc_version}.gemspec
 
 %changelog
-* Wed Apr 01 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-128
+* Wed Apr 01 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-128
+- Upgrade to Ruby 2.7.1.
 - Fix FTBFS due to glibc 2.31.9000 implementing lchmod(2).
 
 * Tue Jan 28 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-127
