@@ -1,0 +1,134 @@
+From 5400fc3c67446e2f7f35ea317c596e71f0cb1ca4 Mon Sep 17 00:00:00 2001
+From: Nobuyoshi Nakada <nobu@ruby-lang.org>
+Date: Fri, 28 Feb 2020 21:15:37 +0900
+Subject: [PATCH 2/2] Moved not-implemented method tests [Bug #16662]
+
+Test not-implemented method with the dedicated methods, instead of
+platform dependent features.
+---
+ test/-ext-/test_notimplement.rb |  7 +++
+ test/ruby/test_notimp.rb        | 90 ---------------------------------
+ 2 files changed, 7 insertions(+), 90 deletions(-)
+ delete mode 100644 test/ruby/test_notimp.rb
+
+diff --git a/test/-ext-/test_notimplement.rb b/test/-ext-/test_notimplement.rb
+index 92a2fd22b8..038b507b73 100644
+--- a/test/-ext-/test_notimplement.rb
++++ b/test/-ext-/test_notimplement.rb
+@@ -13,10 +13,17 @@ def test_funcall_notimplement
+   end
+ 
+   def test_respond_to
++    assert_include(Bug.methods(false), :notimplement)
++    assert_include(Bug::NotImplement.instance_methods(false), :notimplement)
+     assert_not_respond_to(Bug, :notimplement)
+     assert_not_respond_to(Bug::NotImplement.new, :notimplement)
+   end
+ 
++  def test_method_inspect_notimplement
++    assert_match(/not-implemented/, Bug.method(:notimplement).inspect)
++    assert_match(/not-implemented/, Bug::NotImplement.instance_method(:notimplement).inspect)
++  end
++
+   def test_not_method_defined
+     assert !Bug::NotImplement.method_defined?(:notimplement)
+     assert !Bug::NotImplement.method_defined?(:notimplement, true)
+diff --git a/test/ruby/test_notimp.rb b/test/ruby/test_notimp.rb
+deleted file mode 100644
+index daa5a82d7b..0000000000
+--- a/test/ruby/test_notimp.rb
++++ /dev/null
+@@ -1,90 +0,0 @@
+-# frozen_string_literal: false
+-require 'test/unit'
+-require 'timeout'
+-require 'tmpdir'
+-
+-class TestNotImplement < Test::Unit::TestCase
+-  def test_respond_to_fork
+-    assert_include(Process.methods, :fork)
+-    if /linux/ =~ RUBY_PLATFORM
+-      assert_equal(true, Process.respond_to?(:fork))
+-    end
+-  end
+-
+-  def test_respond_to_lchmod
+-    assert_include(File.methods, :lchmod)
+-    case RUBY_PLATFORM
+-    when /freebsd/, /linux-musl/
+-      assert_equal(true, File.respond_to?(:lchmod))
+-    when /linux/
+-      assert_equal(false, File.respond_to?(:lchmod))
+-    end
+-  end
+-
+-  def test_call_fork
+-    GC.start
+-    pid = nil
+-    ps =
+-      case RUBY_PLATFORM
+-      when /linux/ # assume Linux Distribution uses procps
+-        proc {`ps -eLf #{pid}`}
+-      when /freebsd/
+-        proc {`ps -lH #{pid}`}
+-      when /darwin/
+-        proc {`ps -lM #{pid}`}
+-      else
+-        proc {`ps -l #{pid}`}
+-      end
+-    assert_nothing_raised(Timeout::Error, ps) do
+-      Timeout.timeout(EnvUtil.apply_timeout_scale(5)) {
+-        pid = fork {}
+-        Process.wait pid
+-        pid = nil
+-      }
+-    end
+-  ensure
+-    if pid
+-      Process.kill(:KILL, pid)
+-      Process.wait pid
+-    end
+-  end if Process.respond_to?(:fork)
+-
+-  def test_call_lchmod
+-    if File.respond_to?(:lchmod)
+-      Dir.mktmpdir {|d|
+-        f = "#{d}/f"
+-        g = "#{d}/g"
+-        File.open(f, "w") {}
+-        File.symlink f, g
+-        newmode = 0444
+-        begin
+-          File.lchmod newmode, "#{d}/g"
+-        rescue Errno::EOPNOTSUPP
+-          skip $!
+-        else
+-          snew = File.lstat(g)
+-          assert_equal(newmode, snew.mode & 0777)
+-        end
+-      }
+-    end
+-  end
+-
+-  def test_method_inspect_fork
+-    m = Process.method(:fork)
+-    if Process.respond_to?(:fork)
+-      assert_not_match(/not-implemented/, m.inspect)
+-    else
+-      assert_match(/not-implemented/, m.inspect)
+-    end
+-  end
+-
+-  def test_method_inspect_lchmod
+-    m = File.method(:lchmod)
+-    if File.respond_to?(:lchmod)
+-      assert_not_match(/not-implemented/, m.inspect)
+-    else
+-      assert_match(/not-implemented/, m.inspect)
+-    end
+-  end
+-
+-end
+-- 
+2.26.2
+
