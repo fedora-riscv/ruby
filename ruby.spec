@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from SVN.
-%global revision 83705c42ce
+%global revision 810d66f3e7
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -48,12 +48,12 @@
 %global json_version 2.3.0
 %global openssl_version 2.2.0
 %global psych_version 3.1.0
-%global racc_version 1.4.16
+%global racc_version 1.5.0
 %global rdoc_version 6.2.1
 
 # Bundled gems.
 %global minitest_version 5.14.0
-%global power_assert_version 1.1.6
+%global power_assert_version 1.1.7
 %global rake_version 13.0.1
 %global test_unit_version 3.3.5
 %global rexml_version 3.2.4
@@ -140,13 +140,6 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert commit which breaks bundled net-http-persistent version check.
 # https://github.com/drbrain/net-http-persistent/pull/109
 Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
-# Correctly install bundled gems from expanded sources.
-# https://bugs.ruby-lang.org/issues/16656
-Patch11: ruby-2.8.0-Fix-wrong-RegExp.patch
-
-# Add support for .include directive used by OpenSSL config files.
-# https://github.com/ruby/openssl/pull/216
-Patch22: ruby-2.6.0-config-support-include-directive.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -575,8 +568,6 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
-%patch22 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -853,12 +844,10 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 DISABLE_TESTS=""
 MSPECOPTS=""
 
-# It seems that glibc-2.31.9000 comes with lchmod(2) implementation, disable
-# the failing TestNotImplement#test_respond_to_lchmod test cse for now.
-# https://bugs.ruby-lang.org/issues/16662
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_respond_to_lchmod/"
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod returns false from \#respond_to?'"
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
+# It seems that glibc-2.31.9000 comes with lchmod(2) implementation, but it
+# does not support symlinks.
+# https://bugs.ruby-lang.org/issues/16756
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not of the file'"
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
@@ -1163,7 +1152,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/reline-0.1.3.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.0.gemspec
-%{gem_dir}/specifications/default/stringio-0.1.0.gemspec
+%{gem_dir}/specifications/default/stringio-0.1.1.gemspec
 %{gem_dir}/specifications/default/strscan-1.0.3.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.0.gemspec
 %{gem_dir}/specifications/default/timeout-0.1.0.gemspec
@@ -1301,7 +1290,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %changelog
 * Mon Feb 24 2020 Vít Ondruch <vondruch@redhat.com> - 2.8.0-1
-- Upgrade to Ruby 2.8.0 (83705c42ce).
+- Upgrade to Ruby 2.8.0 (810d66f3e7).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
