@@ -140,6 +140,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert commit which breaks bundled net-http-persistent version check.
 # https://github.com/drbrain/net-http-persistent/pull/109
 Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
+# Fix fortifications on armv7hl.
+# https://bugs.ruby-lang.org/issues/16762
+Patch11: ruby-2.8.0-Annotate-execstack.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -568,6 +571,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
