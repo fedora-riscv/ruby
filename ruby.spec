@@ -150,7 +150,6 @@ Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
 # Change this to requires, hopefully just as temporary measure.
 # https://bugs.ruby-lang.org/issues/16431
-Requires: rubygem(did_you_mean) >= %{did_you_mean_version}
 Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
@@ -208,6 +207,7 @@ Provides: bundled(ccan-container_of)
 Provides: bundled(ccan-list)
 
 # StdLib default gems.
+Provides: bundled(rubygem-did_you_mean) = %{did_you_mean_version}
 Provides: bundled(rubygem-racc) = %{racc_version}
 
 # Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe.
@@ -270,6 +270,7 @@ Summary:    Default gems which are part of Ruby StdLib.
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Supplements: ruby(rubygems)
 # Obsoleted by Ruby 2.7 in F32 timeframe.
+Obsoletes: rubygem-did_you_mean < 1.4.0-130
 Obsoletes: rubygem-racc < 1.4.16-130
 BuildArch:  noarch
 
@@ -345,20 +346,6 @@ point numbers. Decimal arithmetic is also useful for general calculation,
 because it provides the correct answers people expect–whereas normal binary
 floating point arithmetic often introduces subtle errors because of the
 conversion between base 10 and base 2.
-
-
-%package -n rubygem-did_you_mean
-Summary:    "Did you mean?" experience in Ruby
-Version:    %{did_you_mean_version}
-License:    MIT
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(did_you_mean) = %{version}-%{release}
-BuildArch:  noarch
-
-%description -n rubygem-did_you_mean
-"did you mean?" experience in Ruby: the error message will tell you the right
-one when you misspelled something.
 
 
 %package -n rubygem-io-console
@@ -693,11 +680,6 @@ mkdir -p %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
 mv %{buildroot}%{ruby_libdir}/bundler.rb %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
 mv %{buildroot}%{ruby_libdir}/bundler %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib
 mv %{buildroot}%{gem_dir}/specifications/default/bundler-%{bundler_version}.gemspec %{buildroot}%{gem_dir}/specifications
-
-mkdir -p %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/lib
-mv %{buildroot}%{ruby_libdir}/did_you_mean.rb %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/lib
-mv %{buildroot}%{ruby_libdir}/did_you_mean %{buildroot}%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/lib
-mv %{buildroot}%{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec %{buildroot}%{gem_dir}/specifications
 
 mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/io
@@ -1086,6 +1068,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{ruby_libarchdir}/zlib.so
 
 # Default gems
+%{ruby_libdir}/did_you_mean*
 %{ruby_libdir}/racc*
 %dir %{ruby_libarchdir}/racc
 %{ruby_libarchdir}/racc/cparse.so
@@ -1128,6 +1111,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/date-3.0.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
 %{gem_dir}/specifications/default/delegate-0.1.0.gemspec
+%{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.1.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
 %{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
@@ -1202,11 +1186,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}
 %{gem_dir}/specifications/bigdecimal-%{bigdecimal_version}.gemspec
-
-%files -n rubygem-did_you_mean
-%{gem_dir}/gems/did_you_mean-%{did_you_mean_version}
-%exclude %{gem_dir}/gems/did_you_mean-%{did_you_mean_version}/.*
-%{gem_dir}/specifications/did_you_mean-%{did_you_mean_version}.gemspec
 
 %files -n rubygem-io-console
 %{ruby_libdir}/io
@@ -1299,7 +1278,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
 - Add ruby-default-gems subpackage shipping all extra default gem content.
-- Bundle Racc into StdLib.
+- Bundle Racc and did_you_mean into StdLib.
 
 * Tue Jan 28 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.0-127
 - Provide StdLib links for Racc and install it by default.
