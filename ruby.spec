@@ -1137,6 +1137,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.1.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
+%{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
 %{gem_dir}/specifications/default/reline-0.1.3.gemspec
@@ -1164,7 +1165,6 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %exclude %{_bindir}/{racc2y,y2racc}
 %exclude %{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
 %{gem_dir}/gems/racc-%{racc_version}
-%{gem_dir}/specifications/default/racc-1.4.16.gemspec
 
 %files -n rubygem-irb
 %{_bindir}/irb
