@@ -280,7 +280,7 @@ Requires:   ruby(rubygems) >= %{rubygems_version}
 Supplements: ruby(rubygems)
 # Obsoleted by Ruby 2.7 in F32 timeframe.
 Obsoletes: rubygem-did_you_mean < 1.4.0-130
-Obsoletes: rubygem-racc < %{racc_version}-%{release}
+Obsoletes: rubygem-racc < 1.4.16-130
 BuildArch:  noarch
 
 %description default-gems
