@@ -279,7 +279,7 @@ Summary:    Default gems which are part of Ruby StdLib.
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Supplements: ruby(rubygems)
 # Obsoleted by Ruby 2.7 in F32 timeframe.
-Obsoletes: rubygem-did_you_mean < %{did_you_mean_version}-%{release}
+Obsoletes: rubygem-did_you_mean < 1.4.0-130
 Obsoletes: rubygem-racc < %{racc_version}-%{release}
 BuildArch:  noarch
 
