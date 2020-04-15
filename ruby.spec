@@ -146,6 +146,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert commit which breaks bundled net-http-persistent version check.
 # https://github.com/drbrain/net-http-persistent/pull/109
 Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
+# Prevent issues with openssl loading when RubyGems are disabled.
+# https://github.com/ruby/openssl/pull/242
+Patch13: ruby-2.8.0-remove-unneeded-gem-require-for-ipaddr.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -556,6 +559,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch10 -p1
+%patch13 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
@@ -1257,6 +1261,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 * Wed Apr 08 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-130
 - Bundle did_you_mean into StdLib.
   Resolves: rhbz#1817178
+- Prevent issues with openssl loading when RubyGems are disabled.
 
 * Thu Apr 02 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-129
 - Add ruby-default-gems subpackage shipping all extra default gem content.
