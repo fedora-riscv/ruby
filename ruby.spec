@@ -2124,7 +2124,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 - Disable the static library building.
 
 * Tue Dec 04 2007 Release Engineering <rel-eng at fedoraproject dot org> - 1.8.6.111-2
- - Rebuild for openssl bump
+- Rebuild for openssl bump
 
 * Wed Oct 31 2007 Akira TAGOH <tagoh@redhat.com>
 - Fix the dead link.
