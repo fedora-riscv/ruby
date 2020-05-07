@@ -64,18 +64,18 @@ index 79c003e..34f2382 100644
  % R = {}
  % R["ruby_version"] = '"RUBY_LIB_VERSION"'
 diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
-index b47b6e1..0b99408 100755
+index d8987af..1efbd33 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -334,6 +334,7 @@ def CONFIG.[](name, mandatory = false)
- sitearchlibdir = CONFIG["sitearchdir"]
- vendorlibdir = CONFIG["vendorlibdir"]
- vendorarchlibdir = CONFIG["vendorarchdir"]
+@@ -338,6 +338,7 @@ if CONFIG["vendordir"]
+   vendorlibdir = CONFIG["vendorlibdir"]
+   vendorarchlibdir = CONFIG["vendorarchdir"]
+ end
 +rubygemsdir = CONFIG["rubygemsdir"]
  mandir = CONFIG["mandir", true]
  docdir = CONFIG["docdir", true]
  enable_shared = CONFIG["ENABLE_SHARED"] == 'yes'
-@@ -560,7 +561,16 @@ def stub
+@@ -564,7 +565,16 @@ end
  install?(:local, :comm, :lib) do
    prepare "library scripts", rubylibdir
    noinst = %w[*.txt *.rdoc *.gemspec]
