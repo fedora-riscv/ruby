@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 5
+%global teeny_version 6
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 124
+%global release 125
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -48,7 +48,7 @@
 %global openssl_version 2.1.2
 %global power_assert_version 1.1.3
 %global psych_version 3.1.0
-%global rake_version 12.3.2
+%global rake_version 12.3.3
 %global rdoc_version 6.1.2
 %global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
@@ -829,6 +829,10 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_featur
 # which fails on Koji.
 # https://bugs.ruby-lang.org/issues/14175
 sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
+# Disable Timeouting test_queue_with_trap
+# https://github.com/ruby/ruby/pull/3101/
+sed -i '/^  def test_queue_with_trap$/,/^  end$/ s/^/#/g' \
+  test/ruby/test_thread_queue.rb
 
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
@@ -1175,6 +1179,11 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu May 07 2020 Pavel Valena <pvalena@redhat.com> - 2.6.6-125
+- Upgrade to Ruby 2.6.6.
+  Resolves: rhbz#1833293
+  Resolves: rhbz#1827505
+
 * Tue Oct 08 2019 Slava Kardakov <ojab@ojab.ru> - 2.6.5-124
 - Update to Ruby 2.6.5.
 
