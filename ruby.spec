@@ -833,6 +833,10 @@ sed -i '/def test_mdns_each_address$/,/^  end$/ s/^/#/' test/resolv/test_mdns.rb
 # https://github.com/ruby/ruby/pull/3101/
 sed -i '/^  def test_queue_with_trap$/,/^  end$/ s/^/#/g' \
   test/ruby/test_thread_queue.rb
+# Disable "File.utime allows Time instances in the far future to set
+# mtime and atime".
+# https://bugs.ruby-lang.org/issues/16410
+MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
 
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
