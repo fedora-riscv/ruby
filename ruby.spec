@@ -250,7 +250,7 @@ libraries.
 Summary:    Macros and development tools for packaging RubyGems
 Version:    %{rubygems_version}
 License:    Ruby or MIT
-Requires:   ruby(rubygems) = %{version}-%{release}
+Requires:   ruby(rubygems) >= %{version}-%{release}
 # Needed for RDoc documentation format generation.
 Requires:   rubygem(json) >= %{json_version}
 Requires:   rubygem(rdoc) >= %{rdoc_version}
