@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 130
+%global release 131
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -262,7 +262,7 @@ libraries.
 Summary:    Macros and development tools for packaging RubyGems
 Version:    %{rubygems_version}
 License:    Ruby or MIT
-Requires:   ruby(rubygems) = %{version}-%{release}
+Requires:   ruby(rubygems) >= %{version}-%{release}
 # Needed for RDoc documentation format generation.
 Requires:   rubygem(json) >= %{json_version}
 Requires:   rubygem(rdoc) >= %{rdoc_version}
@@ -1270,6 +1270,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 
 %changelog
+* Fri May 15 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-131
+- Relax rubygems-devel dependency on rubygems.
+
 * Wed Apr 08 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-130
 - Bundle did_you_mean into StdLib.
   Resolves: rhbz#1817178
