@@ -854,7 +854,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 # https://bugs.ruby-lang.org/issues/16410
 MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
 
-make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
+# Give an option to increase the timeout in tests.
+# https://bugs.ruby-lang.org/issues/16921
+%{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
+  make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
