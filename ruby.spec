@@ -868,7 +868,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 sed -i '/assert_in_out_err/ s/)/, timeout: 30)/' test/-ext-/bug_reporter/test_bug_reporter.rb
 %endif
 
-make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
+# Give an option to increase the timeout in tests.
+# https://bugs.ruby-lang.org/issues/16921
+%{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
+  make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
