@@ -793,7 +793,10 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_do_not_allow_invalid_client_cert_auth_co
 MSPECOPTS="$MSPECOPTS -P 'File.lchmod returns false from \#respond_to?'"
 MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 
-make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
+# Give an option to increase the timeout in tests.
+# https://bugs.ruby-lang.org/issues/16921
+%{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
+  make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
