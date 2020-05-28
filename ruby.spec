@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 131
+%global release 132
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -157,6 +157,18 @@ Patch13: ruby-2.8.0-remove-unneeded-gem-require-for-ipaddr.patch
 # Fix compatibility with libyaml 0.2.5
 # https://bugs.ruby-lang.org/issues/16949
 Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
+# Fix `require` behavior allowing to load libraries multiple times.
+# https://github.com/rubygems/rubygems/issues/3647
+# Because there were multiple fixes in `Kernel.require` in recent months,
+# pickup all the changes one by one instead of squashing them.
+# https://github.com/rubygems/rubygems/pull/3124
+Patch15: rubygems-3.1.3-Fix-I-require-priority.patch
+# https://github.com/rubygems/rubygems/pull/3133
+Patch16: rubygems-3.1.3-Improve-require.patch
+# https://github.com/rubygems/rubygems/pull/3153
+Patch17: rubygems-3.1.3-Revert-Exclude-empty-suffix-from-I-require-loop.patch
+# https://github.com/rubygems/rubygems/pull/3639
+Patch18: rubygems-3.1.3-Fix-correctness-and-performance-regression-in-require.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -571,6 +583,10 @@ rm -rf ext/fiddle/libffi*
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
@@ -1274,6 +1290,10 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 
 %changelog
+* Wed Jun 24 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-132
+- Fix `require` behavior allowing to load libraries multiple times.
+  Resolves: rhbz#1835836
+
 * Fri May 15 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-131
 - Relax rubygems-devel dependency on rubygems.
 
