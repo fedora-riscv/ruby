@@ -136,6 +136,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Add Gem.operating_system_defaults to allow packagers to override defaults.
 # https://github.com/rubygems/rubygems/pull/2116
 Patch10: ruby-2.5.0-Add-Gem.operating_system_defaults.patch
+# Fix compatibility with libyaml 0.2.5
+# https://bugs.ruby-lang.org/issues/16949
+Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
 # Don't force libraries used to build Ruby to its dependencies.
 # https://bugs.ruby-lang.org/issues/14422
 Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
@@ -542,6 +545,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch9 -p1
 %patch10 -p1
+%patch14 -p1
 %patch15 -p1
 %patch16 -p1
 %patch20 -p1
@@ -1104,6 +1108,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 * Wed Oct 14 2020 Jun Aruga <jaruga@redhat.com> - 2.5.5-106
 - Fix checksec 2.0+ compatibility.
 - Fix FTBFS due to glibc 2.31.9000 implementing lchmod(2).
+- Fix FTBFS due to libyaml 0.2.5.
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
