@@ -154,6 +154,9 @@ Patch12: ruby-2.8.0-Moved-not-implemented-method-tests.patch
 # Prevent issues with openssl loading when RubyGems are disabled.
 # https://github.com/ruby/openssl/pull/242
 Patch13: ruby-2.8.0-remove-unneeded-gem-require-for-ipaddr.patch
+# Fix compatibility with libyaml 0.2.5
+# https://bugs.ruby-lang.org/issues/16949
+Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -567,6 +570,7 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
