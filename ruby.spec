@@ -311,6 +311,9 @@ Summary:    The Interactive Ruby
 Version:    %{irb_version}
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
+# ruby-default-gems is required to run irb.
+# https://bugs.ruby-lang.org/issues/16951
+Requires:   ruby-default-gems >= %{ruby_version}
 Provides:   irb = %{version}-%{release}
 Provides:   rubygem(irb) = %{version}-%{release}
 # Obsoleted by Ruby 2.6 in F30 timeframe.
@@ -1290,6 +1293,10 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 
 %changelog
+* Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
+- Add ruby-default-gems dependency on irb.
+  Resolves: rhbz#1850541
+
 * Wed Jun 24 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-132
 - Fix `require` behavior allowing to load libraries multiple times.
   Resolves: rhbz#1835836
