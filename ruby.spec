@@ -618,11 +618,11 @@ autoconf
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
-make %{?_smp_mflags} COPY="cp -p" Q=
+%make_build COPY="cp -p" Q=
 
 %install
 rm -rf %{buildroot}
-make install DESTDIR=%{buildroot}
+%make_install
 
 # TODO: Regenerate RBS parser in lib/rbs/parser.rb
 
@@ -1350,6 +1350,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 * Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
 - Disable LTO, which appear to cause issues with SIGSEV handler.
 - Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+
+* Tue Jul 14 2020 Tom Stellard <tstellar@redhat.com> - 2.7.1-133
+- Use make macros
+- https://fedoraproject.org/wiki/Changes/UseMakeBuildInstallMacro
 
 * Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
 - Add ruby-default-gems dependency on irb.
