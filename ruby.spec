@@ -75,6 +75,10 @@
 %bcond_without hardening_test
 %endif
 
+# LTO appears to cause some issue to SEGV handler.
+# https://bugs.ruby-lang.org/issues/17052
+%define _lto_cflags %{nil}
+
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}
@@ -1282,6 +1286,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
 - Add ruby-default-gems subpackage shipping all extra default gem content.
 - Bundle Racc and did_you_mean into StdLib.
+
+* Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
+- Disable LTO, which appear to cause issues with SIGSEV handler.
 
 * Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
 - Add ruby-default-gems dependency on irb.
