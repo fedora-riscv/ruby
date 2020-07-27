@@ -71,6 +71,10 @@
 %bcond_without hardening_test
 %endif
 
+# LTO appears to cause some issue to SEGV handler.
+# https://bugs.ruby-lang.org/issues/17052
+%define _lto_cflags %{nil}
+
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}
@@ -1109,6 +1113,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 - Fix checksec 2.0+ compatibility.
 - Fix FTBFS due to glibc 2.31.9000 implementing lchmod(2).
 - Fix FTBFS due to libyaml 0.2.5.
+- Disable LTO, which appear to cause issues with SIGSEV handler.
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
