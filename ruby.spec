@@ -173,6 +173,9 @@ Patch16: rubygems-3.1.3-Improve-require.patch
 Patch17: rubygems-3.1.3-Revert-Exclude-empty-suffix-from-I-require-loop.patch
 # https://github.com/rubygems/rubygems/pull/3639
 Patch18: rubygems-3.1.3-Fix-correctness-and-performance-regression-in-require.patch
+# Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+# https://bugs.ruby-lang.org/issues/16492
+Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -594,6 +597,7 @@ rm -rf ext/fiddle/libffi*
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
+%patch19 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
@@ -876,13 +880,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 # https://bugs.ruby-lang.org/issues/16749
 MSPECOPTS="$MSPECOPTS -P 'File.lchmod returns false from \#respond_to?'"
 MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
-
-# Increase timeout for TestBugReporter#test_bug_reporter_add test, which fails
-# quite often.
-# https://bugs.ruby-lang.org/issues/16492
-%ifarch s390x
-sed -i '/assert_in_out_err/ s/)/, timeout: 30)/' test/-ext-/bug_reporter/test_bug_reporter.rb
-%endif
 
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
@@ -1299,6 +1296,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %changelog
 * Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
 - Disable LTO, which appear to cause issues with SIGSEV handler.
+- Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 
 * Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
 - Add ruby-default-gems dependency on irb.
