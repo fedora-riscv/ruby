@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 132
+%global release 133
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -80,6 +80,10 @@
 %if 0%{?fedora}
 %bcond_without hardening_test
 %endif
+
+# LTO appears to cause some issue to SEGV handler.
+# https://bugs.ruby-lang.org/issues/17052
+%define _lto_cflags %{nil}
 
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
@@ -1293,6 +1297,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 
 %changelog
+* Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
+- Disable LTO, which appear to cause issues with SIGSEV handler.
+
 * Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
 - Add ruby-default-gems dependency on irb.
   Resolves: rhbz#1850541
