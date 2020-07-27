@@ -147,6 +147,9 @@ Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
 # Fix fortifications on armv7hl.
 # https://bugs.ruby-lang.org/issues/16762
 Patch11: ruby-2.8.0-Annotate-execstack.patch
+# Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+# https://bugs.ruby-lang.org/issues/16492
+Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -566,6 +569,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch19 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -849,13 +853,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 # mtime and atime".
 # https://bugs.ruby-lang.org/issues/16410
 MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
-
-# Increase timeout for TestBugReporter#test_bug_reporter_add test, which fails
-# quite often.
-# https://bugs.ruby-lang.org/issues/16492
-%ifarch s390x
-sed -i '/assert_in_out_err/ s/)/, timeout: 30)/' test/-ext-/bug_reporter/test_bug_reporter.rb
-%endif
 
 make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
@@ -1289,6 +1286,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 * Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
 - Disable LTO, which appear to cause issues with SIGSEV handler.
+- Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 
 * Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
 - Add ruby-default-gems dependency on irb.
