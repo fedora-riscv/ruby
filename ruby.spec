@@ -150,7 +150,9 @@ Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.pat
 # Fix compatibility with libyaml 0.2.5
 # https://bugs.ruby-lang.org/issues/16949
 Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
-
+# Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+# https://bugs.ruby-lang.org/issues/16492
+Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
@@ -546,6 +548,7 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch12 -p1
 %patch14 -p1
+%patch19 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
@@ -1194,6 +1197,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 * Thu Aug 06 2020 Jun Aruga <jaruga@redhat.com> - 2.6.6-126
 - Fix FTBFS due to libyaml 0.2.5.
 - Disable LTO, which appear to cause issues with SIGSEV handler.
+- Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 
 * Thu May 07 2020 Pavel Valena <pvalena@redhat.com> - 2.6.6-125
 - Upgrade to Ruby 2.6.6.
