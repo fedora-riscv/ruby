@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 125
+%global release 126
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -143,6 +143,9 @@ Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-g
 # This allows to loosen the RDoc dependency again.
 # https://github.com/rubygems/rubygems/pull/2604
 Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
+# Fix compatibility with libyaml 0.2.5
+# https://bugs.ruby-lang.org/issues/16949
+Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
 
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
@@ -538,6 +541,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch11 -p1
 %patch12 -p1
+%patch14 -p1
 %patch22 -p1
 
 # Provide an example of usage of the tapset:
@@ -1183,6 +1187,9 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Thu Aug 06 2020 Jun Aruga <jaruga@redhat.com> - 2.6.6-126
+- Fix FTBFS due to libyaml 0.2.5.
+
 * Thu May 07 2020 Pavel Valena <pvalena@redhat.com> - 2.6.6-125
 - Upgrade to Ruby 2.6.6.
   Resolves: rhbz#1833293
