@@ -150,11 +150,13 @@ Patch15: ruby-2.6.0-library-options-to-MAINLIBS.patch
 # https://github.com/rubygems/rubygems/pull/2367
 Patch16: ruby-2.5.1-Avoid-need-of-C++-compiler-to-pass-the-test-suite.patch
 # https://github.com/ruby/rdoc/commit/d05e6269d4a4dfd701f5ddb3ae34306cba891511
+# Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+# https://bugs.ruby-lang.org/issues/16492
+Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 Patch20: ruby-2.6.0-rdoc-6.0.1-fix-template-typo.patch
 # Properly harden package using -fstack-protector-strong.
 # https://bugs.ruby-lang.org/issues/15053
 Patch24: ruby-2.6.0-configure-fstack-protector-strong.patch
-
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
@@ -552,6 +554,7 @@ rm -rf ext/fiddle/libffi*
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
+%patch19 -p1
 %patch20 -p1
 %patch22 -p1
 %patch23 -p1
@@ -1114,6 +1117,7 @@ make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 - Fix FTBFS due to glibc 2.31.9000 implementing lchmod(2).
 - Fix FTBFS due to libyaml 0.2.5.
 - Disable LTO, which appear to cause issues with SIGSEV handler.
+- Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
