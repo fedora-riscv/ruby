@@ -15,18 +15,16 @@ diff --git a/test/-ext-/test_notimplement.rb b/test/-ext-/test_notimplement.rb
 index 0eba7bdaf8..be8c3623cc 100644
 --- a/test/-ext-/test_notimplement.rb
 +++ b/test/-ext-/test_notimplement.rb
-@@ -10,6 +10,13 @@ def test_funcall_notimplement
+@@ -10,6 +10,11 @@ def test_funcall_notimplement
    end
  
    def test_respond_to
 +    assert_include(Bug.methods(false), :notimplement)
-+    assert_include(Bug::NotImplement.instance_methods(false), :notimplement)
      assert_not_respond_to(Bug, :notimplement)
    end
 +
 +  def test_method_inspect_notimplement
 +    assert_match(/not-implemented/, Bug.method(:notimplement).inspect)
-+    assert_match(/not-implemented/, Bug::NotImplement.instance_method(:notimplement).inspect)
 +  end
  end
 diff --git a/test/ruby/test_notimp.rb b/test/ruby/test_notimp.rb
