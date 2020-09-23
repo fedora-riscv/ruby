@@ -1,0 +1,51 @@
+From 6872cefaf682c7e9d538ef9d87f94f7a77c21154 Mon Sep 17 00:00:00 2001
+From: nagachika <nagachika@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Wed, 7 Aug 2019 12:38:15 +0000
+Subject: [PATCH] merge revision(s) 1e54903684aa3c9ea3fe54520157846a1b1f07be:
+ [Backport #16051]
+
+	test/openssl: Support OpenSSL 1.1.1
+
+	OpenSSL 1.1.1 rejects some shorter keys, which caused some failures of
+	`make test-all TESTS=openssl`.
+
+	https://rubyci.org/logs/rubyci.s3.amazonaws.com/debian/ruby-master/log/20190606T003005Z.fail.html.gz
+
+	This change merges 6bbc31ddd1 and 63fb3a36d1 in
+	https://github.com/ruby/openssl.
+	Reference: https://github.com/ruby/openssl/pull/217
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/branches/ruby_2_6@67735 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ test/openssl/test_ssl.rb | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/test/openssl/test_ssl.rb b/test/openssl/test_ssl.rb
+index 46570b8b95..51d63859c0 100644
+--- a/test/openssl/test_ssl.rb
++++ b/test/openssl/test_ssl.rb
+@@ -81,7 +81,7 @@ def test_add_certificate_multiple_certs
+     add0_chain_supported = openssl?(1, 0, 2)
+ 
+     if add0_chain_supported
+-      ca2_key = Fixtures.pkey("rsa1024")
++      ca2_key = Fixtures.pkey("rsa2048")
+       ca2_exts = [
+         ["basicConstraints", "CA:TRUE", true],
+         ["keyUsage", "cRLSign, keyCertSign", true],
+@@ -1357,7 +1357,12 @@ def test_fallback_scsv
+     # Server support better, so refuse the connection
+     sock1, sock2 = socketpair
+     begin
++      # This test is for the downgrade protection mechanism of TLS1.2.
++      # This is why ctx1 bounds max_version == TLS1.2.
++      # Otherwise, this test fails when using openssl 1.1.1 (or later) that supports TLS1.3.
++      # TODO: We may need another test for TLS1.3 because it seems to have a different mechanism.
+       ctx1 = OpenSSL::SSL::SSLContext.new
++      ctx1.max_version = OpenSSL::SSL::TLS1_2_VERSION
+       s1 = OpenSSL::SSL::SSLSocket.new(sock1, ctx1)
+ 
+       ctx2 = OpenSSL::SSL::SSLContext.new
+-- 
+2.26.2
+

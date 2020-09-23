@@ -168,6 +168,9 @@ Patch23: ruby-2.6.0-use-larger-keys-for-SSL-tests.patch
 Patch41: ruby-2.8.0-Brace-the-fact-that-lchmod-can-EOPNOTSUPP.patch
 # https://github.com/ruby/ruby/commit/72c02aa4b79731c7f25c9267f74b347f1946c704
 Patch42: ruby-2.8.0-Moved-not-implemented-method-tests.patch
+# Use larger keys for test_ssl test failures.
+# https://github.com/ruby/ruby/commit/a3843824c455d0b0efcfc5af03cbcebaac090eda
+Patch43: ruby-2.6.0-use-larger-keys-for-SSL-tests2.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -561,6 +564,7 @@ rm -rf ext/fiddle/libffi*
 %patch24 -p1
 %patch41 -p1
 %patch42 -p1
+%patch43 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1121,6 +1125,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 - Fix FTBFS due to libyaml 0.2.5.
 - Disable LTO, which appear to cause issues with SIGSEV handler.
 - Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+- Use larger keys for test_ssl test failures.
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
