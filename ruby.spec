@@ -171,6 +171,9 @@ Patch42: ruby-2.8.0-Moved-not-implemented-method-tests.patch
 # Use larger keys for test_ssl test failures.
 # https://github.com/ruby/ruby/commit/a3843824c455d0b0efcfc5af03cbcebaac090eda
 Patch43: ruby-2.6.0-use-larger-keys-for-SSL-tests2.patch
+# Regenerate server certificates with larger keys for open-uri tests.
+# https://github.com/ruby/ruby/commit/eaddc972820d49212c495542816f9f7845e7828c
+Patch44: ruby-2.6.4-open-uri-regenerate-server-certificates-for-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -565,6 +568,7 @@ rm -rf ext/fiddle/libffi*
 %patch41 -p1
 %patch42 -p1
 %patch43 -p1
+%patch44 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1126,6 +1130,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 - Disable LTO, which appear to cause issues with SIGSEV handler.
 - Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 - Use larger keys for test_ssl test failures.
+- Regenerate server certificates with larger keys for open-uri tests.
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
