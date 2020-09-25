@@ -1,0 +1,52 @@
+From ef6153f727d118d4e7854c0f52d3d8b0e4ed7817 Mon Sep 17 00:00:00 2001
+From: normal <normal@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Mon, 3 Dec 2018 04:51:08 +0000
+Subject: [PATCH] webrick: fix tests on Debian sid/unstable with OpenSSL 1.1.1a
+
+OpenSSL complains abour our keys being small and weak :<
+Make them big and strong with 2048-bit RSA keys and SHA256 digests
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@66152 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ lib/webrick/ssl.rb             | 4 ++--
+ test/webrick/test_httpproxy.rb | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/webrick/ssl.rb b/lib/webrick/ssl.rb
+index 8a334eaff1..d125083528 100644
+--- a/lib/webrick/ssl.rb
++++ b/lib/webrick/ssl.rb
+@@ -130,7 +130,7 @@ def create_self_signed_cert(bits, cn, comment)
+       aki = ef.create_extension("authorityKeyIdentifier",
+                                 "keyid:always,issuer:always")
+       cert.add_extension(aki)
+-      cert.sign(rsa, OpenSSL::Digest::SHA1.new)
++      cert.sign(rsa, OpenSSL::Digest::SHA256.new)
+ 
+       return [ cert, rsa ]
+     end
+@@ -181,7 +181,7 @@ def setup_ssl_context(config) # :nodoc:
+       unless config[:SSLCertificate]
+         cn = config[:SSLCertName]
+         comment = config[:SSLCertComment]
+-        cert, key = Utils::create_self_signed_cert(1024, cn, comment)
++        cert, key = Utils::create_self_signed_cert(2048, cn, comment)
+         config[:SSLCertificate] = cert
+         config[:SSLPrivateKey] = key
+       end
+diff --git a/test/webrick/test_httpproxy.rb b/test/webrick/test_httpproxy.rb
+index 452e7b94b7..780d95937a 100644
+--- a/test/webrick/test_httpproxy.rb
++++ b/test/webrick/test_httpproxy.rb
+@@ -133,7 +133,7 @@ def make_certificate(key, cn)
+     cert.not_after = Time.now + 3600
+     ef = OpenSSL::X509::ExtensionFactory.new(cert, cert)
+     exts.each {|args| cert.add_extension(ef.create_extension(*args)) }
+-    cert.sign(key, "sha1")
++    cert.sign(key, "sha256")
+     return cert
+   end if defined?(OpenSSL::SSL)
+ 
+-- 
+2.26.2
+
