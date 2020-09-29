@@ -1,0 +1,38 @@
+From 8af6b87023cbb1ba6cebea7daaafa275e0dc687e Mon Sep 17 00:00:00 2001
+From: normal <normal@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Mon, 3 Dec 2018 04:51:13 +0000
+Subject: [PATCH] drb: fix tests on Debian sid/unstable with OpenSSL 1.1.1a
+
+OpenSSL complains abour our keys being small and weak :<
+Make them big and strong with 2048-bit RSA keys and SHA256 digests
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@66153 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ lib/drb/ssl.rb | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lib/drb/ssl.rb b/lib/drb/ssl.rb
+index 45fe4f1f74..8c2c1cc65d 100644
+--- a/lib/drb/ssl.rb
++++ b/lib/drb/ssl.rb
+@@ -162,7 +162,7 @@ def setup_certificate
+           return
+         end
+ 
+-        rsa = OpenSSL::PKey::RSA.new(1024){|p, n|
++        rsa = OpenSSL::PKey::RSA.new(2048){|p, n|
+           next unless self[:verbose]
+           case p
+           when 0; $stderr.putc "."  # BN_generate_prime
+@@ -196,7 +196,7 @@ def setup_certificate
+         if comment = self[:SSLCertComment]
+           cert.add_extension(ef.create_extension("nsComment", comment))
+         end
+-        cert.sign(rsa, OpenSSL::Digest::SHA1.new)
++        cert.sign(rsa, OpenSSL::Digest::SHA256.new)
+ 
+         @cert = cert
+         @pkey = rsa
+-- 
+2.26.2
+

@@ -177,6 +177,9 @@ Patch44: ruby-2.6.4-open-uri-regenerate-server-certificates-for-tests.patch
 # Use larger keys for webrick test failures.
 # https://github.com/ruby/ruby/commit/a063f71a7ccc733d8ab4b997dfc3ffb1ab987afc
 Patch45: ruby-2.6.0-use-larger-keys-for-SSL-webrick-tests.patch
+# Use larger keys for drb test failures.
+# https://github.com/ruby/ruby/commit/fb0009cfdc203247f808f4dcd72c7baf272172ce
+Patch46: ruby-2.6.0-use-larger-keys-for-SSL-drb-tests.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -573,6 +576,7 @@ rm -rf ext/fiddle/libffi*
 %patch43 -p1
 %patch44 -p1
 %patch45 -p1
+%patch46 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1136,6 +1140,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 - Use larger keys for test_ssl test failures.
 - Regenerate server certificates with larger keys for open-uri tests.
 - Use larger keys for webrick test failures.
+- Use larger keys for drb test failures.
 
 * Tue Apr 30 2019 Jun Aruga <jaruga@redhat.com> - 2.5.5-105
 - Update to Ruby 2.5.5.
