@@ -2,8 +2,8 @@ diff --git a/coroutine/arm32/Context.S b/coroutine/arm32/Context.S
 index b66db29622..596284b5cf 100644
 --- a/coroutine/arm32/Context.S
 +++ b/coroutine/arm32/Context.S
-@@ -24,3 +24,7 @@ coroutine_transfer:
- 	
+@@ -27,3 +27,7 @@ coroutine_transfer:
+ 
  	# Restore callee state (8 registers program counter)
  	pop {r4-r11,pc}
 +

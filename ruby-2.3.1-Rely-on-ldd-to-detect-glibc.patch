@@ -15,9 +15,9 @@ diff --git a/test/fiddle/helper.rb b/test/fiddle/helper.rb
 index 1da3d93..65148a1 100644
 --- a/test/fiddle/helper.rb
 +++ b/test/fiddle/helper.rb
-@@ -123,6 +123,9 @@
- libc_so = nil if !libc_so || (libc_so[0] == ?/ && !File.file?(libc_so))
- libm_so = nil if !libm_so || (libm_so[0] == ?/ && !File.file?(libm_so))
+@@ -127,6 +127,9 @@
+   libc_so = libm_so = "/usr/lib/libSystem.B.dylib"
+ end
  
 +# Just ignore the heuristic, because it is not reliable on all platforms.
 +libc_so = libm_so = nil

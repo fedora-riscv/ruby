@@ -1,5 +1,5 @@
-%global major_version 2
-%global minor_version 8
+%global major_version 3
+%global minor_version 0
 %global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone rc1
+%global milestone preview1
 
-# Keep the revision enabled for pre-releases from SVN.
-%global revision 810d66f3e7
+# Keep the revision enabled for pre-releases from GIT.
+%global revision 0096d2b895
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,32 +30,35 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.0.pre1
+%global rubygems_version 3.2.0.rc.1
 %global rubygems_molinillo_version 0.5.7
 
 # Default gems.
-%global bundler_version 2.1.4
+%global bundler_version 2.2.0.rc.1
 %global bundler_connection_pool_version 2.2.2
-%global bundler_fileutils_version 1.3.0
+%global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.6.6
-%global bundler_net_http_persistent_version 3.1.0
-%global bundler_thor_version 1.0.0
+%global bundler_net_http_persistent_version 4.0.0
+%global bundler_thor_version 1.0.1
+%global bundler_uri_version 0.10.0
 
-%global bigdecimal_version 2.0.0
+%global bigdecimal_version 2.0.1
 %global did_you_mean_version 1.4.0
+%global erb_version 2.2.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.3
-%global json_version 2.3.0
+%global irb_version 1.2.7
+%global json_version 2.3.1
 %global openssl_version 2.2.0
-%global psych_version 3.1.0
+%global psych_version 3.2.0
 %global racc_version 1.5.0
 %global rdoc_version 6.2.1
 
 # Bundled gems.
-%global minitest_version 5.14.0
-%global power_assert_version 1.1.7
+%global minitest_version 5.14.2
+%global power_assert_version 1.2.0
 %global rake_version 13.0.1
-%global test_unit_version 3.3.5
+%global rbs_version 0.12.2
+%global test_unit_version 3.3.6
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
 
@@ -141,9 +144,6 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Revert commit which breaks bundled net-http-persistent version check.
-# https://github.com/drbrain/net-http-persistent/pull/109
-Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
 # Fix fortifications on armv7hl.
 # https://bugs.ruby-lang.org/issues/16762
 Patch11: ruby-2.8.0-Annotate-execstack.patch
@@ -428,6 +428,7 @@ Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
 Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
 Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
 Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
+Provides:   bundled(rubygem-uri) = %{bundler_uri_version}
 BuildArch:  noarch
 
 %description -n rubygem-bundler
@@ -492,6 +493,20 @@ BuildArch:  noarch
 %description -n rubygem-rake
 Rake is a Make-like program implemented in Ruby. Tasks and dependencies are
 specified in standard Ruby syntax.
+
+
+%package -n rubygem-rbs
+Summary:    Type signature for Ruby
+Version:    %{rbs_version}
+License:    Ruby or BSD
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(rbs) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-rbs
+RBS is the language for type signatures for Ruby and standard library
+definitions.
 
 
 %package -n rubygem-test-unit
@@ -567,7 +582,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch9 -p1
-%patch10 -p1
 %patch11 -p1
 %patch19 -p1
 
@@ -604,6 +618,8 @@ make %{?_smp_mflags} COPY="cp -p" Q=
 %install
 rm -rf %{buildroot}
 make install DESTDIR=%{buildroot}
+
+# TODO: Regenerate RBS parser in lib/rbs/parser.rb
 
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
@@ -797,7 +813,7 @@ checksec --file=libruby.so.%{ruby_version} | \
 # FileUtils.
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
-  require 'bundler/vendor/fileutils/lib/fileutils/version'; \
+  require 'bundler/vendor/fileutils/lib/fileutils'; \
   puts Bundler::FileUtils::VERSION\\\"\" | tail -1`" \
   == '%{bundler_fileutils_version}' ]
 
@@ -822,6 +838,13 @@ checksec --file=libruby.so.%{ruby_version} | \
   require 'bundler/vendor/thor/lib/thor/version'; \
   puts Bundler::Thor::VERSION\\\"\" | tail -1`" \
   == '%{bundler_thor_version}' ]
+
+# URI.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/uri/lib/uri/version'; \
+  puts Bundler::URI::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_uri_version}' ]
 
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
@@ -853,6 +876,12 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 # mtime and atime".
 # https://bugs.ruby-lang.org/issues/16410
 MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
+
+# Disable File.lchmod specs, which newly fails with:
+# Expected [NotImplementedError, Errno::ENOTSUP] to include Errno::ENOENT
+# Nevertheless, this test have been removed upstream already:
+# https://github.com/ruby/ruby/commit/c881678cd75432f47903a5d1d8b86a7a723cb023
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENOTSUP when called'"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
@@ -933,6 +962,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{ruby_libdir}/monitor.rb
 %{ruby_libdir}/mutex_m.rb
 %{ruby_libdir}/net
+%{ruby_libdir}/objspace.rb
 %{ruby_libdir}/observer*
 %{ruby_libdir}/open-uri.rb
 %{ruby_libdir}/open3*
@@ -950,7 +980,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{ruby_libdir}/resolv-replace.rb
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper*
-%{ruby_libdir}/rss.rb
 %{ruby_libdir}/securerandom.rb
 %{ruby_libdir}/set.rb
 %{ruby_libdir}/shellwords.rb
@@ -1067,7 +1096,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{ruby_libarchdir}/rbconfig/sizeof.so
 %{ruby_libarchdir}/readline.so
 %{ruby_libarchdir}/ripper.so
-%{ruby_libarchdir}/sdbm.so
 %{ruby_libarchdir}/socket.so
 %{ruby_libarchdir}/stringio.so
 %{ruby_libarchdir}/strscan.so
@@ -1111,24 +1139,30 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{_rpmconfigdir}/rubygems.con
 
 %files default-gems
-%{gem_dir}/specifications/default/English-0.1.0.gemspec
+%{gem_dir}/specifications/default/english-0.7.0.gemspec
+%{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
+%{gem_dir}/specifications/default/base64-0.1.0.gemspec
 %{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
 %{gem_dir}/specifications/default/cgi-0.1.0.gemspec
-%{gem_dir}/specifications/default/csv-3.1.2.gemspec
-%{gem_dir}/specifications/default/date-3.0.0.gemspec
+%{gem_dir}/specifications/default/csv-3.1.7.gemspec
+%{gem_dir}/specifications/default/date-3.0.1.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
 %{gem_dir}/specifications/default/delegate-0.1.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
+%{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.1.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.1.gemspec
 %{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
+%{gem_dir}/specifications/default/find-0.1.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.3.1.gemspec
 %{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
 %{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
+%{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
+%{gem_dir}/specifications/default/io-wait-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
 %{gem_dir}/specifications/default/logger-1.4.2.gemspec
-%{gem_dir}/specifications/default/matrix-0.2.0.gemspec
+%{gem_dir}/specifications/default/matrix-0.3.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-ftp-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-http-0.1.0.gemspec
@@ -1136,22 +1170,33 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-protocol-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-smtp-0.1.0.gemspec
+%{gem_dir}/specifications/default/nkf-0.1.0.gemspec
 %{gem_dir}/specifications/default/observer-0.1.0.gemspec
 %{gem_dir}/specifications/default/open3-0.1.0.gemspec
+%{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
+%{gem_dir}/specifications/default/optparse-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.1.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.1.3.gemspec
-%{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
+%{gem_dir}/specifications/default/reline-0.1.5.gemspec
+%{gem_dir}/specifications/default/resolv-0.1.0.gemspec
+%{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
+%{gem_dir}/specifications/default/rinda-0.1.0.gemspec
+%{gem_dir}/specifications/default/securerandom-0.1.0.gemspec
+%{gem_dir}/specifications/default/set-0.1.0.gemspec
+%{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.0.gemspec
-%{gem_dir}/specifications/default/stringio-0.1.1.gemspec
-%{gem_dir}/specifications/default/strscan-1.0.3.gemspec
+%{gem_dir}/specifications/default/stringio-0.1.4.gemspec
+%{gem_dir}/specifications/default/strscan-1.0.4.gemspec
+%{gem_dir}/specifications/default/syslog-0.1.0.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.0.gemspec
+%{gem_dir}/specifications/default/time-0.1.0.gemspec
 %{gem_dir}/specifications/default/timeout-0.1.0.gemspec
 %{gem_dir}/specifications/default/tmpdir-0.1.0.gemspec
+%{gem_dir}/specifications/default/tsort-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
 %{gem_dir}/specifications/default/uri-0.10.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.0.gemspec
@@ -1159,6 +1204,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
+%{gem_dir}/gems/erb-%{erb_version}
 # Use standalone rubygem-racc if Racc binary is required. Shipping this
 # executable in both packages might possibly cause conflicts. The situation
 # could be better if Ruby generated these files:
@@ -1248,6 +1294,13 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 %{gem_dir}/specifications/rake-%{rake_version}.gemspec
 %{_mandir}/man1/rake.1*
 
+%files -n rubygem-rbs
+%{_bindir}/rbs
+%{gem_dir}/gems/rbs-%{rbs_version}
+%license %{gem_dir}/gems/rbs-%{rbs_version}/BSDL
+%license %{gem_dir}/gems/rbs-%{rbs_version}/COPYING
+%{gem_dir}/specifications/rbs-%{rbs_version}.gemspec
+
 %files -n rubygem-test-unit
 %{gem_dir}/gems/test-unit-%{test_unit_version}
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
@@ -1279,8 +1332,8 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 
 
 %changelog
-* Mon Feb 24 2020 Vít Ondruch <vondruch@redhat.com> - 2.8.0-1
-- Upgrade to Ruby 2.8.0 (810d66f3e7).
+* Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
+- Upgrade to Ruby 3.0.0-preview1 (0096d2b895).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
