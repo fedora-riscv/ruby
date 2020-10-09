@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone preview1
+#%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 0096d2b895
+%global revision 02e17d473a
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1176,6 +1176,8 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
+%{gem_dir}/specifications/default/pp-0.1.0.gemspec
+%{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.1.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
@@ -1333,7 +1335,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0-preview1 (0096d2b895).
+- Upgrade to Ruby 3.0.0 (02e17d473a).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
