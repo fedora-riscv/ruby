@@ -147,6 +147,10 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Fix fortifications on armv7hl.
 # https://bugs.ruby-lang.org/issues/16762
 Patch11: ruby-2.8.0-Annotate-execstack.patch
+# Fix `Permission denied @ dir_s_mkdir - /usr/share/gems/plugins` issues
+# building rubygem- packages.
+# https://github.com/rubygems/rubygems/pull/3972
+Patch12: rubygems-3.2.0-Install-to-correct-plugins-dir-when-using-build-root.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -583,6 +587,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch11 -p1
+%patch12 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
