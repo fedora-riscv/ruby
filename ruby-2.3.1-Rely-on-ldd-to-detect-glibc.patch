@@ -8,14 +8,14 @@ on Red Hat platforms.
 
 This workaround rhbz#1361037
 ---
- test/fiddle/helper.rb | 105 ------------------------------------------
- 1 file changed, 105 deletions(-)
+ test/fiddle/helper.rb | 111 ------------------------------------------
+ 1 file changed, 111 deletions(-)
 
 diff --git a/test/fiddle/helper.rb b/test/fiddle/helper.rb
 index 1da3d93..65148a1 100644
 --- a/test/fiddle/helper.rb
 +++ b/test/fiddle/helper.rb
-@@ -6,111 +6,6 @@
+@@ -6,115 +6,6 @@
  
  libc_so = libm_so = nil
  
@@ -56,8 +56,7 @@ index 1da3d93..65148a1 100644
 -  crtname = RbConfig::CONFIG["RUBY_SO_NAME"][/msvc\w+/] || 'ucrtbase'
 -  libc_so = libm_so = "#{crtname}.dll"
 -when /darwin/
--  libc_so = "/usr/lib/libc.dylib"
--  libm_so = "/usr/lib/libm.dylib"
+-  libc_so = libm_so = "/usr/lib/libSystem.B.dylib"
 -when /kfreebsd/
 -  libc_so = "/lib/libc.so.0.1"
 -  libm_so = "/lib/libm.so.1"
@@ -123,6 +122,11 @@ index 1da3d93..65148a1 100644
 -
 -libc_so = nil if !libc_so || (libc_so[0] == ?/ && !File.file?(libc_so))
 -libm_so = nil if !libm_so || (libm_so[0] == ?/ && !File.file?(libm_so))
+-
+-# macOS 11.0+ removed libSystem.B.dylib from /usr/lib. But It works with dlopen.
+-if RUBY_PLATFORM =~ /darwin/
+-  libc_so = libm_so = "/usr/lib/libSystem.B.dylib"
+-end
 -
  if !libc_so || !libm_so
    ruby = EnvUtil.rubybin

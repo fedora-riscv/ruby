@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 7
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 134
+%global release 135
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,7 +30,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.2
+%global rubygems_version 3.1.4
 %global rubygems_molinillo_version 0.5.7
 
 # Default gems.
@@ -44,7 +44,7 @@
 %global bigdecimal_version 2.0.0
 %global did_you_mean_version 1.4.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.3
+%global irb_version 1.2.6
 %global json_version 2.3.0
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
@@ -150,17 +150,9 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Revert commit which breaks bundled net-http-persistent version check.
 # https://github.com/drbrain/net-http-persistent/pull/109
 Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
-# Fix lchmod test failures.
-# https://github.com/ruby/ruby/commit/a19228f878d955eaf2cce086bcf53f46fdf894b9
-Patch11: ruby-2.8.0-Brace-the-fact-that-lchmod-can-EOPNOTSUPP.patch
-# https://github.com/ruby/ruby/commit/72c02aa4b79731c7f25c9267f74b347f1946c704
-Patch12: ruby-2.8.0-Moved-not-implemented-method-tests.patch
 # Prevent issues with openssl loading when RubyGems are disabled.
 # https://github.com/ruby/openssl/pull/242
 Patch13: ruby-2.8.0-remove-unneeded-gem-require-for-ipaddr.patch
-# Fix compatibility with libyaml 0.2.5
-# https://bugs.ruby-lang.org/issues/16949
-Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
 # Fix `require` behavior allowing to load libraries multiple times.
 # https://github.com/rubygems/rubygems/issues/3647
 # Because there were multiple fixes in `Kernel.require` in recent months,
@@ -176,10 +168,6 @@ Patch18: rubygems-3.1.3-Fix-correctness-and-performance-regression-in-require.pa
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
-
-# Add support for .include directive used by OpenSSL config files.
-# https://github.com/ruby/openssl/pull/216
-Patch22: ruby-2.6.0-config-support-include-directive.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -589,16 +577,12 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch10 -p1
-%patch11 -p1
-%patch12 -p1
 %patch13 -p1
-%patch14 -p1
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
-%patch22 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -878,8 +862,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to 
 
 # Disable File.lchmod specs, which fails when building against glibc 2.31.9000.
 # https://bugs.ruby-lang.org/issues/16749
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod returns false from \#respond_to?'"
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
+MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not of the file'"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
@@ -1167,7 +1150,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.1.3.gemspec
+%{gem_dir}/specifications/default/reline-0.1.5.gemspec
 %{gem_dir}/specifications/default/rexml-3.2.3.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
@@ -1297,6 +1280,9 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 
 
 %changelog
+* Tue Oct 13 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.2-135
+- Upgrade to Ruby 2.7.2.
+
 * Wed Jul 29 2020 Fedora Release Engineering <releng@fedoraproject.org> - 2.7.1-134
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
 
