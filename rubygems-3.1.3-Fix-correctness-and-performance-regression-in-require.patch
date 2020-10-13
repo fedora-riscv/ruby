@@ -15,7 +15,7 @@ diff --git a/lib/rubygems.rb b/lib/rubygems.rb
 index 843cb49e4a..d1a9a1c7e1 100644
 --- a/lib/rubygems.rb
 +++ b/lib/rubygems.rb
-@@ -660,10 +660,20 @@ def self.load_path_insert_index
+@@ -662,10 +662,20 @@ def self.load_path_insert_index
      index
    end
  
@@ -53,7 +53,7 @@ diff --git a/lib/rubygems/test_case.rb b/lib/rubygems/test_case.rb
 index a05a2898d1..53dd495aef 100644
 --- a/lib/rubygems/test_case.rb
 +++ b/lib/rubygems/test_case.rb
-@@ -379,6 +379,7 @@ def setup
+@@ -385,6 +385,7 @@ def setup
      Gem::Security.reset
  
      Gem.loaded_specs.clear
@@ -98,7 +98,7 @@ diff --git a/lib/rubygems.rb b/lib/rubygems.rb
 index d1a9a1c7e1..ca80326459 100644
 --- a/lib/rubygems.rb
 +++ b/lib/rubygems.rb
-@@ -657,7 +657,7 @@ def self.load_path_insert_index
+@@ -659,7 +659,7 @@ def self.load_path_insert_index
  
      index = $LOAD_PATH.index RbConfig::CONFIG['sitelibdir']
  
@@ -107,7 +107,7 @@ index d1a9a1c7e1..ca80326459 100644
    end
  
    ##
-@@ -674,15 +674,8 @@ def self.activated_gem_paths
+@@ -676,15 +676,8 @@ def self.activated_gem_paths
    def self.add_to_load_path(*paths)
      @activated_gem_paths = activated_gem_paths + paths.size
  
