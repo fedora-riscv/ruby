@@ -168,6 +168,10 @@ Patch18: rubygems-3.1.3-Fix-correctness-and-performance-regression-in-require.pa
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
+# Enable arm64 optimizations.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1884728
+# https://github.com/ruby/ruby/pull/3393
+Patch20: ruby-3.0.0-preview1-Enable-arm64-optimizations-that-exist-for-power-x86.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -583,6 +587,7 @@ rm -rf ext/fiddle/libffi*
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
