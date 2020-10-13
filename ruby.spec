@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 7
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 133
+%global release 135
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,7 +30,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.2
+%global rubygems_version 3.1.4
 %global rubygems_molinillo_version 0.5.7
 
 # Default gems.
@@ -44,7 +44,7 @@
 %global bigdecimal_version 2.0.0
 %global did_you_mean_version 1.4.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.3
+%global irb_version 1.2.6
 %global json_version 2.3.0
 %global net_telnet_version 0.2.0
 %global openssl_version 2.1.2
@@ -164,10 +164,6 @@ Patch18: rubygems-3.1.3-Fix-correctness-and-performance-regression-in-require.pa
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
-
-# Add support for .include directive used by OpenSSL config files.
-# https://github.com/ruby/openssl/pull/216
-Patch22: ruby-2.6.0-config-support-include-directive.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -583,7 +579,6 @@ rm -rf ext/fiddle/libffi*
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
-%patch22 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1154,7 +1149,7 @@ sed -i '/assert_in_out_err/ s/)/, timeout: 30)/' test/-ext-/bug_reporter/test_bu
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.1.3.gemspec
+%{gem_dir}/specifications/default/reline-0.1.5.gemspec
 %{gem_dir}/specifications/default/rexml-3.2.3.gemspec
 %{gem_dir}/specifications/default/rss-0.2.8.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
@@ -1284,6 +1279,9 @@ sed -i '/assert_in_out_err/ s/)/, timeout: 30)/' test/-ext-/bug_reporter/test_bu
 
 
 %changelog
+* Tue Oct 13 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.2-135
+- Upgrade to Ruby 2.7.2.
+
 * Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
 - Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 
