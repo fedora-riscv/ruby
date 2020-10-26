@@ -11,24 +11,15 @@ diff --git a/lib/rdoc/generator/template/json_index/js/navigation.js b/lib/rdoc/
 index e4126812..43c5118a 100644
 --- a/lib/rdoc/generator/template/json_index/js/navigation.js
 +++ b/lib/rdoc/generator/template/json_index/js/navigation.js
-@@ -59,9 +59,8 @@ Navigation = new function() {
+@@ -41,9 +41,8 @@ Navigation = new function() {
          }
          break;
        case 13: //Event.KEY_RETURN:
--        if (this.$current)
+-        if (this.current)
 -          e.preventDefault();
--          this.select(this.$current);
-+        if (this.$current) e.preventDefault();
-+        this.select(this.$current);
+-          this.select(this.current);
++        if (this.current) e.preventDefault();
++        this.select(this.current);
          break;
      }
-     if (e.ctrlKey && e.shiftKey) this.select(this.$current);
-@@ -80,7 +79,7 @@ Navigation = new function() {
-     var go = function() {
-       if (!_this.moveTimeout) return;
-       _this[isDown ? 'moveDown' : 'moveUp']();
--      _this.moveTimout = setTimeout(go, 100);
-+      _this.moveTimeout = setTimeout(go, 100);
-     }
-     this.moveTimeout = setTimeout(go, 200);
-   }
+     if (e.ctrlKey && e.shiftKey) this.select(this.current);
