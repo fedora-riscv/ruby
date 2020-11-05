@@ -160,8 +160,6 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
 Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
-# Change this to requires, hopefully just as temporary measure.
-# https://bugs.ruby-lang.org/issues/16431
 Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
