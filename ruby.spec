@@ -887,6 +887,10 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 DISABLE_TESTS=""
 MSPECOPTS=""
 
+# Prevents segfauls in TestGCCompact.
+# https://bugs.ruby-lang.org/issues/17306
+DISABLE_TESTS="$DISABLE_TESTS -x test_gc_compact.rb"
+
 # It seems that glibc-2.31.9000 comes with lchmod(2) implementation, but it
 # does not support symlinks.
 # https://bugs.ruby-lang.org/issues/16756
