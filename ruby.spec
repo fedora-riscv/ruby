@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 02e17d473a
+%global revision 704fb0b815
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.0.rc.1
+%global rubygems_version 3.2.0.rc.2
 %global rubygems_molinillo_version 0.5.7
 
 # Default gems.
-%global bundler_version 2.2.0.rc.1
+%global bundler_version 2.2.0.rc.2
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.6.6
@@ -57,10 +57,11 @@
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.1
-%global rbs_version 0.12.2
+%global rbs_version 0.13.1
 %global test_unit_version 3.3.6
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
+%global typeprof_version 0.4.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -569,6 +570,25 @@ Really Simple Syndication (RSS) is a family of formats that describe 'feeds',
 specially constructed XML documents that allow an interested person to subscribe
 and receive updates from a particular web service. This library provides tooling
 to read and create these feeds.
+
+
+%package -n rubygem-typeprof
+Version:    %{typeprof_version}
+Summary:    TypeProf is a type analysis tool for Ruby code based on abstract interpretation
+License:    MIT
+URL:        https://github.com/ruby/typeprof
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Requires:   rubygem(rbs) >= %{rbs_version}
+Provides:   rubygem(typeprof) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-typeprof
+TypeProf performs a type analysis of non-annotated Ruby code.
+It abstractly executes input Ruby code in a level of types instead of values,
+gathers what types are passed to and returned by methods, and prints the
+analysis result in RBS format, a standard type description format for Ruby
+3.0.
 
 
 %prep
@@ -1152,8 +1172,11 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/csv-3.1.7.gemspec
 %{gem_dir}/specifications/default/date-3.0.1.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
+%{gem_dir}/specifications/default/debug-0.1.0.gemspec
 %{gem_dir}/specifications/default/delegate-0.1.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
+%{gem_dir}/specifications/default/digest-1.0.0.gemspec
+%{gem_dir}/specifications/default/drb-2.0.4.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.1.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
@@ -1181,6 +1204,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
+%{gem_dir}/specifications/default/pathname-0.1.0.gemspec
 %{gem_dir}/specifications/default/pp-0.1.0.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.1.gemspec
@@ -1208,6 +1232,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/uri-0.10.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.6.0.gemspec
+#%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
@@ -1337,10 +1362,28 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %doc %{gem_dir}/gems/rss-%{rss_version}/rss.gemspec
 %doc %{gem_dir}/gems/rss-%{rss_version}/test
 
+%files -n rubygem-typeprof
+%dir %{gem_dir}/gems/typeprof-%{typeprof_version}
+%{_bindir}/typeprof
+%exclude %{gem_dir}/gems/typeprof-%{typeprof_version}/.*
+%license %{gem_dir}/gems/typeprof-%{typeprof_version}/LICENSE
+%{gem_dir}/gems/typeprof-%{typeprof_version}/exe
+%{gem_dir}/gems/typeprof-%{typeprof_version}/lib
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/smoke
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/tools
+%{gem_dir}/specifications/typeprof-%{typeprof_version}.gemspec
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/Gemfile*
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/README.md
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/Rakefile
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc
+%lang(ja) %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc/doc.ja.md
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/testbed
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/typeprof.gemspec
+
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (02e17d473a).
+- Upgrade to Ruby 3.0.0 (704fb0b815).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
