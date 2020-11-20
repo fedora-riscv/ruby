@@ -891,24 +891,8 @@ MSPECOPTS=""
 # https://bugs.ruby-lang.org/issues/17306
 DISABLE_TESTS="$DISABLE_TESTS -x test_gc_compact.rb"
 
-# It seems that glibc-2.31.9000 comes with lchmod(2) implementation, but it
-# does not support symlinks.
-# https://bugs.ruby-lang.org/issues/16756
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not of the file'"
-
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
-
-# Disable "File.utime allows Time instances in the far future to set
-# mtime and atime".
-# https://bugs.ruby-lang.org/issues/16410
-MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
-
-# Disable File.lchmod specs, which newly fails with:
-# Expected [NotImplementedError, Errno::ENOTSUP] to include Errno::ENOENT
-# Nevertheless, this test have been removed upstream already:
-# https://github.com/ruby/ruby/commit/c881678cd75432f47903a5d1d8b86a7a723cb023
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENOTSUP when called'"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
