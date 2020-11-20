@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 704fb0b815
+%global revision 1f7b557890
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -50,18 +50,18 @@
 %global json_version 2.3.1
 %global openssl_version 2.2.0
 %global psych_version 3.2.0
-%global racc_version 1.5.0
+%global racc_version 1.5.1
 %global rdoc_version 6.2.1
 
 # Bundled gems.
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.1
-%global rbs_version 0.13.1
+%global rbs_version 0.17.0
 %global test_unit_version 3.3.6
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
-%global typeprof_version 0.4.0
+%global typeprof_version 0.6.1
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -1182,7 +1182,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.1.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.1.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.2.gemspec
 %{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
 %{gem_dir}/specifications/default/find-0.1.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.3.1.gemspec
@@ -1199,13 +1199,13 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/net-imap-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-protocol-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-smtp-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-smtp-0.2.1.gemspec
 %{gem_dir}/specifications/default/nkf-0.1.0.gemspec
 %{gem_dir}/specifications/default/observer-0.1.0.gemspec
 %{gem_dir}/specifications/default/open3-0.1.0.gemspec
 %{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.1.0.gemspec
-%{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.3.1.gemspec
 %{gem_dir}/specifications/default/pathname-0.1.0.gemspec
 %{gem_dir}/specifications/default/pp-0.1.0.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
@@ -1231,6 +1231,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 %{gem_dir}/specifications/default/tmpdir-0.1.0.gemspec
 %{gem_dir}/specifications/default/tsort-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
+%{gem_dir}/specifications/default/un-0.1.0.gemspec
 %{gem_dir}/specifications/default/uri-0.10.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.0.gemspec
 %{gem_dir}/specifications/default/webrick-1.6.0.gemspec
@@ -1385,7 +1386,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError or Errno::ENO
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (704fb0b815).
+- Upgrade to Ruby 3.0.0 (1f7b557890).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
