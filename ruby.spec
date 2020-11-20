@@ -894,6 +894,10 @@ DISABLE_TESTS="$DISABLE_TESTS -x test_gc_compact.rb"
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
+# The test suite gets stuck in 'C-API Kernel function rb_rescue2'.
+# https://bugs.ruby-lang.org/issues/17338
+MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is not a Module'"
+
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
