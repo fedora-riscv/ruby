@@ -1233,7 +1233,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 # could be better if Ruby generated these files:
 # https://github.com/ruby/ruby/pull/2545
 %exclude %{_bindir}/racc
-%{gem_dir}/gems/racc-%{racc_version}
+%exclude %{gem_dir}/gems/racc-%{racc_version}/bin
 
 
 %files -n rubygem-irb
