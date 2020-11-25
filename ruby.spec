@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 1f7b557890
+%global revision 7aaf6676c4
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1160,7 +1160,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/base64-0.1.0.gemspec
 %{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
 %{gem_dir}/specifications/default/cgi-0.1.0.gemspec
-%{gem_dir}/specifications/default/csv-3.1.7.gemspec
+%{gem_dir}/specifications/default/csv-3.1.9.gemspec
 %{gem_dir}/specifications/default/date-3.0.1.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
 %{gem_dir}/specifications/default/debug-0.1.0.gemspec
@@ -1375,7 +1375,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (1f7b557890).
+- Upgrade to Ruby 3.0.0 (7aaf6676c4).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
