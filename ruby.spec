@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 135
+%global release 136
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -199,6 +199,7 @@ BuildRequires: procps
 %{?with_hostname:BuildRequires: %{_bindir}/hostname}
 BuildRequires: multilib-rpm-config
 BuildRequires: gcc
+BuildRequires: make
 BuildRequires: zlib-devel
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
@@ -1285,6 +1286,9 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 
 
 %changelog
+* Tue Nov 24 18:16:02 CET 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.2-136
+- Add explicit `BR: make`.
+
 * Tue Oct 13 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.2-135
 - Upgrade to Ruby 2.7.2.
 
