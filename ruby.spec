@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 7aaf6676c4
+%global revision 6be9d18a4d
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -61,7 +61,7 @@
 %global test_unit_version 3.3.6
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
-%global typeprof_version 0.6.1
+%global typeprof_version 0.7.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -888,10 +888,6 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 DISABLE_TESTS=""
 MSPECOPTS=""
 
-# Prevents segfauls in TestGCCompact.
-# https://bugs.ruby-lang.org/issues/17306
-DISABLE_TESTS="$DISABLE_TESTS -x test_gc_compact.rb"
-
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
@@ -1375,7 +1371,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (7aaf6676c4).
+- Upgrade to Ruby 3.0.0 (6be9d18a4d).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
