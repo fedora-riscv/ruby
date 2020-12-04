@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 6be9d18a4d
+%global revision 1cfc6e7b7a
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -57,7 +57,7 @@
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.1
-%global rbs_version 0.17.0
+%global rbs_version 0.19.0
 %global test_unit_version 3.3.6
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
@@ -1198,7 +1198,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
-%{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
 %{gem_dir}/specifications/default/reline-0.1.5.gemspec
 %{gem_dir}/specifications/default/resolv-0.1.0.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
@@ -1371,7 +1371,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (6be9d18a4d).
+- Upgrade to Ruby 3.0.0 (1cfc6e7b7a).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
