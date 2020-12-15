@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 136
+%global release 137
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -219,6 +219,9 @@ Requires:   %{name}%{?_isa} = %{version}-%{release}
 # This would not be needed if ~50 packages depending on -devel used
 # --disable-gems
 Requires:   rubygems
+# Users need CFLAGS from /usr/lib/rpm/redhat/redhat-hardened-cc1
+# for building gems with binary extensions (rhbz#1905222).
+Recommends: redhat-rpm-config
 
 %description devel
 Header files and libraries for building an extension library for the
@@ -1286,6 +1289,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 
 
 %changelog
+* Tue Dec 15 16:26:46 CET 2020 Pavel Valena <pvalena@redhat.com> - 2.7.2-137
+- Add Recommends: redhat-rpm-config to devel subpackage.
+  Resolves: rhbz#1905222
+
 * Tue Nov 24 18:16:02 CET 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.2-136
 - Add explicit `BR: make`.
 
