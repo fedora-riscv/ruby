@@ -193,6 +193,9 @@ Requires:   %{name}%{?_isa} = %{version}-%{release}
 # This would not be needed if ~50 packages depending on -devel used
 # --disable-gems
 Requires:   rubygems
+# Users need CFLAGS from /usr/lib/rpm/redhat/redhat-hardened-cc1
+# for building gems with binary extensions (rhbz#1905222).
+Recommends: redhat-rpm-config
 
 %description devel
 Header files and libraries for building an extension library for the
