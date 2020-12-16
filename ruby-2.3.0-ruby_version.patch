@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 80b137e380..63cd3b4f8b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3875,9 +3875,6 @@ AS_CASE(["$target_os"],
+@@ -3805,9 +3805,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 80b137e380..63cd3b4f8b 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -3900,56 +3897,62 @@ AC_ARG_WITH(ridir,
+@@ -3830,56 +3827,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 80b137e380..63cd3b4f8b 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -3966,6 +3969,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -3896,6 +3899,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -202,14 +202,14 @@ index d4ff4a262c..3f9a5bf590 100644
               [
                 File.dirname(RbConfig::CONFIG['sitedir']),
                 'Gems',
--               RbConfig::CONFIG['ruby_version']
+-               RbConfig::CONFIG['ruby_version'],
 +               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
               ]
             else
               [
                 RbConfig::CONFIG['rubylibprefix'],
                 'gems',
--               RbConfig::CONFIG['ruby_version']
+-               RbConfig::CONFIG['ruby_version'],
 +               RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
               ]
             end

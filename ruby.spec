@@ -10,7 +10,7 @@
 #%%global milestone preview1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 1cfc6e7b7a
+%global revision a9a7f4d8b8
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,26 +30,26 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.0.rc.2
-%global rubygems_molinillo_version 0.5.7
+%global rubygems_version 3.2.1
+%global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.0.rc.2
+%global bundler_version 2.2.1
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.4.1
-%global bundler_molinillo_version 0.6.6
+%global bundler_molinillo_version 0.7.0
 %global bundler_net_http_persistent_version 4.0.0
 %global bundler_thor_version 1.0.1
 %global bundler_uri_version 0.10.0
 
-%global bigdecimal_version 2.0.1
+%global bigdecimal_version 2.0.2
 %global did_you_mean_version 1.4.0
 %global erb_version 2.2.0
 %global io_console_version 0.5.6
 %global irb_version 1.2.7
-%global json_version 2.3.1
+%global json_version 2.4.0
 %global openssl_version 2.2.0
-%global psych_version 3.2.0
+%global psych_version 3.2.1
 %global racc_version 1.5.1
 %global rdoc_version 6.2.1
 
@@ -57,11 +57,11 @@
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.1
-%global rbs_version 0.19.0
-%global test_unit_version 3.3.6
+%global rbs_version 0.20.1
+%global test_unit_version 3.3.7
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
-%global typeprof_version 0.7.0
+%global typeprof_version 0.9.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -145,13 +145,6 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Fix fortifications on armv7hl.
-# https://bugs.ruby-lang.org/issues/16762
-Patch11: ruby-2.8.0-Annotate-execstack.patch
-# Fix `Permission denied @ dir_s_mkdir - /usr/share/gems/plugins` issues
-# building rubygem- packages.
-# https://github.com/rubygems/rubygems/pull/3972
-Patch12: rubygems-3.2.0-Install-to-correct-plugins-dir-when-using-build-root.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -605,8 +598,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch9 -p1
-%patch11 -p1
-%patch12 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -661,12 +652,11 @@ sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_li
 
 # Kill bundled certificates, as they should be part of ca-certificates.
 for cert in \
-  rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem \
-  rubygems.org/AddTrustExternalCARoot.pem \
-  index.rubygems.org/GlobalSignRootCA.pem
+  rubygems.org/GlobalSignRootCA.pem \
+  rubygems.org/GlobalSignRootCA_R3.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
-  rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
+  rm -d $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert) || :
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
@@ -1008,7 +998,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{ruby_libdir}/un.rb
 %{ruby_libdir}/uri*
 %{ruby_libdir}/weakref*
-%{ruby_libdir}/webrick*
 %{ruby_libdir}/yaml*
 
 # Platform specific libraries.
@@ -1167,7 +1156,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.1.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.2.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.4.gemspec
 %{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
 %{gem_dir}/specifications/default/find-0.1.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.3.1.gemspec
@@ -1177,7 +1166,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/io-wait-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
 %{gem_dir}/specifications/default/logger-1.4.2.gemspec
-%{gem_dir}/specifications/default/matrix-0.3.0.gemspec
+%{gem_dir}/specifications/default/matrix-0.3.1.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-ftp-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-http-0.1.0.gemspec
@@ -1194,12 +1183,12 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/pathname-0.1.0.gemspec
 %{gem_dir}/specifications/default/pp-0.1.0.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
-%{gem_dir}/specifications/default/prime-0.1.1.gemspec
+%{gem_dir}/specifications/default/prime-0.1.2.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.0.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
-%{gem_dir}/specifications/default/reline-0.1.5.gemspec
+%{gem_dir}/specifications/default/reline-0.1.9.gemspec
 %{gem_dir}/specifications/default/resolv-0.1.0.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.0.gemspec
@@ -1219,7 +1208,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/un-0.1.0.gemspec
 %{gem_dir}/specifications/default/uri-0.10.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.0.gemspec
-%{gem_dir}/specifications/default/webrick-1.6.0.gemspec
 #%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
 %{gem_dir}/specifications/default/yaml-0.1.0.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
@@ -1316,9 +1304,25 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %files -n rubygem-rbs
 %{_bindir}/rbs
-%{gem_dir}/gems/rbs-%{rbs_version}
+%dir %{gem_dir}/gems/rbs-%{rbs_version}
+%exclude %{gem_dir}/gems/rbs-%{rbs_version}/.*
 %license %{gem_dir}/gems/rbs-%{rbs_version}/BSDL
+%doc %{gem_dir}/gems/rbs-%{rbs_version}/CHANGELOG.md
 %license %{gem_dir}/gems/rbs-%{rbs_version}/COPYING
+%{gem_dir}/gems/rbs-%{rbs_version}/Gemfile
+%doc %{gem_dir}/gems/rbs-%{rbs_version}/README.md
+%{gem_dir}/gems/rbs-%{rbs_version}/Rakefile
+%{gem_dir}/gems/rbs-%{rbs_version}/Steepfile
+%{gem_dir}/gems/rbs-%{rbs_version}/bin
+%{gem_dir}/gems/rbs-%{rbs_version}/core
+%doc %{gem_dir}/gems/rbs-%{rbs_version}/docs
+%{gem_dir}/gems/rbs-%{rbs_version}/exe
+%{gem_dir}/gems/rbs-%{rbs_version}/goodcheck.yml
+%{gem_dir}/gems/rbs-%{rbs_version}/lib
+%{gem_dir}/gems/rbs-%{rbs_version}/schema
+%{gem_dir}/gems/rbs-%{rbs_version}/sig
+%{gem_dir}/gems/rbs-%{rbs_version}/stdlib
+%{gem_dir}/gems/rbs-%{rbs_version}/steep
 %{gem_dir}/specifications/rbs-%{rbs_version}.gemspec
 
 %files -n rubygem-test-unit
@@ -1335,7 +1339,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %doc %{gem_dir}/gems/rexml-%{rexml_version}/Gemfile
 %doc %{gem_dir}/gems/rexml-%{rexml_version}/README.md
 %doc %{gem_dir}/gems/rexml-%{rexml_version}/Rakefile
-%doc %{gem_dir}/gems/rexml-%{rexml_version}/rexml.gemspec
 
 %files -n rubygem-rss
 %dir %{gem_dir}/gems/rss-%{rss_version}
@@ -1347,7 +1350,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %doc %{gem_dir}/gems/rss-%{rss_version}/Gemfile
 %doc %{gem_dir}/gems/rss-%{rss_version}/README.md
 %doc %{gem_dir}/gems/rss-%{rss_version}/Rakefile
-%doc %{gem_dir}/gems/rss-%{rss_version}/rss.gemspec
 %doc %{gem_dir}/gems/rss-%{rss_version}/test
 
 %files -n rubygem-typeprof
@@ -1366,12 +1368,11 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc
 %lang(ja) %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc/doc.ja.md
 %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/testbed
-%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/typeprof.gemspec
 
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (1cfc6e7b7a).
+- Upgrade to Ruby 3.0.0 (a9a7f4d8b8).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
