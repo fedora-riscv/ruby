@@ -7,7 +7,7 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-#%%global milestone preview1
+%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
 %global revision a9a7f4d8b8
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.1
+%global rubygems_version 3.2.2
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.1
+%global bundler_version 2.2.2
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
@@ -42,12 +42,12 @@
 %global bundler_thor_version 1.0.1
 %global bundler_uri_version 0.10.0
 
-%global bigdecimal_version 2.0.2
+%global bigdecimal_version 3.0.0
 %global did_you_mean_version 1.4.0
 %global erb_version 2.2.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.7
-%global json_version 2.4.0
+%global irb_version 1.2.8
+%global json_version 2.4.1
 %global openssl_version 2.2.0
 %global psych_version 3.2.1
 %global racc_version 1.5.1
@@ -56,12 +56,12 @@
 # Bundled gems.
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
-%global rake_version 13.0.1
-%global rbs_version 0.20.1
+%global rake_version 13.0.2
+%global rbs_version 1.0.0.pre
 %global test_unit_version 3.3.7
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
-%global typeprof_version 0.9.0
+%global typeprof_version 0.10.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -1154,7 +1154,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/debug-0.1.0.gemspec
 %{gem_dir}/specifications/default/delegate-0.1.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
-%{gem_dir}/specifications/default/digest-1.0.0.gemspec
+%{gem_dir}/specifications/default/digest-3.0.0.gemspec
 %{gem_dir}/specifications/default/drb-2.0.4.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.1.0.gemspec
@@ -1191,7 +1191,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
-%{gem_dir}/specifications/default/reline-0.1.9.gemspec
+%{gem_dir}/specifications/default/reline-0.1.10.gemspec
 %{gem_dir}/specifications/default/resolv-0.1.0.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.0.gemspec
@@ -1199,8 +1199,8 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/set-0.1.0.gemspec
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.0.gemspec
-%{gem_dir}/specifications/default/stringio-0.1.4.gemspec
-%{gem_dir}/specifications/default/strscan-1.0.4.gemspec
+%{gem_dir}/specifications/default/stringio-3.0.0.gemspec
+%{gem_dir}/specifications/default/strscan-3.0.0.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.0.gemspec
 %{gem_dir}/specifications/default/time-0.1.0.gemspec
@@ -1375,7 +1375,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (a9a7f4d8b8).
+- Upgrade to Ruby 3.0.0.rc1 (8680ae9cbd).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
