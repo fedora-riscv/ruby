@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone rc1
+#%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision a9a7f4d8b8
+%global revision d84dd66da0
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -51,12 +51,12 @@
 %global openssl_version 2.2.0
 %global psych_version 3.2.1
 %global racc_version 1.5.1
-%global rdoc_version 6.2.1
+%global rdoc_version 6.3.0
 
 # Bundled gems.
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
-%global rake_version 13.0.2
+%global rake_version 13.0.3
 %global rbs_version 1.0.0.pre
 %global test_unit_version 3.3.7
 %global rexml_version 3.2.4
@@ -1375,7 +1375,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0.rc1 (8680ae9cbd).
+- Upgrade to Ruby 3.0.0 (8680ae9cbd).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
