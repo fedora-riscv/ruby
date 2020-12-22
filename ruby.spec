@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision d84dd66da0
+%global revision 93a56a5e98
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -43,11 +43,11 @@
 %global bundler_uri_version 0.10.0
 
 %global bigdecimal_version 3.0.0
-%global did_you_mean_version 1.4.0
+%global did_you_mean_version 1.5.0
 %global erb_version 2.2.0
 %global io_console_version 0.5.6
 %global irb_version 1.2.8
-%global json_version 2.4.1
+%global json_version 2.5.0
 %global openssl_version 2.2.0
 %global psych_version 3.2.1
 %global racc_version 1.5.1
@@ -986,7 +986,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper*
 %{ruby_libdir}/securerandom.rb
-%{ruby_libdir}/set.rb
+%{ruby_libdir}/set*
 %{ruby_libdir}/shellwords.rb
 %{ruby_libdir}/singleton*
 %{ruby_libdir}/socket.rb
@@ -1196,7 +1196,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.0.gemspec
 %{gem_dir}/specifications/default/securerandom-0.1.0.gemspec
-%{gem_dir}/specifications/default/set-0.1.0.gemspec
+%{gem_dir}/specifications/default/set-1.0.0.gemspec
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.0.gemspec
 %{gem_dir}/specifications/default/stringio-3.0.0.gemspec
@@ -1375,7 +1375,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (8680ae9cbd).
+- Upgrade to Ruby 3.0.0 (93a56a5e98).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
