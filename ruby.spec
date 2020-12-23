@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 93a56a5e98
+%global revision 684649ea05
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.2
+%global rubygems_version 3.2.3
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.2
+%global bundler_version 2.2.3
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
@@ -46,10 +46,10 @@
 %global did_you_mean_version 1.5.0
 %global erb_version 2.2.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.8
-%global json_version 2.5.0
+%global irb_version 1.2.9
+%global json_version 2.5.1
 %global openssl_version 2.2.0
-%global psych_version 3.2.1
+%global psych_version 3.3.0
 %global racc_version 1.5.1
 %global rdoc_version 6.3.0
 
@@ -1143,43 +1143,43 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{_rpmconfigdir}/rubygems.con
 
 %files default-gems
-%{gem_dir}/specifications/default/english-0.7.0.gemspec
+%{gem_dir}/specifications/default/english-0.7.1.gemspec
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
 %{gem_dir}/specifications/default/base64-0.1.0.gemspec
-%{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
-%{gem_dir}/specifications/default/cgi-0.1.0.gemspec
+%{gem_dir}/specifications/default/benchmark-0.1.1.gemspec
+%{gem_dir}/specifications/default/cgi-0.2.0.gemspec
 %{gem_dir}/specifications/default/csv-3.1.9.gemspec
-%{gem_dir}/specifications/default/date-3.0.1.gemspec
+%{gem_dir}/specifications/default/date-3.1.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
 %{gem_dir}/specifications/default/debug-0.1.0.gemspec
-%{gem_dir}/specifications/default/delegate-0.1.0.gemspec
+%{gem_dir}/specifications/default/delegate-0.2.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
 %{gem_dir}/specifications/default/digest-3.0.0.gemspec
 %{gem_dir}/specifications/default/drb-2.0.4.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
-%{gem_dir}/specifications/default/etc-1.1.0.gemspec
+%{gem_dir}/specifications/default/etc-1.2.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.4.gemspec
-%{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.5.gemspec
+%{gem_dir}/specifications/default/fileutils-1.5.0.gemspec
 %{gem_dir}/specifications/default/find-0.1.0.gemspec
-%{gem_dir}/specifications/default/forwardable-1.3.1.gemspec
+%{gem_dir}/specifications/default/forwardable-1.3.2.gemspec
 %{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
-%{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
+%{gem_dir}/specifications/default/getoptlong-0.1.1.gemspec
 %{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
 %{gem_dir}/specifications/default/io-wait-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
-%{gem_dir}/specifications/default/logger-1.4.2.gemspec
+%{gem_dir}/specifications/default/logger-1.4.3.gemspec
 %{gem_dir}/specifications/default/matrix-0.3.1.gemspec
-%{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-ftp-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-http-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-imap-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
+%{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-ftp-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-http-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-imap-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-pop-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-protocol-0.1.0.gemspec
 %{gem_dir}/specifications/default/net-smtp-0.2.1.gemspec
 %{gem_dir}/specifications/default/nkf-0.1.0.gemspec
-%{gem_dir}/specifications/default/observer-0.1.0.gemspec
-%{gem_dir}/specifications/default/open3-0.1.0.gemspec
+%{gem_dir}/specifications/default/observer-0.1.1.gemspec
+%{gem_dir}/specifications/default/open3-0.1.1.gemspec
 %{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.3.1.gemspec
@@ -1187,32 +1187,32 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/pp-0.1.0.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.2.gemspec
-%{gem_dir}/specifications/default/pstore-0.1.0.gemspec
+%{gem_dir}/specifications/default/pstore-0.1.1.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
 %{gem_dir}/specifications/default/reline-0.1.10.gemspec
-%{gem_dir}/specifications/default/resolv-0.1.0.gemspec
+%{gem_dir}/specifications/default/resolv-0.2.0.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.0.gemspec
 %{gem_dir}/specifications/default/securerandom-0.1.0.gemspec
-%{gem_dir}/specifications/default/set-1.0.0.gemspec
+%{gem_dir}/specifications/default/set-1.0.1.gemspec
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
-%{gem_dir}/specifications/default/singleton-0.1.0.gemspec
+%{gem_dir}/specifications/default/singleton-0.1.1.gemspec
 %{gem_dir}/specifications/default/stringio-3.0.0.gemspec
 %{gem_dir}/specifications/default/strscan-3.0.0.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
-%{gem_dir}/specifications/default/tempfile-0.1.0.gemspec
+%{gem_dir}/specifications/default/tempfile-0.1.1.gemspec
 %{gem_dir}/specifications/default/time-0.1.0.gemspec
-%{gem_dir}/specifications/default/timeout-0.1.0.gemspec
-%{gem_dir}/specifications/default/tmpdir-0.1.0.gemspec
+%{gem_dir}/specifications/default/timeout-0.1.1.gemspec
+%{gem_dir}/specifications/default/tmpdir-0.1.1.gemspec
 %{gem_dir}/specifications/default/tsort-0.1.0.gemspec
-%{gem_dir}/specifications/default/tracer-0.1.0.gemspec
+%{gem_dir}/specifications/default/tracer-0.1.1.gemspec
 %{gem_dir}/specifications/default/un-0.1.0.gemspec
-%{gem_dir}/specifications/default/uri-0.10.0.gemspec
-%{gem_dir}/specifications/default/weakref-0.1.0.gemspec
+%{gem_dir}/specifications/default/uri-0.10.1.gemspec
+%{gem_dir}/specifications/default/weakref-0.1.1.gemspec
 #%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
-%{gem_dir}/specifications/default/yaml-0.1.0.gemspec
+%{gem_dir}/specifications/default/yaml-0.1.1.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
 %{gem_dir}/gems/erb-%{erb_version}
@@ -1375,7 +1375,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 %changelog
 * Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (93a56a5e98).
+- Upgrade to Ruby 3.0.0 (684649ea05).
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
