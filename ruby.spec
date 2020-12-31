@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 684649ea05
+#%%global revision 684649ea05
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -46,7 +46,7 @@
 %global did_you_mean_version 1.5.0
 %global erb_version 2.2.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.9
+%global irb_version 1.3.0
 %global json_version 2.5.1
 %global openssl_version 2.2.0
 %global psych_version 3.3.0
@@ -57,11 +57,11 @@
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.3
-%global rbs_version 1.0.0.pre
+%global rbs_version 1.0.0
 %global test_unit_version 3.3.7
 %global rexml_version 3.2.4
 %global rss_version 0.2.9
-%global typeprof_version 0.10.0
+%global typeprof_version 0.11.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -1159,7 +1159,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/etc-1.2.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.5.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.6.gemspec
 %{gem_dir}/specifications/default/fileutils-1.5.0.gemspec
 %{gem_dir}/specifications/default/find-0.1.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.3.2.gemspec
@@ -1191,7 +1191,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
-%{gem_dir}/specifications/default/reline-0.1.10.gemspec
+%{gem_dir}/specifications/default/reline-0.2.0.gemspec
 %{gem_dir}/specifications/default/resolv-0.2.0.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.0.gemspec
