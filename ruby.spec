@@ -1,6 +1,6 @@
-%global major_version 2
-%global minor_version 7
-%global teeny_version 2
+%global major_version 3
+%global minor_version 0
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -9,20 +9,20 @@
 # Specify the named version. It has precedense to revision.
 #%%global milestone rc1
 
-# Keep the revision enabled for pre-releases from SVN.
-#%%global revision af11efd377
+# Keep the revision enabled for pre-releases from GIT.
+#%%global revision 684649ea05
 
 %global ruby_archive %{name}-%{ruby_version}
 
 # If revision and milestone are removed/commented out, the official release build is expected.
 %if 0%{?milestone:1}%{?revision:1} != 0
 %global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision}}
-%define ruby_archive_timestamp %(stat --printf='@%Y' %{ruby_archive}.tar.xz | date -f - +"%Y%m%d")
+%define ruby_archive_timestamp %(stat --printf='@%Y' %{_sourcedir}/%{ruby_archive}.tar.xz | date -f - +"%Y%m%d")
 %define development_release %{?milestone}%{?!milestone:%{?revision:%{ruby_archive_timestamp}git%{revision}}}
 %endif
 
 
-%global release 137
+%global release 138
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,42 +30,41 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.1.4
-%global rubygems_molinillo_version 0.5.7
+%global rubygems_version 3.2.3
+%global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.1.4
+%global bundler_version 2.2.3
 %global bundler_connection_pool_version 2.2.2
-%global bundler_fileutils_version 1.3.0
-%global bundler_molinillo_version 0.6.6
-%global bundler_net_http_persistent_version 3.1.0
-%global bundler_thor_version 1.0.0
+%global bundler_fileutils_version 1.4.1
+%global bundler_molinillo_version 0.7.0
+%global bundler_net_http_persistent_version 4.0.0
+%global bundler_thor_version 1.0.1
+%global bundler_tmpdir_version 0.1.0
+%global bundler_uri_version 0.10.0
 
-%global bigdecimal_version 2.0.0
-%global did_you_mean_version 1.4.0
+%global bigdecimal_version 3.0.0
+%global did_you_mean_version 1.5.0
+%global erb_version 2.2.0
 %global io_console_version 0.5.6
-%global irb_version 1.2.6
-%global json_version 2.3.0
-%global net_telnet_version 0.2.0
-%global openssl_version 2.1.2
-%global psych_version 3.1.0
-%global racc_version 1.4.16
-%global rdoc_version 6.2.1
-%global xmlrpc_version 0.3.0
+%global irb_version 1.3.0
+%global json_version 2.5.1
+%global openssl_version 2.2.0
+%global psych_version 3.3.0
+%global racc_version 1.5.1
+%global rdoc_version 6.3.0
 
 # Bundled gems.
-%global minitest_version 5.13.0
-%global power_assert_version 1.1.7
-%global rake_version 13.0.1
-%global test_unit_version 3.3.4
+%global minitest_version 5.14.2
+%global power_assert_version 1.2.0
+%global rake_version 13.0.3
+%global rbs_version 1.0.0
+%global test_unit_version 3.3.7
+%global rexml_version 3.2.4
+%global rss_version 0.2.9
+%global typeprof_version 0.11.0
 
-# Might not be needed in the future, if we are lucky enough.
-# https://bugzilla.redhat.com/show_bug.cgi?id=888262
-%global tapset_root %{_datadir}/systemtap
-%global tapset_dir %{tapset_root}/tapset
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
-
-%global _normalized_cpu %(echo %{_target_cpu} | sed 's/^ppc/powerpc/;s/i.86/i386/;s/sparcv./sparc/')
 
 %if 0%{?fedora} >= 19
 %bcond_without rubypick
@@ -147,38 +146,14 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Revert commit which breaks bundled net-http-persistent version check.
-# https://github.com/drbrain/net-http-persistent/pull/109
-Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
-# Prevent issues with openssl loading when RubyGems are disabled.
-# https://github.com/ruby/openssl/pull/242
-Patch13: ruby-2.8.0-remove-unneeded-gem-require-for-ipaddr.patch
-# Fix `require` behavior allowing to load libraries multiple times.
-# https://github.com/rubygems/rubygems/issues/3647
-# Because there were multiple fixes in `Kernel.require` in recent months,
-# pickup all the changes one by one instead of squashing them.
-# https://github.com/rubygems/rubygems/pull/3124
-Patch15: rubygems-3.1.3-Fix-I-require-priority.patch
-# https://github.com/rubygems/rubygems/pull/3133
-Patch16: rubygems-3.1.3-Improve-require.patch
-# https://github.com/rubygems/rubygems/pull/3153
-Patch17: rubygems-3.1.3-Revert-Exclude-empty-suffix-from-I-require-loop.patch
-# https://github.com/rubygems/rubygems/pull/3639
-Patch18: rubygems-3.1.3-Fix-correctness-and-performance-regression-in-require.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
-# Enable arm64 optimizations.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1884728
-# https://github.com/ruby/ruby/pull/3393
-Patch20: ruby-3.0.0-preview1-Enable-arm64-optimizations-that-exist-for-power-x86.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
 Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
-# Change this to requires, hopefully just as temporary measure.
-# https://bugs.ruby-lang.org/issues/16431
 Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
@@ -243,11 +218,14 @@ Provides: bundled(ccan-list)
 Provides: bundled(rubygem-did_you_mean) = %{did_you_mean_version}
 Provides: bundled(rubygem-racc) = %{racc_version}
 
-# Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe
-# so lets obsolete it. This is not the best place, but we don't have
-# better, unless https://fedorahosted.org/fpc/ticket/645 provides some
-# generic solution.
+# Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe.
 Obsoletes: ruby-tcltk < 2.4.0
+
+# The Net::Telnet and XMLRPC were removed in Ruby 2.8, i.e. F34 timeframe.
+# https://bugs.ruby-lang.org/issues/16484
+# TODO: Update the versions prior landing in Fedora.
+Obsoletes: rubygem-net-telnet < 0.2.0-%{release}
+Obsoletes: rubygem-xmlrpc < 0.3.0-%{release}
 
 
 %description libs
@@ -451,6 +429,8 @@ Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
 Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
 Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
 Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
+Provides:   bundled(rubygem-tmpdir) = %{bundler_tmpdir_version}
+Provides:   bundled(rubygem-uri) = %{bundler_uri_version}
 BuildArch:  noarch
 
 %description -n rubygem-bundler
@@ -517,23 +497,18 @@ Rake is a Make-like program implemented in Ruby. Tasks and dependencies are
 specified in standard Ruby syntax.
 
 
-%package -n rubygem-net-telnet
-Summary:    Provides telnet client functionality
-Version:    %{net_telnet_version}
+%package -n rubygem-rbs
+Summary:    Type signature for Ruby
+Version:    %{rbs_version}
+License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(net-telnet) = %{version}-%{release}
+Provides:   rubygem(rbs) = %{version}-%{release}
 BuildArch:  noarch
 
-%description -n rubygem-net-telnet
-Provides telnet client functionality.
-
-This class also has, through delegation, all the methods of a socket object
-(by default, a TCPSocket, but can be set by the Proxy option to new()). This
-provides methods such as close() to end the session and sysread() to read data
-directly from the host, instead of via the waitfor() mechanism. Note that if
-you do use sysread() directly when in telnet mode, you should probably pass
-the output through preprocess() to extract telnet command sequences.
+%description -n rubygem-rbs
+RBS is the language for type signatures for Ruby and standard library
+definitions.
 
 
 %package -n rubygem-test-unit
@@ -555,18 +530,62 @@ programming software development methodology, for Smalltalk's SUnit. It allows
 writing tests, checking results and automated testing in Ruby.
 
 
-%package -n rubygem-xmlrpc
-Summary:    XMLRPC is a lightweight protocol that enables remote procedure calls over HTTP
-Version:    %{xmlrpc_version}
-License:    Ruby or BSD
+%package -n rubygem-rexml
+Summary:    An XML toolkit for Ruby
+Version:    %{rexml_version}
+License:    BSD
+URL:        https://github.com/ruby/rexml
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(xmlrpc) = %{version}-%{release}
+Provides:   rubygem(rexml) = %{version}-%{release}
 BuildArch:  noarch
 
-%description -n rubygem-xmlrpc
-XMLRPC is a lightweight protocol that enables remote procedure calls over
-HTTP.
+%description -n rubygem-rexml
+REXML was inspired by the Electric XML library for Java, which features an
+easy-to-use API, small size, and speed. Hopefully, REXML, designed with the same
+philosophy, has these same features. I've tried to keep the API as intuitive as
+possible, and have followed the Ruby methodology for method naming and code
+flow, rather than mirroring the Java API.
+
+REXML supports both tree and stream document parsing. Stream parsing is faster
+(about 1.5 times as fast). However, with stream parsing, you don't get access to
+features such as XPath.
+
+
+%package -n rubygem-rss
+Summary:    Family of libraries that support various formats of XML "feeds"
+Version:    %{rss_version}
+License:    BSD
+URL:        https://github.com/ruby/rss
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(rss) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-rss
+Really Simple Syndication (RSS) is a family of formats that describe 'feeds',
+specially constructed XML documents that allow an interested person to subscribe
+and receive updates from a particular web service. This library provides tooling
+to read and create these feeds.
+
+
+%package -n rubygem-typeprof
+Version:    %{typeprof_version}
+Summary:    TypeProf is a type analysis tool for Ruby code based on abstract interpretation
+License:    MIT
+URL:        https://github.com/ruby/typeprof
+Requires:   ruby(release)
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Requires:   rubygem(rbs) >= %{rbs_version}
+Provides:   rubygem(typeprof) = %{version}-%{release}
+BuildArch:  noarch
+
+%description -n rubygem-typeprof
+TypeProf performs a type analysis of non-annotated Ruby code.
+It abstractly executes input Ruby code in a level of types instead of values,
+gathers what types are passed to and returned by methods, and prints the
+analysis result in RBS format, a standard type description format for Ruby
+3.0.
 
 
 %prep
@@ -584,14 +603,7 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch9 -p1
-%patch10 -p1
-%patch13 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
 %patch19 -p1
-%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -621,11 +633,13 @@ autoconf
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
-make %{?_smp_mflags} COPY="cp -p" Q=
+%make_build COPY="cp -p" Q=
 
 %install
 rm -rf %{buildroot}
-make install DESTDIR=%{buildroot}
+%make_install
+
+# TODO: Regenerate RBS parser in lib/rbs/parser.rb
 
 # Rename ruby/config.h to ruby/config-<arch>.h to avoid file conflicts on
 # multilib systems and install config.h wrapper
@@ -643,12 +657,11 @@ sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_li
 
 # Kill bundled certificates, as they should be part of ca-certificates.
 for cert in \
-  rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem \
-  rubygems.org/AddTrustExternalCARoot.pem \
-  index.rubygems.org/GlobalSignRootCA.pem
+  rubygems.org/GlobalSignRootCA.pem \
+  rubygems.org/GlobalSignRootCA_R3.pem
 do
   rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
-  rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
+  rm -d $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert) || :
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
@@ -765,11 +778,11 @@ mv %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_ma
 
 %if %{with systemtap}
 # Install a tapset and fix up the path to the library.
-mkdir -p %{buildroot}%{tapset_dir}
+mkdir -p %{buildroot}%{_systemtap_tapsetdir}
 sed -e "s|@LIBRARY_PATH@|%{tapset_libdir}/libruby.so.%{major_minor_version}|" \
-  %{SOURCE2} > %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
+  %{SOURCE2} > %{buildroot}%{_systemtap_tapsetdir}/libruby.so.%{major_minor_version}.stp
 # Escape '*/' in comment.
-sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{tapset_dir}/libruby.so.%{major_minor_version}.stp
+sed -i -r "s|( \*.*\*)\/(.*)|\1\\\/\2|" %{buildroot}%{_systemtap_tapsetdir}/libruby.so.%{major_minor_version}.stp
 %endif
 
 # Prepare -doc subpackage file lists.
@@ -819,7 +832,7 @@ checksec --file=libruby.so.%{ruby_version} | \
 # FileUtils.
 [ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
-  require 'bundler/vendor/fileutils/lib/fileutils/version'; \
+  require 'bundler/vendor/fileutils/lib/fileutils'; \
   puts Bundler::FileUtils::VERSION\\\"\" | tail -1`" \
   == '%{bundler_fileutils_version}' ]
 
@@ -845,6 +858,17 @@ checksec --file=libruby.so.%{ruby_version} | \
   puts Bundler::Thor::VERSION\\\"\" | tail -1`" \
   == '%{bundler_thor_version}' ]
 
+# tmpdir.
+# TODO: There is no version in bundled tmpdir yet.
+#%%{global bundler_tmpdir_version}
+
+# URI.
+[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+  module Bundler; end; \
+  require 'bundler/vendor/uri/lib/uri/version'; \
+  puts Bundler::URI::VERSION\\\"\" | tail -1`" \
+  == '%{bundler_uri_version}' ]
+
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
@@ -864,14 +888,9 @@ MSPECOPTS=""
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
-# Disable "File.utime allows Time instances in the far future to set
-# mtime and atime".
-# https://bugs.ruby-lang.org/issues/16410
-MSPECOPTS="$MSPECOPTS -P 'File.utime allows Time instances in the far future to set mtime and atime'"
-
-# Disable File.lchmod specs, which fails when building against glibc 2.31.9000.
-# https://bugs.ruby-lang.org/issues/16749
-MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not of the file'"
+# The test suite gets stuck in 'C-API Kernel function rb_rescue2'.
+# https://bugs.ruby-lang.org/issues/17338
+MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is not a Module'"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
@@ -908,7 +927,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %license GPL
 %license LEGAL
 %doc README.md
-%doc NEWS
+%doc NEWS.md
 # Exclude /usr/local directory since it is supposed to be managed by
 # local system administrator.
 %exclude %{ruby_sitelibdir}
@@ -952,6 +971,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %{ruby_libdir}/monitor.rb
 %{ruby_libdir}/mutex_m.rb
 %{ruby_libdir}/net
+%{ruby_libdir}/objspace.rb
 %{ruby_libdir}/observer*
 %{ruby_libdir}/open-uri.rb
 %{ruby_libdir}/open3*
@@ -967,12 +987,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %{ruby_libdir}/reline*
 %{ruby_libdir}/resolv.rb
 %{ruby_libdir}/resolv-replace.rb
-%{ruby_libdir}/rexml
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper*
-%{ruby_libdir}/rss*
 %{ruby_libdir}/securerandom.rb
-%{ruby_libdir}/set.rb
+%{ruby_libdir}/set*
 %{ruby_libdir}/shellwords.rb
 %{ruby_libdir}/singleton*
 %{ruby_libdir}/socket.rb
@@ -987,7 +1005,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %{ruby_libdir}/un.rb
 %{ruby_libdir}/uri*
 %{ruby_libdir}/weakref*
-%{ruby_libdir}/webrick*
 %{ruby_libdir}/yaml*
 
 # Platform specific libraries.
@@ -1087,7 +1104,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %{ruby_libarchdir}/rbconfig/sizeof.so
 %{ruby_libarchdir}/readline.so
 %{ruby_libarchdir}/ripper.so
-%{ruby_libarchdir}/sdbm.so
 %{ruby_libarchdir}/socket.so
 %{ruby_libarchdir}/stringio.so
 %{ruby_libarchdir}/strscan.so
@@ -1100,7 +1116,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %dir %{ruby_libarchdir}/racc
 %{ruby_libarchdir}/racc/cparse.so
 
-%{?with_systemtap:%{tapset_root}}
+%{?with_systemtap:%{_systemtap_datadir}}
 
 %files -n rubygems
 %{_bindir}/gem
@@ -1131,59 +1147,86 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %{_rpmconfigdir}/rubygems.con
 
 %files default-gems
-%{gem_dir}/specifications/default/benchmark-0.1.0.gemspec
-%{gem_dir}/specifications/default/cgi-0.1.0.gemspec
-%{gem_dir}/specifications/default/csv-3.1.2.gemspec
-%{gem_dir}/specifications/default/date-3.0.0.gemspec
+%{gem_dir}/specifications/default/english-0.7.1.gemspec
+%{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
+%{gem_dir}/specifications/default/base64-0.1.0.gemspec
+%{gem_dir}/specifications/default/benchmark-0.1.1.gemspec
+%{gem_dir}/specifications/default/cgi-0.2.0.gemspec
+%{gem_dir}/specifications/default/csv-3.1.9.gemspec
+%{gem_dir}/specifications/default/date-3.1.0.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
-%{gem_dir}/specifications/default/delegate-0.1.0.gemspec
+%{gem_dir}/specifications/default/debug-0.1.0.gemspec
+%{gem_dir}/specifications/default/delegate-0.2.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
-%{gem_dir}/specifications/default/etc-1.1.0.gemspec
+%{gem_dir}/specifications/default/digest-3.0.0.gemspec
+%{gem_dir}/specifications/default/drb-2.0.4.gemspec
+%{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
+%{gem_dir}/specifications/default/etc-1.2.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.0.gemspec
-%{gem_dir}/specifications/default/fileutils-1.4.1.gemspec
-%{gem_dir}/specifications/default/forwardable-1.3.1.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.6.gemspec
+%{gem_dir}/specifications/default/fileutils-1.5.0.gemspec
+%{gem_dir}/specifications/default/find-0.1.0.gemspec
+%{gem_dir}/specifications/default/forwardable-1.3.2.gemspec
 %{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
-%{gem_dir}/specifications/default/getoptlong-0.1.0.gemspec
+%{gem_dir}/specifications/default/getoptlong-0.1.1.gemspec
+%{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
+%{gem_dir}/specifications/default/io-wait-0.1.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
-%{gem_dir}/specifications/default/logger-1.4.2.gemspec
-%{gem_dir}/specifications/default/matrix-0.2.0.gemspec
-%{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-pop-0.1.0.gemspec
-%{gem_dir}/specifications/default/net-smtp-0.1.0.gemspec
-%{gem_dir}/specifications/default/observer-0.1.0.gemspec
-%{gem_dir}/specifications/default/open3-0.1.0.gemspec
-%{gem_dir}/specifications/default/ostruct-0.2.0.gemspec
-%{gem_dir}/specifications/default/prime-0.1.1.gemspec
-%{gem_dir}/specifications/default/pstore-0.1.0.gemspec
+%{gem_dir}/specifications/default/logger-1.4.3.gemspec
+%{gem_dir}/specifications/default/matrix-0.3.1.gemspec
+%{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-ftp-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-http-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-imap-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-pop-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-protocol-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-smtp-0.2.1.gemspec
+%{gem_dir}/specifications/default/nkf-0.1.0.gemspec
+%{gem_dir}/specifications/default/observer-0.1.1.gemspec
+%{gem_dir}/specifications/default/open3-0.1.1.gemspec
+%{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
+%{gem_dir}/specifications/default/optparse-0.1.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.3.1.gemspec
+%{gem_dir}/specifications/default/pathname-0.1.0.gemspec
+%{gem_dir}/specifications/default/pp-0.1.0.gemspec
+%{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
+%{gem_dir}/specifications/default/prime-0.1.2.gemspec
+%{gem_dir}/specifications/default/pstore-0.1.1.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
-%{gem_dir}/specifications/default/readline-ext-0.1.0.gemspec
-%{gem_dir}/specifications/default/reline-0.1.5.gemspec
-%{gem_dir}/specifications/default/rexml-3.2.3.gemspec
-%{gem_dir}/specifications/default/rss-0.2.8.gemspec
-%{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
-%{gem_dir}/specifications/default/singleton-0.1.0.gemspec
-%{gem_dir}/specifications/default/stringio-0.1.0.gemspec
-%{gem_dir}/specifications/default/strscan-1.0.3.gemspec
-%{gem_dir}/specifications/default/timeout-0.1.0.gemspec
-%{gem_dir}/specifications/default/tracer-0.1.0.gemspec
-%{gem_dir}/specifications/default/uri-0.10.0.gemspec
-%{gem_dir}/specifications/default/webrick-1.6.0.gemspec
-%{gem_dir}/specifications/default/yaml-0.1.0.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
+%{gem_dir}/specifications/default/reline-0.2.0.gemspec
+%{gem_dir}/specifications/default/resolv-0.2.0.gemspec
+%{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
+%{gem_dir}/specifications/default/rinda-0.1.0.gemspec
+%{gem_dir}/specifications/default/securerandom-0.1.0.gemspec
+%{gem_dir}/specifications/default/set-1.0.1.gemspec
+%{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
+%{gem_dir}/specifications/default/singleton-0.1.1.gemspec
+%{gem_dir}/specifications/default/stringio-3.0.0.gemspec
+%{gem_dir}/specifications/default/strscan-3.0.0.gemspec
+%{gem_dir}/specifications/default/syslog-0.1.0.gemspec
+%{gem_dir}/specifications/default/tempfile-0.1.1.gemspec
+%{gem_dir}/specifications/default/time-0.1.0.gemspec
+%{gem_dir}/specifications/default/timeout-0.1.1.gemspec
+%{gem_dir}/specifications/default/tmpdir-0.1.1.gemspec
+%{gem_dir}/specifications/default/tsort-0.1.0.gemspec
+%{gem_dir}/specifications/default/tracer-0.1.1.gemspec
+%{gem_dir}/specifications/default/un-0.1.0.gemspec
+%{gem_dir}/specifications/default/uri-0.10.1.gemspec
+%{gem_dir}/specifications/default/weakref-0.1.1.gemspec
+#%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
+%{gem_dir}/specifications/default/yaml-0.1.1.gemspec
 %{gem_dir}/specifications/default/zlib-1.1.0.gemspec
 
+%{gem_dir}/gems/erb-%{erb_version}
 # Use standalone rubygem-racc if Racc binary is required. Shipping this
 # executable in both packages might possibly cause conflicts. The situation
 # could be better if Ruby generated these files:
 # https://github.com/ruby/ruby/pull/2545
 %exclude %{_bindir}/racc
-# These have wrong shebangs. Exclude them for now and let's see what upstream
-# thinks about them.
-# https://bugs.ruby-lang.org/issues/15982
-%exclude %{_bindir}/{racc2y,y2racc}
-%exclude %{gem_dir}/gems/racc-%{racc_version}/bin/{racc2y,y2racc}
-%{gem_dir}/gems/racc-%{racc_version}
+%exclude %{gem_dir}/gems/racc-%{racc_version}/bin
+
 
 %files -n rubygem-irb
 %{_bindir}/irb
@@ -1255,11 +1298,6 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
 %{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
 
-%files -n rubygem-net-telnet
-%{gem_dir}/gems/net-telnet-%{net_telnet_version}
-%exclude %{gem_dir}/gems/net-telnet-%{net_telnet_version}/.*
-%{gem_dir}/specifications/net-telnet-%{net_telnet_version}.gemspec
-
 %files -n rubygem-power_assert
 %{gem_dir}/gems/power_assert-%{power_assert_version}
 %exclude %{gem_dir}/gems/power_assert-%{power_assert_version}/.*
@@ -1271,24 +1309,81 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 %{gem_dir}/specifications/rake-%{rake_version}.gemspec
 %{_mandir}/man1/rake.1*
 
+%files -n rubygem-rbs
+%{_bindir}/rbs
+%dir %{gem_dir}/gems/rbs-%{rbs_version}
+%exclude %{gem_dir}/gems/rbs-%{rbs_version}/.*
+%license %{gem_dir}/gems/rbs-%{rbs_version}/BSDL
+%doc %{gem_dir}/gems/rbs-%{rbs_version}/CHANGELOG.md
+%license %{gem_dir}/gems/rbs-%{rbs_version}/COPYING
+%{gem_dir}/gems/rbs-%{rbs_version}/Gemfile
+%doc %{gem_dir}/gems/rbs-%{rbs_version}/README.md
+%{gem_dir}/gems/rbs-%{rbs_version}/Rakefile
+%{gem_dir}/gems/rbs-%{rbs_version}/Steepfile
+%{gem_dir}/gems/rbs-%{rbs_version}/bin
+%{gem_dir}/gems/rbs-%{rbs_version}/core
+%doc %{gem_dir}/gems/rbs-%{rbs_version}/docs
+%{gem_dir}/gems/rbs-%{rbs_version}/exe
+%{gem_dir}/gems/rbs-%{rbs_version}/goodcheck.yml
+%{gem_dir}/gems/rbs-%{rbs_version}/lib
+%{gem_dir}/gems/rbs-%{rbs_version}/schema
+%{gem_dir}/gems/rbs-%{rbs_version}/sig
+%{gem_dir}/gems/rbs-%{rbs_version}/stdlib
+%{gem_dir}/gems/rbs-%{rbs_version}/steep
+%{gem_dir}/specifications/rbs-%{rbs_version}.gemspec
+
 %files -n rubygem-test-unit
 %{gem_dir}/gems/test-unit-%{test_unit_version}
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
 
-%files -n rubygem-xmlrpc
-%license %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/LICENSE.txt
-%dir %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}
-%exclude %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/.*
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Gemfile
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/Rakefile
-%doc %{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/README.md
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/bin
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/lib
-%{gem_dir}/gems/xmlrpc-%{xmlrpc_version}/xmlrpc.gemspec
-%{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
+%files -n rubygem-rexml
+%dir %{gem_dir}/gems/rexml-%{rexml_version}
+%exclude %{gem_dir}/gems/rexml-%{rexml_version}/.*
+%license %{gem_dir}/gems/rexml-%{rexml_version}/LICENSE.txt
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/NEWS.md
+%{gem_dir}/gems/rexml-%{rexml_version}/lib
+%{gem_dir}/specifications/rexml-%{rexml_version}.gemspec
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/Gemfile
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/README.md
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/Rakefile
+
+%files -n rubygem-rss
+%dir %{gem_dir}/gems/rss-%{rss_version}
+%exclude %{gem_dir}/gems/rss-%{rss_version}/.*
+%license %{gem_dir}/gems/rss-%{rss_version}/LICENSE.txt
+%doc %{gem_dir}/gems/rss-%{rss_version}/NEWS.md
+%{gem_dir}/gems/rss-%{rss_version}/lib
+%{gem_dir}/specifications/rss-%{rss_version}.gemspec
+%doc %{gem_dir}/gems/rss-%{rss_version}/Gemfile
+%doc %{gem_dir}/gems/rss-%{rss_version}/README.md
+%doc %{gem_dir}/gems/rss-%{rss_version}/Rakefile
+%doc %{gem_dir}/gems/rss-%{rss_version}/test
+
+%files -n rubygem-typeprof
+%dir %{gem_dir}/gems/typeprof-%{typeprof_version}
+%{_bindir}/typeprof
+%exclude %{gem_dir}/gems/typeprof-%{typeprof_version}/.*
+%license %{gem_dir}/gems/typeprof-%{typeprof_version}/LICENSE
+%{gem_dir}/gems/typeprof-%{typeprof_version}/exe
+%{gem_dir}/gems/typeprof-%{typeprof_version}/lib
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/smoke
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/tools
+%{gem_dir}/specifications/typeprof-%{typeprof_version}.gemspec
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/Gemfile*
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/README.md
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/Rakefile
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc
+%lang(ja) %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc/doc.ja.md
+%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/testbed
 
 
 %changelog
+* Mon Jan 04 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-138
+- Upgrade to Ruby 3.0.0.
+- Extract RSS and REXML into separate subpackages, because they were moved from
+  default gems to bundled gems.
+- Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
+
 * Tue Dec 15 16:26:46 CET 2020 Pavel Valena <pvalena@redhat.com> - 2.7.2-137
 - Add Recommends: redhat-rpm-config to devel subpackage.
   Resolves: rhbz#1905222
@@ -1305,6 +1400,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 * Mon Jul 27 2020 Vít Ondruch <vondruch@redhat.com> - 2.7.1-133
 - Disable LTO, which appear to cause issues with SIGSEV handler.
 - Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
+
+* Tue Jul 14 2020 Tom Stellard <tstellar@redhat.com> - 2.7.1-133
+- Use make macros
+- https://fedoraproject.org/wiki/Changes/UseMakeBuildInstallMacro
 
 * Wed Jun 24 2020 Jun Aruga <jaruga@redhat.com> - 2.7.1-132
 - Add ruby-default-gems dependency on irb.
