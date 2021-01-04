@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 1
+%global release 138
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -874,9 +874,7 @@ touch abrt.rb
 make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 
 # Check if systemtap is supported.
-# Disable temporary:
-# https://bugs.ruby-lang.org/issues/16658
-#%%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
+%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
 
 DISABLE_TESTS=""
 MSPECOPTS=""
@@ -1374,8 +1372,8 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
-* Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-1
-- Upgrade to Ruby 3.0.0 (684649ea05).
+* Wed Oct 07 2020 Vít Ondruch <vondruch@redhat.com> - 3.0.0-138
+- Upgrade to Ruby 3.0.0.
 - Extract RSS and REXML into separate subpackages, because they were moved from
   default gems to bundled gems.
 - Obsolete Net::Telnet and XMLRPC packages, because they were dropped from Ruby.
