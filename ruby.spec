@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 138
+%global release 139
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1132,6 +1132,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %dir %{gem_dir}/doc
 %dir %{gem_dir}/extensions
 %dir %{gem_dir}/gems
+%dir %{gem_dir}/plugins
 %dir %{gem_dir}/specifications
 %dir %{gem_dir}/specifications/default
 %dir %{_exec_prefix}/lib*/gems
@@ -1378,6 +1379,9 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
+* Wed Jan  6 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-139
+- Add support for reworked RubyGems plugins.
+
 * Mon Jan 04 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-138
 - Upgrade to Ruby 3.0.0.
 - Extract RSS and REXML into separate subpackages, because they were moved from
