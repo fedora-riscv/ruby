@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 140
+%global release 141
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -280,6 +280,8 @@ Macros and development tools for packaging RubyGems.
 Summary:    Default gems which are part of Ruby StdLib.
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Supplements: ruby(rubygems)
+# Include the io-console dependency for reline.
+Requires:   rubygem(io-console)
 # Obsoleted by Ruby 2.7 in F32 timeframe.
 Obsoletes: rubygem-did_you_mean < 1.4.0-130
 Obsoletes: rubygem-racc < 1.4.16-130
@@ -1383,6 +1385,9 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
+* Fri Jan  8 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-141
+- ruby-default-gems have to depend on rubygem(io-console) due to reline.
+
 * Fri Jan  8 14:25:51 CET 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-140
 - Fix SEGFAULT preventing rubygem-unicode to build on armv7hl.
 
