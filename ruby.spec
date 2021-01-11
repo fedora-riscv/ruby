@@ -1388,7 +1388,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 * Fri Jan  8 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-141
 - ruby-default-gems have to depend on rubygem(io-console) due to reline.
 
-* Fri Jan  8 14:25:51 CET 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-140
+* Fri Jan  8 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-140
 - Fix SEGFAULT preventing rubygem-unicode to build on armv7hl.
 
 * Wed Jan  6 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-139
