@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 141
+%global release 142
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -898,10 +898,10 @@ MSPECOPTS=""
 # https://bugs.ruby-lang.org/issues/17338
 MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is not a Module'"
 
-#%# Give an option to increase the timeout in tests.
-#%# https://bugs.ruby-lang.org/issues/16921
-#%%{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
-#%  make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
+# Give an option to increase the timeout in tests.
+# https://bugs.ruby-lang.org/issues/16921
+%{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
+  make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
 %files
 %license BSDL
@@ -1385,6 +1385,9 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
+* Mon Jan 11 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-142
+- Re-enable test suite.
+
 * Fri Jan  8 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-141
 - ruby-default-gems have to depend on rubygem(io-console) due to reline.
 
