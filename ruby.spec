@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 142
+%global release 143
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -722,6 +722,7 @@ mkdir -p %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal
 mv %{buildroot}%{ruby_libdir}/bigdecimal %{buildroot}%{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/bigdecimal.so %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}
+touch %{buildroot}%{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/gem.build_complete
 mv %{buildroot}%{gem_dir}/specifications/default/bigdecimal-%{bigdecimal_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/bigdecimal-%{bigdecimal_version}/lib/bigdecimal %{buildroot}%{ruby_libdir}/bigdecimal
 ln -s %{_libdir}/gems/%{name}/bigdecimal-%{bigdecimal_version}/bigdecimal.so %{buildroot}%{ruby_libarchdir}/bigdecimal.so
@@ -737,6 +738,7 @@ mkdir -p %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/io
 mv %{buildroot}%{ruby_libdir}/io %{buildroot}%{gem_dir}/gems/io-console-%{io_console_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/io/console.so %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/io
+touch %{buildroot}%{_libdir}/gems/%{name}/io-console-%{io_console_version}/gem.build_complete
 mv %{buildroot}%{gem_dir}/specifications/default/io-console-%{io_console_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/io-console-%{io_console_version}/lib/io %{buildroot}%{ruby_libdir}/io
 ln -s %{_libdir}/gems/%{name}/io-console-%{io_console_version}/io/console.so %{buildroot}%{ruby_libarchdir}/io/console.so
@@ -745,6 +747,7 @@ mkdir -p %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/json-%{json_version}
 mv %{buildroot}%{ruby_libdir}/json* %{buildroot}%{gem_dir}/gems/json-%{json_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/json/ %{buildroot}%{_libdir}/gems/%{name}/json-%{json_version}/
+touch %{buildroot}%{_libdir}/gems/%{name}/json-%{json_version}/gem.build_complete
 mv %{buildroot}%{gem_dir}/specifications/default/json-%{json_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/json-%{json_version}/lib/json.rb %{buildroot}%{ruby_libdir}/json.rb
 ln -s %{gem_dir}/gems/json-%{json_version}/lib/json %{buildroot}%{ruby_libdir}/json
@@ -754,6 +757,7 @@ mkdir -p %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}
 mv %{buildroot}%{ruby_libdir}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/openssl.so %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}/
+touch %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}/gem.build_complete
 mv %{buildroot}%{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
 # This used to be directory when OpenSSL was integral part of StdLib => Keep
 # it as directory and link everything in it to prevent directory => symlink
@@ -768,6 +772,7 @@ mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}
 mv %{buildroot}%{ruby_libdir}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mv %{buildroot}%{ruby_libarchdir}/psych.so %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}/
+touch %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}/gem.build_complete
 mv %{buildroot}%{gem_dir}/specifications/default/psych-%{psych_version}.gemspec %{buildroot}%{gem_dir}/specifications
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych %{buildroot}%{ruby_libdir}/psych
 ln -s %{gem_dir}/gems/psych-%{psych_version}/lib/psych.rb %{buildroot}%{ruby_libdir}/psych.rb
@@ -1385,6 +1390,9 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
+* Tue Jan 12 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-143
+- Provide `gem.build_complete` file for binary gems.
+
 * Mon Jan 11 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-142
 - Re-enable test suite.
 
