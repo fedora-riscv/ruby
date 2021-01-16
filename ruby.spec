@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 143
+%global release 144
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -149,6 +149,10 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Fix SEGFAULT preventing rubygem-unicode to build on armv7hl.
 # https://bugs.ruby-lang.org/issues/17518
 Patch10: ruby-3.0.0-Fixed-dangling-imemo_tmpbuf.patch
+# Fix SEGFAULT in rubygem-shoulda-matchers test suite.
+# https://bugs.ruby-lang.org/issues/17536
+# https://github.com/ruby/ruby/pull/4077
+Patch11: ruby-3.0.0-Dont-try-to-clear-cache-on-garbage-objects.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -609,6 +613,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1390,6 +1395,9 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
+* Sat Jan 16 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-144
+- Fix SEGFAULT in rubygem-shoulda-matchers test suite.
+
 * Tue Jan 12 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-143
 - Provide `gem.build_complete` file for binary gems.
 
