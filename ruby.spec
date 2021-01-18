@@ -93,7 +93,7 @@ Release: %{release_string}
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
 # UCD: some of enc/trans/**/*.src
 License: (Ruby or BSD) and Public Domain and MIT and CC0 and zlib and UCD
-URL: http://ruby-lang.org/
+URL: https://www.ruby-lang.org/
 Source0: https://cache.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
 Source1: operating_system.rb
 # TODO: Try to push SystemTap support upstream.
@@ -579,8 +579,8 @@ to read and create these feeds.
 
 
 %package -n rubygem-typeprof
-Version:    %{typeprof_version}
 Summary:    TypeProf is a type analysis tool for Ruby code based on abstract interpretation
+Version:    %{typeprof_version}
 License:    MIT
 URL:        https://github.com/ruby/typeprof
 Requires:   ruby(release)
@@ -1243,7 +1243,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 # https://github.com/ruby/ruby/pull/2545
 %exclude %{_bindir}/racc
 %exclude %{gem_dir}/gems/racc-%{racc_version}/bin
-
 
 %files -n rubygem-irb
 %{_bindir}/irb
