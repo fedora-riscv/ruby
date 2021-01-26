@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 144
+%global release 145
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -161,7 +161,6 @@ Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
 Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
-Recommends: rubygem(openssl) >= %{openssl_version}
 
 BuildRequires: autoconf
 BuildRequires: gdbm-devel
@@ -223,6 +222,7 @@ Provides: bundled(ccan-list)
 
 # StdLib default gems.
 Provides: bundled(rubygem-did_you_mean) = %{did_you_mean_version}
+Provides: bundled(rubygem-openssl) = %{openssl_version}
 Provides: bundled(rubygem-racc) = %{racc_version}
 
 # Tcl/Tk support was removed from stdlib in Ruby 2.4, i.e. F27 timeframe.
@@ -248,7 +248,6 @@ Requires:   ruby(release)
 Recommends: rubygem(bundler) >= %{bundler_version}
 Recommends: rubygem(rdoc) >= %{rdoc_version}
 Recommends: rubygem(io-console) >= %{io_console_version}
-Requires:   rubygem(openssl) >= %{openssl_version}
 Requires:   rubygem(psych) >= %{psych_version}
 Provides:   gem = %{version}-%{release}
 Provides:   ruby(rubygems) = %{version}-%{release}
@@ -289,6 +288,9 @@ Requires:   rubygem(io-console)
 # Obsoleted by Ruby 2.7 in F32 timeframe.
 Obsoletes: rubygem-did_you_mean < 1.4.0-130
 Obsoletes: rubygem-racc < 1.4.16-130
+# Obsoleted by Ruby 3.0 in F34 timeframe.
+Obsoletes: rubygem-openssl < 2.2.0-145
+Provides: rubygem(openssl) = %{openssl_version}-%{release}
 BuildArch:  noarch
 
 %description default-gems
@@ -394,19 +396,6 @@ This is a implementation of the JSON specification according to RFC 4627.
 You can think of it as a low fat alternative to XML, if you want to store
 data to disk or transmit it over a network rather than use a verbose
 markup language.
-
-
-%package -n rubygem-openssl
-Summary:    OpenSSL provides SSL, TLS and general purpose cryptography
-Version:    %{openssl_version}
-License:    Ruby or BSD
-Requires:   ruby(release)
-Requires:   ruby(rubygems) >= %{rubygems_version}
-Provides:   rubygem(openssl) = %{version}-%{release}
-
-%description -n rubygem-openssl
-OpenSSL provides SSL, TLS and general purpose cryptography. It wraps the
-OpenSSL library.
 
 
 %package -n rubygem-psych
@@ -758,21 +747,6 @@ ln -s %{gem_dir}/gems/json-%{json_version}/lib/json.rb %{buildroot}%{ruby_libdir
 ln -s %{gem_dir}/gems/json-%{json_version}/lib/json %{buildroot}%{ruby_libdir}/json
 ln -s %{_libdir}/gems/%{name}/json-%{json_version}/json/ %{buildroot}%{ruby_libarchdir}/json
 
-mkdir -p %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
-mkdir -p %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}
-mv %{buildroot}%{ruby_libdir}/openssl* %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib
-mv %{buildroot}%{ruby_libarchdir}/openssl.so %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}/
-touch %{buildroot}%{_libdir}/gems/%{name}/openssl-%{openssl_version}/gem.build_complete
-mv %{buildroot}%{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec %{buildroot}%{gem_dir}/specifications
-# This used to be directory when OpenSSL was integral part of StdLib => Keep
-# it as directory and link everything in it to prevent directory => symlink
-# conversion RPM issues.
-mkdir -p %{buildroot}%{ruby_libdir}/openssl
-find %{buildroot}%{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl -maxdepth 1 -type f -exec \
-  sh -c 'ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl/`basename {}` %{buildroot}%{ruby_libdir}/openssl' \;
-ln -s %{gem_dir}/gems/openssl-%{openssl_version}/lib/openssl.rb %{buildroot}%{ruby_libdir}/openssl.rb
-ln -s %{_libdir}/gems/%{name}/openssl-%{openssl_version}/openssl.so %{buildroot}%{ruby_libarchdir}/openssl.so
-
 mkdir -p %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
 mkdir -p %{buildroot}%{_libdir}/gems/%{name}/psych-%{psych_version}
 mv %{buildroot}%{ruby_libdir}/psych* %{buildroot}%{gem_dir}/gems/psych-%{psych_version}/lib
@@ -957,7 +931,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %exclude %{ruby_libdir}/bigdecimal*
 %exclude %{ruby_libdir}/irb*
 %exclude %{ruby_libdir}/json*
-%exclude %{ruby_libdir}/openssl*
 %exclude %{ruby_libdir}/psych*
 %{ruby_libdir}/abbrev.rb
 %{ruby_libdir}/base64.rb
@@ -1128,6 +1101,8 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 # Default gems
 %{ruby_libdir}/did_you_mean*
+%{ruby_libdir}/openssl*
+%{ruby_libarchdir}/openssl.so
 %{ruby_libdir}/racc*
 %dir %{ruby_libarchdir}/racc
 %{ruby_libarchdir}/racc/cparse.so
@@ -1203,6 +1178,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{gem_dir}/specifications/default/open3-0.1.1.gemspec
 %{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.1.0.gemspec
+%{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
 %{gem_dir}/specifications/default/ostruct-0.3.1.gemspec
 %{gem_dir}/specifications/default/pathname-0.1.0.gemspec
 %{gem_dir}/specifications/default/pp-0.1.0.gemspec
@@ -1284,14 +1260,6 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %{_libdir}/gems/%{name}/json-%{json_version}
 %{gem_dir}/gems/json-%{json_version}
 %{gem_dir}/specifications/json-%{json_version}.gemspec
-
-%files -n rubygem-openssl
-%{ruby_libdir}/openssl
-%{ruby_libdir}/openssl.rb
-%{ruby_libarchdir}/openssl.so
-%{_libdir}/gems/%{name}/openssl-%{openssl_version}
-%{gem_dir}/gems/openssl-%{openssl_version}
-%{gem_dir}/specifications/openssl-%{openssl_version}.gemspec
 
 %files -n rubygem-psych
 %{ruby_libdir}/psych
@@ -1394,6 +1362,9 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 
 
 %changelog
+* Mon Jan 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-145
+- Bundle OpenSSL into StdLib.
+
 * Sat Jan 16 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-144
 - Fix SEGFAULT in rubygem-shoulda-matchers test suite.
 
