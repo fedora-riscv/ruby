@@ -422,7 +422,7 @@ Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   rubygem(io-console)
 Provides:   rubygem(bundler) = %{version}-%{release}
 # https://github.com/bundler/bundler/issues/3647
-Provides:   bundled(connection_pool) = %{bundler_connection_pool_version}
+Provides:   bundled(rubygem-connection_pool) = %{bundler_connection_pool_version}
 Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
 Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
 Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
