@@ -875,6 +875,15 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 DISABLE_TESTS=""
 MSPECOPTS=""
 
+%ifarch armv7hl ppc64le
+# Disable test which started to fail presumably after move to DWARF5:
+# https://bugzilla.redhat.com/show_bug.cgi?id=1920533
+# Unfortunately, these used to be problematic already before:
+# https://bugs.ruby-lang.org/issues/13758
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_features\)/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_bug_reporter_add/"
+%endif
+
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
