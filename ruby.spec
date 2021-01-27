@@ -153,6 +153,9 @@ Patch10: ruby-3.0.0-Fixed-dangling-imemo_tmpbuf.patch
 # https://bugs.ruby-lang.org/issues/17536
 # https://github.com/ruby/ruby/pull/4077
 Patch11: ruby-3.0.0-Dont-try-to-clear-cache-on-garbage-objects.patch
+# Use proper path for plugin wrappers.
+# https://github.com/rubygems/rubygems/pull/4317
+Patch12: rubygems-3.2.7-Generate-plugin-wrappers-with-relative-requires.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -603,6 +606,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1373,6 +1377,7 @@ MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is no
 %changelog
 * Mon Jan 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-145
 - Bundle OpenSSL into StdLib.
+- Use proper path for plugin wrappers.
 
 * Sat Jan 16 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-144
 - Fix SEGFAULT in rubygem-shoulda-matchers test suite.
