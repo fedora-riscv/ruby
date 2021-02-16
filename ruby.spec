@@ -156,6 +156,9 @@ Patch11: ruby-3.0.0-Dont-try-to-clear-cache-on-garbage-objects.patch
 # Use proper path for plugin wrappers.
 # https://github.com/rubygems/rubygems/pull/4317
 Patch12: rubygems-3.2.7-Generate-plugin-wrappers-with-relative-requires.patch
+# Avoid ruby-spec to be stuck in "C-API Kernel function rb_rescue2".
+# https://bugs.ruby-lang.org/issues/17338
+Patch13: ruby-3.0.0-va_list-args-in-rb_vrescue2-is-reused.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -607,6 +610,7 @@ rm -rf ext/fiddle/libffi*
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -890,10 +894,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_bug_reporter_add/"
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
-
-# The test suite gets stuck in 'C-API Kernel function rb_rescue2'.
-# https://bugs.ruby-lang.org/issues/17338
-MSPECOPTS="$MSPECOPTS -P 'raises TypeError if one of the passed exceptions is not a Module'"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921

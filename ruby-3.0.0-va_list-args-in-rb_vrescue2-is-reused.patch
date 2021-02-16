@@ -1,0 +1,65 @@
+From 85310ad82ede533681c4f8a423cc8f140e6adf76 Mon Sep 17 00:00:00 2001
+From: Nobuyoshi Nakada <nobu@ruby-lang.org>
+Date: Tue, 9 Feb 2021 10:08:30 +0900
+Subject: [PATCH 1/2] Also `eclass` loop can raise in `rb_obj_is_kind_of`
+
+---
+ eval.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/eval.c b/eval.c
+index 56d7c2b81c93..2c9e375e2545 100644
+--- a/eval.c
++++ b/eval.c
+@@ -1034,6 +1034,7 @@ rb_vrescue2(VALUE (* b_proc) (VALUE), VALUE data1,
+ 	    int handle = FALSE;
+ 	    VALUE eclass;
+ 
++	    result = Qnil;
+ 	    while ((eclass = va_arg(args, VALUE)) != 0) {
+ 		if (rb_obj_is_kind_of(ec->errinfo, eclass)) {
+ 		    handle = TRUE;
+@@ -1042,7 +1043,6 @@ rb_vrescue2(VALUE (* b_proc) (VALUE), VALUE data1,
+ 	    }
+ 
+ 	    if (handle) {
+-		result = Qnil;
+ 		state = 0;
+ 		if (r_proc) {
+ 		    result = (*r_proc) (data2, ec->errinfo);
+
+From 601d38efa21dbed0084629d909752e52e3d6092d Mon Sep 17 00:00:00 2001
+From: Nobuyoshi Nakada <nobu@ruby-lang.org>
+Date: Tue, 9 Feb 2021 00:42:12 +0900
+Subject: [PATCH 2/2] Copy va_list of exception classes
+
+The list is reused when an exception raised again after retrying
+in the rescue procedure.
+---
+ eval.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/eval.c b/eval.c
+index 2c9e375e2545..55d66b550854 100644
+--- a/eval.c
++++ b/eval.c
+@@ -1033,14 +1033,18 @@ rb_vrescue2(VALUE (* b_proc) (VALUE), VALUE data1,
+ 	if (state == TAG_RAISE) {
+ 	    int handle = FALSE;
+ 	    VALUE eclass;
++	    va_list ap;
+ 
+ 	    result = Qnil;
+-	    while ((eclass = va_arg(args, VALUE)) != 0) {
++	    /* reuses args when raised again after retrying in r_proc */
++	    va_copy(ap, args);
++	    while ((eclass = va_arg(ap, VALUE)) != 0) {
+ 		if (rb_obj_is_kind_of(ec->errinfo, eclass)) {
+ 		    handle = TRUE;
+ 		    break;
+ 		}
+ 	    }
++	    va_end(ap);
+ 
+ 	    if (handle) {
+ 		state = 0;
