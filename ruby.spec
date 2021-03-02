@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 145
+%global release 146
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -159,6 +159,9 @@ Patch12: rubygems-3.2.7-Generate-plugin-wrappers-with-relative-requires.patch
 # Avoid ruby-spec to be stuck in "C-API Kernel function rb_rescue2".
 # https://bugs.ruby-lang.org/issues/17338
 Patch13: ruby-3.0.0-va_list-args-in-rb_vrescue2-is-reused.patch
+# Fix flaky excon test suite.
+# https://bugs.ruby-lang.org/issues/17653
+Patch14: ruby-3.0.0-Do-not-allocate-ractor-local-storage-in-dfree-function-during-GC.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -611,6 +614,7 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch12 -p1
 %patch13 -p1
+%patch14 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1375,6 +1379,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_bug_reporter_add/"
 
 
 %changelog
+* Tue Mar 02 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-146
+- Fix flaky excon test suite.
+
 * Mon Jan 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-145
 - Bundle OpenSSL into StdLib.
 - Use proper path for plugin wrappers.
