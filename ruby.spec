@@ -153,6 +153,10 @@ Patch10: ruby-2.7.0-Remove-RubyGems-dependency.patch
 # Prevent issues with openssl loading when RubyGems are disabled.
 # https://github.com/ruby/openssl/pull/242
 Patch13: ruby-2.8.0-remove-unneeded-gem-require-for-ipaddr.patch
+# Fix DWARF5 support.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1920533
+# https://bugs.ruby-lang.org/issues/17585
+Patch15: ruby-dwarf5-avoid_crash-r1.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -570,6 +574,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch10 -p1
 %patch13 -p1
+%patch15 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1272,6 +1277,10 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 
 
 %changelog
+* Tue Jun 15 2021 Jarek Prokop <jprokop@redhat.com> - 2.7.3-138
+- Properly support DWARF5 debug information.
+  Resolves: rhbz#1920533
+
 * Wed Apr 07 2021 Pavel Valena <pvalena@redhat.com> - 2.7.3-138
 - Upgrade to Ruby 2.7.3.
 
