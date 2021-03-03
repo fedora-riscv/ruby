@@ -162,6 +162,10 @@ Patch13: ruby-3.0.0-va_list-args-in-rb_vrescue2-is-reused.patch
 # Fix flaky excon test suite.
 # https://bugs.ruby-lang.org/issues/17653
 Patch14: ruby-3.0.0-Do-not-allocate-ractor-local-storage-in-dfree-function-during-GC.patch
+# Fix DWARF5 support.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1920533
+# https://bugs.ruby-lang.org/issues/17585
+Patch15: ruby-dwarf5-avoid_crash-r1.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -615,6 +619,7 @@ rm -rf ext/fiddle/libffi*
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -886,15 +891,6 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 
 DISABLE_TESTS=""
 MSPECOPTS=""
-
-%ifarch armv7hl ppc64le
-# Disable test which started to fail presumably after move to DWARF5:
-# https://bugzilla.redhat.com/show_bug.cgi?id=1920533
-# Unfortunately, these used to be problematic already before:
-# https://bugs.ruby-lang.org/issues/13758
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_segv_\(setproctitle\|test\|loaded_features\)/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_bug_reporter_add/"
-%endif
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
@@ -1381,6 +1377,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/test_bug_reporter_add/"
 %changelog
 * Tue Mar 02 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-146
 - Fix flaky excon test suite.
+- Properly support DWARF5 debug information.
+  Resolves: rhbz#1920533
 
 * Mon Jan 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-145
 - Bundle OpenSSL into StdLib.
