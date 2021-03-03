@@ -150,6 +150,10 @@ Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.pat
 # Fix compatibility with libyaml 0.2.5
 # https://bugs.ruby-lang.org/issues/16949
 Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
+# Fix DWARF5 support.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1920533
+# https://bugs.ruby-lang.org/issues/17585
+Patch15: ruby-dwarf5-avoid_crash-r1.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -553,6 +557,7 @@ rm -rf ext/fiddle/libffi*
 %patch11 -p1
 %patch12 -p1
 %patch14 -p1
+%patch15 -p1
 %patch19 -p1
 %patch22 -p1
 %patch41 -p1
@@ -1211,6 +1216,8 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %changelog
 * Wed Jul 07 2021 Jun Aruga <jaruga@redhat.com> - 2.6.6-127
 - Fix FTBFS due to incompatible load directive.
+- Properly support DWARF5 debug information.
+  Resolves: rhbz#1920533
 
 * Thu Aug 06 2020 Jun Aruga <jaruga@redhat.com> - 2.6.6-126
 - Fix FTBFS due to libyaml 0.2.5.
