@@ -293,7 +293,7 @@ Macros and development tools for packaging RubyGems.
 # with disabled RubyGems.
 
 %package default-gems
-Summary:    Default gems which are part of Ruby StdLib.
+Summary:    Default gems which are part of Ruby StdLib
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Supplements: ruby(rubygems)
 # Include the io-console dependency for reline.
