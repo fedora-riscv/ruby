@@ -3,3 +3,9 @@
 # There is no way to implement this with `%{SOURCE0}` without `%{_sourcedir}`.
 # The order in the .spec file could be possibly different.
 addFilter(r'^ruby\.(spec|src):20: E: use-of-RPM_SOURCE_DIR$')
+
+# The used version is not obvious.
+addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-build_assert\)$')
+addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-check_type\)$')
+addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-container_of\)$')
+addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-list\)$')
