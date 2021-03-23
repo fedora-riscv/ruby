@@ -1,1 +1,5 @@
 # Keep matching patterns enough not to hide unintended errors and warnings.
+
+# There is no way to implement this with `%{SOURCE0}` without `%{_sourcedir}`.
+# The order in the .spec file could be possibly different.
+addFilter(r'^ruby\.(spec|src):20: E: use-of-RPM_SOURCE_DIR$')
