@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 146
+%global release 147
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -339,7 +339,6 @@ Version:    %{rdoc_version}
 License:    GPLv2 and Ruby and MIT and OFL
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
-Requires:   rubygem(irb) >= %{irb_version}
 Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(json) >= %{json_version}
 Provides:   rdoc = %{version}-%{release}
@@ -1375,6 +1374,9 @@ MSPECOPTS=""
 
 
 %changelog
+* Thu Apr 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-147
+- Remove IRB dependency from rubygem-rdoc.
+
 * Tue Mar 02 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-146
 - Fix flaky excon test suite.
 - Properly support DWARF5 debug information.
