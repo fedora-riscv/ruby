@@ -1,6 +1,6 @@
 %global major_version 3
 %global minor_version 0
-%global teeny_version 0
+%global teeny_version 1
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 147
+%global release 148
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,24 +30,24 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.3
+%global rubygems_version 3.2.15
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.3
+%global bundler_version 2.2.15
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
 %global bundler_net_http_persistent_version 4.0.0
-%global bundler_thor_version 1.0.1
+%global bundler_thor_version 1.1.0
 %global bundler_tmpdir_version 0.1.0
 %global bundler_uri_version 0.10.0
 
 %global bigdecimal_version 3.0.0
 %global did_you_mean_version 1.5.0
 %global erb_version 2.2.0
-%global io_console_version 0.5.6
-%global irb_version 1.3.0
+%global io_console_version 0.5.7
+%global irb_version 1.3.5
 %global json_version 2.5.1
 %global openssl_version 2.2.0
 %global psych_version 3.3.0
@@ -58,11 +58,11 @@
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.3
-%global rbs_version 1.0.0
+%global rbs_version 1.0.4
 %global test_unit_version 3.3.7
-%global rexml_version 3.2.4
+%global rexml_version 3.2.5
 %global rss_version 0.2.9
-%global typeprof_version 0.11.0
+%global typeprof_version 0.12.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -146,22 +146,6 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Fix SEGFAULT preventing rubygem-unicode to build on armv7hl.
-# https://bugs.ruby-lang.org/issues/17518
-Patch10: ruby-3.0.0-Fixed-dangling-imemo_tmpbuf.patch
-# Fix SEGFAULT in rubygem-shoulda-matchers test suite.
-# https://bugs.ruby-lang.org/issues/17536
-# https://github.com/ruby/ruby/pull/4077
-Patch11: ruby-3.0.0-Dont-try-to-clear-cache-on-garbage-objects.patch
-# Use proper path for plugin wrappers.
-# https://github.com/rubygems/rubygems/pull/4317
-Patch12: rubygems-3.2.7-Generate-plugin-wrappers-with-relative-requires.patch
-# Avoid ruby-spec to be stuck in "C-API Kernel function rb_rescue2".
-# https://bugs.ruby-lang.org/issues/17338
-Patch13: ruby-3.0.0-va_list-args-in-rb_vrescue2-is-reused.patch
-# Fix flaky excon test suite.
-# https://bugs.ruby-lang.org/issues/17653
-Patch14: ruby-3.0.0-Do-not-allocate-ractor-local-storage-in-dfree-function-during-GC.patch
 # Fix DWARF5 support.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1920533
 # https://bugs.ruby-lang.org/issues/17585
@@ -613,11 +597,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
 %patch15 -p1
 %patch19 -p1
 
@@ -780,7 +759,11 @@ find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdep
   || echo "No gem binary extensions to move."
 
 # Move man pages into proper location
+mkdir -p %{buildroot}%{_mandir}/man{1,5}
 mv %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/doc/rake.1 %{buildroot}%{_mandir}/man1
+# https://bugs.ruby-lang.org/issues/17778
+cp -a %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/man/*.1 %{buildroot}%{_mandir}/man1
+cp -a %{buildroot}%{gem_dir}/gems/bundler-%{bundler_version}/lib/bundler/man/*.5 %{buildroot}%{_mandir}/man5
 
 %if %{with systemtap}
 # Install a tapset and fix up the path to the library.
@@ -1200,7 +1183,7 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
-%{gem_dir}/specifications/default/reline-0.2.0.gemspec
+%{gem_dir}/specifications/default/reline-0.2.5.gemspec
 %{gem_dir}/specifications/default/resolv-0.2.0.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.0.gemspec
@@ -1214,7 +1197,7 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/tempfile-0.1.1.gemspec
 %{gem_dir}/specifications/default/time-0.1.0.gemspec
 %{gem_dir}/specifications/default/timeout-0.1.1.gemspec
-%{gem_dir}/specifications/default/tmpdir-0.1.1.gemspec
+%{gem_dir}/specifications/default/tmpdir-0.1.2.gemspec
 %{gem_dir}/specifications/default/tsort-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.1.gemspec
 %{gem_dir}/specifications/default/un-0.1.0.gemspec
@@ -1334,14 +1317,12 @@ MSPECOPTS=""
 
 %files -n rubygem-rexml
 %dir %{gem_dir}/gems/rexml-%{rexml_version}
-%exclude %{gem_dir}/gems/rexml-%{rexml_version}/.*
 %license %{gem_dir}/gems/rexml-%{rexml_version}/LICENSE.txt
 %doc %{gem_dir}/gems/rexml-%{rexml_version}/NEWS.md
+%doc %{gem_dir}/gems/rexml-%{rexml_version}/doc
 %{gem_dir}/gems/rexml-%{rexml_version}/lib
 %{gem_dir}/specifications/rexml-%{rexml_version}.gemspec
-%doc %{gem_dir}/gems/rexml-%{rexml_version}/Gemfile
 %doc %{gem_dir}/gems/rexml-%{rexml_version}/README.md
-%doc %{gem_dir}/gems/rexml-%{rexml_version}/Rakefile
 
 %files -n rubygem-rss
 %dir %{gem_dir}/gems/rss-%{rss_version}
@@ -1374,6 +1355,9 @@ MSPECOPTS=""
 
 
 %changelog
+* Tue Apr 06 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.1-148
+- Upgrade to Ruby 3.0.1.
+
 * Thu Apr 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.0-147
 - Remove IRB dependency from rubygem-rdoc.
 
