@@ -114,8 +114,8 @@ Source14: test_systemtap.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
-%{?load:%{SOURCE4}}
-%{?load:%{SOURCE5}}
+%{load:%{SOURCE4}}
+%{load:%{SOURCE5}}
 
 # Fix ruby_version abuse.
 # https://bugs.ruby-lang.org/issues/11002
@@ -1280,6 +1280,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 * Tue Jun 15 2021 Jarek Prokop <jprokop@redhat.com> - 2.7.3-138
 - Properly support DWARF5 debug information.
   Resolves: rhbz#1920533
+- Fix FTBFS due to incompatible load directive.
 
 * Wed Apr 07 2021 Pavel Valena <pvalena@redhat.com> - 2.7.3-138
 - Upgrade to Ruby 2.7.3.
