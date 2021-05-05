@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 107
+%global release 108
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -106,8 +106,8 @@ Source14: test_systemtap.rb
 
 # The load directive is supported since RPM 4.12, i.e. F21+. The build process
 # fails on older Fedoras.
-%{?load:%{SOURCE4}}
-%{?load:%{SOURCE5}}
+%{load:%{SOURCE4}}
+%{load:%{SOURCE5}}
 
 # Fix ruby_version abuse.
 # https://bugs.ruby-lang.org/issues/11002
@@ -1131,6 +1131,9 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{gem_dir}/specifications/xmlrpc-%{xmlrpc_version}.gemspec
 
 %changelog
+* Wed Jul 07 2021 Jun Aruga <jaruga@redhat.com> - 2.5.8-108
+- Fix FTBFS due to incompatible load directive.
+
 * Mon Oct 26 2020 Jun Aruga <jaruga@redhat.com> - 2.5.8-107
 - Update to Ruby 2.5.8.
 
