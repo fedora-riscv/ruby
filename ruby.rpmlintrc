@@ -50,3 +50,7 @@ addFilter(r'^rubygem-test-unit\.noarch: E: non-executable-script /usr/share/gems
 # out of the chroot by using fchdir. While that's not always a security issue,
 # this has to be checked.
 addFilter(r'^ruby-libs\.\w+: E: missing-call-to-chdir-with-chroot /usr/lib(64)?/libruby.so.[\d/.]+$')
+
+# Nothing referred and no dependency information should be no problem.
+# https://bugs.ruby-lang.org/issues/16558#note-2
+addFilter(r'^ruby-libs\.\w+: E: shared-lib-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
