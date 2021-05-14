@@ -9,3 +9,6 @@ addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(cca
 addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-check_type\)$')
 addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-container_of\)$')
 addFilter(r'^ruby\.(spec|src):\d+: W: unversioned-explicit-provides bundled\(ccan-list\)$')
+
+# The template files do not have to have executable bits.
+addFilter(r'^rubygem-bundler\.noarch: E: non-executable-script /usr/share/gems/gems/bundler-[\d\.]+/lib/bundler/templates/[\w/\.]+ 644 /usr/bin/env ')
