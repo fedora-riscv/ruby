@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 148
+%global release 149
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1355,6 +1355,9 @@ MSPECOPTS=""
 
 
 %changelog
+* Mon May 17 2021 Timm Bäder <tbaeder@redhat.com> - 3.0.1-149
+- Pass ldflags to gem install via CONFIGURE_ARGS
+
 * Tue Apr 06 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.1-148
 - Upgrade to Ruby 3.0.1.
 
