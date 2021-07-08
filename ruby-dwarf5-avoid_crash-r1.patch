@@ -1,6 +1,6 @@
 --- a/addr2line.c
 +++ b/addr2line.c
-@@ -159,11 +159,12 @@
+@@ -163,11 +163,12 @@
      struct dwarf_section debug_info;
      struct dwarf_section debug_line;
      struct dwarf_section debug_ranges;
@@ -14,7 +14,7 @@
  
  static struct dwarf_section *
  obj_dwarf_section_at(obj_info_t *obj, int n)
-@@ -173,6 +174,7 @@
+@@ -177,6 +177,7 @@
          &obj->debug_info,
          &obj->debug_line,
          &obj->debug_ranges,
@@ -22,7 +22,7 @@
          &obj->debug_str
      };
      if (n < 0 || DWARF_SECTION_COUNT <= n) {
-@@ -411,7 +413,7 @@
+@@ -415,7 +415,7 @@
  	    FILL_LINE();
  	    break;
  	case DW_LNS_advance_pc:
@@ -31,7 +31,7 @@
  	    addr += a;
  	    break;
  	case DW_LNS_advance_line: {
-@@ -450,7 +452,7 @@
+@@ -454,7 +454,7 @@
  	    /* isa = (unsigned int)*/(void)uleb128((char **)&p);
  	    break;
  	case 0:
@@ -40,7 +40,7 @@
  	    op = *p++;
  	    switch (op) {
  	    case DW_LNE_end_sequence:
-@@ -807,6 +809,18 @@
+@@ -768,6 +768,18 @@
      DW_FORM_addrx4 = 0x2c
  };
  
@@ -59,7 +59,7 @@
  enum {
      VAL_none = 0,
      VAL_cstr = 1,
-@@ -961,6 +975,23 @@
+@@ -921,6 +921,23 @@
  }
  
  static void
@@ -83,7 +83,7 @@
  di_read_debug_abbrev_cu(DebugInfoReader *reader)
  {
      uint64_t prev = 0;
-@@ -974,12 +1005,7 @@
+@@ -934,12 +934,7 @@
          prev = abbrev_number;
          uleb128(&p); /* tag */
          p++; /* has_children */
@@ -97,7 +97,7 @@
      }
  }
  
-@@ -1243,12 +1269,7 @@
+@@ -1203,12 +1203,7 @@
      /* skip 255th record */
      uleb128(&p); /* tag */
      p++; /* has_children */
@@ -111,7 +111,7 @@
      for (uint64_t n = uleb128(&p); abbrev_number != n; n = uleb128(&p)) {
          if (n == 0) {
              fprintf(stderr,"%d: Abbrev Number %"PRId64" not found\n",__LINE__, abbrev_number);
-@@ -1256,12 +1277,7 @@
+@@ -1216,12 +1216,7 @@
          }
          uleb128(&p); /* tag */
          p++; /* has_children */
@@ -125,7 +125,7 @@
      }
      return p;
  }
-@@ -1389,6 +1405,21 @@
+@@ -1349,6 +1349,21 @@
      }
  }
  
@@ -147,7 +147,7 @@
  static uintptr_t
  ranges_include(DebugInfoReader *reader, ranges_t *ptr, uint64_t addr)
  {
-@@ -1402,8 +1433,50 @@
+@@ -1362,8 +1362,50 @@
      }
      else if (ptr->ranges_set) {
          /* TODO: support base address selection entry */
@@ -199,7 +199,7 @@
          for (;;) {
              uintptr_t from = read_uintptr(&p);
              uintptr_t to = read_uintptr(&p);
-@@ -1747,6 +1820,7 @@
+@@ -1701,6 +1701,7 @@
                      ".debug_info",
                      ".debug_line",
                      ".debug_ranges",
@@ -207,7 +207,7 @@
                      ".debug_str"
                  };
  
-@@ -2003,6 +2077,7 @@
+@@ -1950,6 +1950,7 @@
                      "__debug_info",
                      "__debug_line",
                      "__debug_ranges",
