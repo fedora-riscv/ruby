@@ -1,6 +1,6 @@
 %global major_version 3
 %global minor_version 0
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 148
+%global release 149
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.15
+%global rubygems_version 3.2.22
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.15
+%global bundler_version 2.2.22
 %global bundler_connection_pool_version 2.2.2
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
@@ -52,7 +52,7 @@
 %global openssl_version 2.2.0
 %global psych_version 3.3.0
 %global racc_version 1.5.1
-%global rdoc_version 6.3.0
+%global rdoc_version 6.3.1
 
 # Bundled gems.
 %global minitest_version 5.14.2
@@ -1162,7 +1162,7 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/logger-1.4.3.gemspec
 %{gem_dir}/specifications/default/matrix-0.3.1.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-ftp-0.1.1.gemspec
+%{gem_dir}/specifications/default/net-ftp-0.1.2.gemspec
 %{gem_dir}/specifications/default/net-http-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-imap-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.1.gemspec
@@ -1355,6 +1355,18 @@ MSPECOPTS=""
 
 
 %changelog
+* Tue Jul 13 2021 Jarek Prokop <jprokop@redhat.com> - 3.0.2-149
+- Upgrade to Ruby 3.0.2.
+- Fix command injection vulnerability in RDoc.
+  Resolves: CVE-2021-31799
+- Fix FTP PASV command response can cause Net::FTP to connect to arbitrary host.
+  Resolves: CVE-2021-31810
+- Fix StartTLS stripping vulnerability in Net::IMAP.
+  Resolves: CVE-2021-32066
+- Fix dependencies of gems with explicit source installed from a different
+  source.
+  Resolves: CVE-2020-36327
+
 * Tue Apr 06 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.1-148
 - Upgrade to Ruby 3.0.1.
 
