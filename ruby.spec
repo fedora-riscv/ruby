@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 7
-%global teeny_version 3
+%global teeny_version 4
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 138
+%global release 139
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -50,7 +50,7 @@
 %global openssl_version 2.1.2
 %global psych_version 3.1.0
 %global racc_version 1.4.16
-%global rdoc_version 6.2.1
+%global rdoc_version 6.2.1.1
 %global xmlrpc_version 0.3.0
 
 # Bundled gems.
@@ -1277,6 +1277,15 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod changes the file mode of the link and not 
 
 
 %changelog
+* Thu Jul 15 2021 Jun Aruga <jaruga@redhat.com> - 2.7.4-139
+- Upgrade to Ruby 2.7.4.
+- Fix command injection vulnerability in RDoc.
+  Resolves: CVE-2021-31799
+- Fix FTP PASV command response can cause Net::FTP to connect to arbitrary host.
+  Resolves: CVE-2021-31810
+- Fix StartTLS stripping vulnerability in Net::IMAP.
+  Resolves: CVE-2021-32066
+
 * Tue Jun 15 2021 Jarek Prokop <jprokop@redhat.com> - 2.7.3-138
 - Properly support DWARF5 debug information.
   Resolves: rhbz#1920533
