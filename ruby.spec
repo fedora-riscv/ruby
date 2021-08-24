@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 151
+%global release 152
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -79,10 +79,6 @@
 %if 0%{?fedora}
 %bcond_without hardening_test
 %endif
-
-# LTO appears to cause some issue to SEGV handler.
-# https://bugs.ruby-lang.org/issues/17052
-%define _lto_cflags %{nil}
 
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
@@ -150,6 +146,18 @@ Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1920533
 # https://bugs.ruby-lang.org/issues/17585
 Patch15: ruby-dwarf5-avoid_crash-r1.patch
+# Fix segfaults with enabled LTO.
+# https://bugs.ruby-lang.org/issues/18062
+# https://github.com/ruby/ruby/pull/4716
+Patch16: ruby-3.1.0-Get-rid-of-type-punning-pointer-casts.patch
+# DWARF5/LTO fixes for SIGSEV handler.
+# https://bugs.ruby-lang.org/issues/17052
+# https://github.com/ruby/ruby/commit/72317b333b85eed483ad00bcd4f40944019a7c13
+Patch17: ruby-3.1.0-Ignore-DW_FORM_ref_addr.patch
+# https://bugs.ruby-lang.org/issues/17052#note-9
+# https://bugs.ruby-lang.org/attachments/download/8974/ruby-addr2line-DW_FORM_ref_addr.patch
+# https://github.com/ruby/ruby/commit/a9977ba2f9863e3fb1b2346589ebbca67d80536c
+Patch18: ruby-3.1.0-addr2line-DW_FORM_ref_addr.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -598,6 +606,9 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch9 -p1
 %patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1355,6 +1366,9 @@ MSPECOPTS=""
 
 
 %changelog
+* Tue Aug 24 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-152
+- Enable LTO.
+
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org>
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 
