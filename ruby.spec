@@ -142,6 +142,9 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # hardening features of glibc (rhbz#1361037).
 # https://bugs.ruby-lang.org/issues/12666
 Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
+# Load user installed RubyGems plugins.
+# https://github.com/rubygems/rubygems/issues/4823
+Patch10: rubygems-3.2.26-Also-load-user-installed-rubygems-plugins.patch
 # Fix DWARF5 support.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1920533
 # https://bugs.ruby-lang.org/issues/17585
@@ -605,6 +608,7 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch9 -p1
+%patch10 -p1
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
@@ -1368,6 +1372,7 @@ MSPECOPTS=""
 %changelog
 * Tue Aug 24 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-152
 - Enable LTO.
+- Load user installed RubyGems plugins.
 
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org>
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
