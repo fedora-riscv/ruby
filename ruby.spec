@@ -164,6 +164,9 @@ Patch18: ruby-3.1.0-addr2line-DW_FORM_ref_addr.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
+# Add AC_PROG_CC to make C++ compiler dependency optional on autoconf >= 2.70.
+# https://github.com/ruby/ruby/commit/912a8dcfc5369d840dcd6bf0f88ee0bac7d902d6
+Patch20: ruby-3.1.0-autoconf-2.70-add-ac-prog-cc.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -614,6 +617,7 @@ rm -rf ext/fiddle/libffi*
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
