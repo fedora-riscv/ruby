@@ -2,15 +2,12 @@ diff --git a/ext/fiddle/closure.c b/ext/fiddle/closure.c
 index 1a80b2b..b997e23 100644
 --- a/ext/fiddle/closure.c
 +++ b/ext/fiddle/closure.c
-@@ -13,25 +13,11 @@ typedef struct {
+@@ -13,22 +13,11 @@ typedef struct {
      ffi_type **argv;
  } fiddle_closure;
  
 -#if defined(USE_FFI_CLOSURE_ALLOC)
--#elif defined(__OpenBSD__) || defined(__APPLE__) || defined(__linux__)
--# define USE_FFI_CLOSURE_ALLOC 0
--#elif defined(RUBY_LIBFFI_MODVERSION) && RUBY_LIBFFI_MODVERSION < 3000005 && \
--	(defined(__i386__) || defined(__x86_64__) || defined(_M_IX86) || defined(_M_AMD64))
+-#elif !defined(HAVE_FFI_CLOSURE_ALLOC)
 -# define USE_FFI_CLOSURE_ALLOC 0
 -#else
 -# define USE_FFI_CLOSURE_ALLOC 1
@@ -28,7 +25,7 @@ index 1a80b2b..b997e23 100644
      if (cls->argv) xfree(cls->argv);
      xfree(cls);
  }
-@@ -205,12 +191,7 @@ allocate(VALUE klass)
+@@ -202,12 +188,7 @@ allocate(VALUE klass)
      VALUE i = TypedData_Make_Struct(klass, fiddle_closure,
  	    &closure_data_type, closure);
  
@@ -41,7 +38,7 @@ index 1a80b2b..b997e23 100644
  
      return i;
  }
-@@ -257,17 +238,8 @@ initialize(int rbargc, VALUE argv[], VALUE self)
+@@ -254,17 +238,8 @@ initialize(int rbargc, VALUE argv[], VALUE self)
      if (FFI_OK != result)
  	rb_raise(rb_eRuntimeError, "error prepping CIF %d", result);
  

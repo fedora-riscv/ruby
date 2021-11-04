@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 7
+%global teeny_version 8
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 128
+%global release 129
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -49,7 +49,7 @@
 %global power_assert_version 1.1.3
 %global psych_version 3.1.0
 %global rake_version 12.3.3
-%global rdoc_version 6.1.2
+%global rdoc_version 6.1.2.1
 %global test_unit_version 3.2.9
 %global xmlrpc_version 0.3.0
 
@@ -148,9 +148,6 @@ Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-g
 # https://github.com/rubygems/rubygems/pull/2604
 Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
 
-# Fix compatibility with libyaml 0.2.5
-# https://bugs.ruby-lang.org/issues/16949
-Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
 # Fix DWARF5 support.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1920533
 # https://bugs.ruby-lang.org/issues/17585
@@ -182,8 +179,6 @@ Patch26: ruby-3.0.0-Convert-ip-addresses-to-canonical-form.patch
 # https://github.com/rubygems/bundler/pull/7416
 Patch27: rubygem-bundler-2.1.0-dont-use-insecure-temporary-directory-as-home-directory.patch
 # Fix lchmod test failures.
-# https://github.com/ruby/ruby/commit/a19228f878d955eaf2cce086bcf53f46fdf894b9
-Patch41: ruby-2.8.0-Brace-the-fact-that-lchmod-can-EOPNOTSUPP.patch
 # https://github.com/ruby/ruby/commit/72c02aa4b79731c7f25c9267f74b347f1946c704
 Patch42: ruby-2.8.0-Moved-not-implemented-method-tests.patch
 
@@ -577,7 +572,6 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch11 -p1
 %patch12 -p1
-%patch14 -p1
 %patch15 -p1
 %patch19 -p1
 %patch22 -p1
@@ -585,7 +579,6 @@ rm -rf ext/fiddle/libffi*
 %patch25 -p1
 %patch26 -p1
 %patch27 -p1
-%patch41 -p1
 %patch42 -p1
 
 # Provide an example of usage of the tapset:
@@ -1245,8 +1238,8 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
-* Wed Apr 14 2021 Jarek Prokop <jprokop@redhat.com> - 2.6.7-128
-- Upgrade to Ruby 2.6.7.
+* Fri Nov 12 2021 Pavel Valena <pvalena@redhat.com> - 2.6.8-129
+- Upgrade Ruby to 2.6.8.
 - Resolv::DNS: timeouts if multiple IPv6 name servers are given an address
   containing leading zero
 - Fix: Rubygem-bundler: Don't use insecure tmp directory as home

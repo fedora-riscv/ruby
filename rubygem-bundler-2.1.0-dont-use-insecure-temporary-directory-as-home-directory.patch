@@ -67,7 +67,7 @@ diff --git a/spec/bundler/bundler/bundler_spec.rb b/spec/bundler/bundler/bundler
 index 74cf7ae05d3..247838600bf 100644
 --- a/spec/bundler/bundler/bundler_spec.rb
 +++ b/spec/bundler/bundler/bundler_spec.rb
-@@ -232,16 +232,13 @@
+@@ -233,16 +233,13 @@
            path = "/home/oggy"
            allow(Bundler.rubygems).to receive(:user_home).and_return(path)
            allow(File).to receive(:directory?).with(path).and_return false
@@ -87,7 +87,7 @@ index 74cf7ae05d3..247838600bf 100644
          end
        end
  
-@@ -254,16 +251,13 @@
+@@ -255,16 +252,13 @@
            allow(File).to receive(:directory?).with(path).and_return true
            allow(File).to receive(:writable?).with(path).and_return false
            allow(File).to receive(:directory?).with(dotbundle).and_return false
@@ -107,7 +107,7 @@ index 74cf7ae05d3..247838600bf 100644
          end
  
          context ".bundle exists and have correct permissions" do
-@@ -282,31 +276,17 @@
+@@ -283,31 +277,17 @@
      context "home directory is not set" do
        it "should issue warning and return a temporary user home" do
          allow(Bundler.rubygems).to receive(:user_home).and_return(nil)
