@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 6
+%global teeny_version 7
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 127
+%global release 128
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -29,7 +29,7 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.0.3
+%global rubygems_version 3.0.3.1
 %global rubygems_molinillo_version 0.5.7
 
 %global bundler_version 1.17.2
@@ -147,6 +147,7 @@ Patch11: rubygems-3.0.3-Restore-gem-build-behavior-and-introdcue-the-C-flag-to-g
 # This allows to loosen the RDoc dependency again.
 # https://github.com/rubygems/rubygems/pull/2604
 Patch12: rubygems-3.0.3-Avoid-rdoc-hook-when-its-failed-to-load-rdoc-library.patch
+
 # Fix compatibility with libyaml 0.2.5
 # https://bugs.ruby-lang.org/issues/16949
 Patch14: ruby-2.7.2-psych-fix-yaml-tests.patch
@@ -160,6 +161,26 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 # Add support for .include directive used by OpenSSL config files.
 # https://github.com/ruby/openssl/pull/216
 Patch22: ruby-2.6.0-config-support-include-directive.patch
+
+# IO.select on all platforms to wait for input with recvfrom_nonblock
+# and accept_nonblock
+# https://bugzilla.redhat.com/show_bug.cgi?id=1719743
+# https://github.com/ruby/ruby/commit/920b924e5652884064a9529ffbd80d458a46fbc6
+# https://github.com/ruby/ruby/commit/c1f0daeb6ac5c5414c9a4a58bb778a118006ae1f
+Patch24: ruby-2.7.0-preview1-IO.select-on-all-platforms-to-wait-for-input-with-recvfr.patch
+# Use ffi_closure_alloc to avoid segmentation fault by libffi on aarch64.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1727832
+# https://bugzilla.redhat.com/show_bug.cgi?id=1721569
+# https://github.com/ruby/fiddle/pull/20
+Patch25: ruby-2.6.3-fiddle-1.0.0-ffi-closure-alloc-default.patch
+# Resolv::DNS: timeouts if multiple IPv6 name servers are given and address
+# contains leading zero
+# https://bugzilla.redhat.com/show_bug.cgi?id=1944227
+Patch26: ruby-3.0.0-Convert-ip-addresses-to-canonical-form.patch
+# rubygem-bundler: Insecure permissions on directory in /tmp/ allows for execution of malicious code
+# https://bugzilla.redhat.com/show_bug.cgi?id=1651826
+# https://github.com/rubygems/bundler/pull/7416
+Patch27: rubygem-bundler-2.1.0-dont-use-insecure-temporary-directory-as-home-directory.patch
 # Fix lchmod test failures.
 # https://github.com/ruby/ruby/commit/a19228f878d955eaf2cce086bcf53f46fdf894b9
 Patch41: ruby-2.8.0-Brace-the-fact-that-lchmod-can-EOPNOTSUPP.patch
@@ -560,6 +581,10 @@ rm -rf ext/fiddle/libffi*
 %patch15 -p1
 %patch19 -p1
 %patch22 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
 %patch41 -p1
 %patch42 -p1
 
@@ -618,15 +643,21 @@ make install DESTDIR=%{buildroot}
 sed -i 's/Version: \${ruby_version}/Version: %{ruby_version}/' %{buildroot}%{_libdir}/pkgconfig/%{name}.pc
 
 # Kill bundled certificates, as they should be part of ca-certificates.
+# bundler
 for cert in \
   rubygems.global.ssl.fastly.net/DigiCertHighAssuranceEVRootCA.pem \
   rubygems.org/AddTrustExternalCARoot.pem \
   index.rubygems.org/GlobalSignRootCA.pem
 do
-  rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
-  rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
   rm %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert
   rm -r $(dirname %{buildroot}%{ruby_libdir}/bundler/ssl_certs/$cert)
+done
+
+for cert in \
+    rubygems.org/GlobalSignRootCA.pem
+do
+  rm %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert
+  rm -r $(dirname %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/$cert)
 done
 # Ensure there is not forgotten any certificate.
 test ! "$(ls -A  %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
@@ -1086,7 +1117,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{gem_dir}/specifications/default/mutex_m-0.1.0.gemspec
 %{gem_dir}/specifications/default/ostruct-0.1.0.gemspec
 %{gem_dir}/specifications/default/prime-0.1.0.gemspec
-%{gem_dir}/specifications/default/rexml-3.1.9.gemspec
+%{gem_dir}/specifications/default/rexml-3.1.9.1.gemspec
 %{gem_dir}/specifications/default/rss-0.2.7.gemspec
 %{gem_dir}/specifications/default/scanf-1.0.0.gemspec
 %{gem_dir}/specifications/default/sdbm-1.0.0.gemspec
@@ -1096,7 +1127,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{gem_dir}/specifications/default/sync-0.5.0.gemspec
 %{gem_dir}/specifications/default/thwait-0.1.0.gemspec
 %{gem_dir}/specifications/default/tracer-0.1.0.gemspec
-%{gem_dir}/specifications/default/webrick-1.4.2.gemspec
+%{gem_dir}/specifications/default/webrick-1.4.4.gemspec
 %{gem_dir}/specifications/default/zlib-1.0.0.gemspec
 
 %files -n rubygems-devel
@@ -1214,6 +1245,13 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Wed Apr 14 2021 Jarek Prokop <jprokop@redhat.com> - 2.6.7-128
+- Upgrade to Ruby 2.6.7.
+- Resolv::DNS: timeouts if multiple IPv6 name servers are given an address
+  containing leading zero
+- Fix: Rubygem-bundler: Don't use insecure tmp directory as home
+  allows for execution of malicious code.
+
 * Wed Jul 07 2021 Jun Aruga <jaruga@redhat.com> - 2.6.6-127
 - Fix FTBFS due to incompatible load directive.
 - Properly support DWARF5 debug information.

@@ -1,0 +1,131 @@
+From 920b924e5652884064a9529ffbd80d458a46fbc6 Mon Sep 17 00:00:00 2001
+From: eregon <eregon@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Tue, 5 Feb 2019 09:58:50 +0000
+Subject: [PATCH] Make sure to wait with IO.select before using
+ Socket#recvfrom_nonblock
+
+* On all platforms, as this is the recommended code pattern.
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@67010 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ spec/ruby/library/socket/socket/recvfrom_nonblock_spec.rb | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/spec/ruby/library/socket/socket/recvfrom_nonblock_spec.rb b/spec/ruby/library/socket/socket/recvfrom_nonblock_spec.rb
+index c1239ae637e0..74fd286c42ad 100644
+--- a/spec/ruby/library/socket/socket/recvfrom_nonblock_spec.rb
++++ b/spec/ruby/library/socket/socket/recvfrom_nonblock_spec.rb
+@@ -36,12 +36,11 @@
+       describe 'with data available' do
+         before do
+           @client.write('hello')
+-
+-          platform_is(:darwin, :freebsd) { IO.select([@server]) }
+         end
+ 
+         platform_is_not :windows do
+           it 'returns an Array containing the data and an Addrinfo' do
++            IO.select([@server])
+             ret = @server.recvfrom_nonblock(1)
+ 
+             ret.should be_an_instance_of(Array)
+@@ -54,8 +53,7 @@
+             5.times do
+               @client.write('hello')
+ 
+-              platform_is(:darwin, :freebsd) { IO.select([@server]) }
+-
++              IO.select([@server])
+               msg, _ = @server.recvfrom_nonblock(5)
+ 
+               msg.should == 'hello'
+@@ -66,6 +64,7 @@
+         platform_is_not :windows do
+           describe 'the returned Array' do
+             before do
++              IO.select([@server])
+               @array = @server.recvfrom_nonblock(1)
+             end
+ 
+@@ -80,6 +79,7 @@
+ 
+           describe 'the returned Addrinfo' do
+             before do
++              IO.select([@server])
+               @addr = @server.recvfrom_nonblock(1)[1]
+             end
+ 
+From c1f0daeb6ac5c5414c9a4a58bb778a118006ae1f Mon Sep 17 00:00:00 2001
+From: eregon <eregon@b2dd03c8-39d4-4d8f-98ff-823fe69b080e>
+Date: Tue, 5 Feb 2019 10:19:29 +0000
+Subject: [PATCH] Make sure to wait with IO.select before using
+ Socket#accept_nonblock and recvfrom_nonblock
+
+* On all platforms, as this is the recommended code pattern.
+
+git-svn-id: svn+ssh://ci.ruby-lang.org/ruby/trunk@67011 b2dd03c8-39d4-4d8f-98ff-823fe69b080e
+---
+ spec/ruby/library/socket/socket/accept_nonblock_spec.rb      | 4 ++--
+ spec/ruby/library/socket/udpsocket/recvfrom_nonblock_spec.rb | 5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/spec/ruby/library/socket/socket/accept_nonblock_spec.rb b/spec/ruby/library/socket/socket/accept_nonblock_spec.rb
+index 3ef219ed05a9..cde9e6a4b669 100644
+--- a/spec/ruby/library/socket/socket/accept_nonblock_spec.rb
++++ b/spec/ruby/library/socket/socket/accept_nonblock_spec.rb
+@@ -86,8 +86,6 @@
+             @client = Socket.new(family, :STREAM, 0)
+ 
+             @client.connect(addr)
+-
+-            platform_is(:darwin, :freebsd, :solaris) { IO.select([@server]) }
+           end
+ 
+           after do
+@@ -96,6 +94,7 @@
+           end
+ 
+           it 'returns an Array containing a Socket and an Addrinfo' do
++            IO.select([@server])
+             @socket, addrinfo = @server.accept_nonblock
+ 
+             @socket.should be_an_instance_of(Socket)
+@@ -104,6 +103,7 @@
+ 
+           describe 'the returned Addrinfo' do
+             before do
++              IO.select([@server])
+               @socket, @addr = @server.accept_nonblock
+             end
+ 
+diff --git a/spec/ruby/library/socket/udpsocket/recvfrom_nonblock_spec.rb b/spec/ruby/library/socket/udpsocket/recvfrom_nonblock_spec.rb
+index 015109a05200..62bbaf0dc93a 100644
+--- a/spec/ruby/library/socket/udpsocket/recvfrom_nonblock_spec.rb
++++ b/spec/ruby/library/socket/udpsocket/recvfrom_nonblock_spec.rb
+@@ -40,16 +40,16 @@
+         describe 'with data available' do
+           before do
+             @client.write('hello')
+-
+-            platform_is(:darwin, :freebsd) { IO.select([@server]) }
+           end
+ 
+           it 'returns an Array containing the data and an Array' do
++            IO.select([@server])
+             @server.recvfrom_nonblock(1).should be_an_instance_of(Array)
+           end
+ 
+           describe 'the returned Array' do
+             before do
++              IO.select([@server])
+               @array = @server.recvfrom_nonblock(1)
+             end
+ 
+@@ -64,6 +64,7 @@
+ 
+           describe 'the returned address Array' do
+             before do
++              IO.select([@server])
+               @addr = @server.recvfrom_nonblock(1)[1]
+             end
+ 
