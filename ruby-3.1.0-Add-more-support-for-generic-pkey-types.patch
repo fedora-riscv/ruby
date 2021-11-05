@@ -1,0 +1,1004 @@
+From 6bbdaef1a578fdbfc6a5bf82402ba4d3fd733d4a Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Tue, 21 Mar 2017 18:23:53 +0900
+Subject: [PATCH 1/6] pkey: assume generic PKeys contain private components
+
+The EVP interface cannot tell whether if a pkey contains the private
+components or not. Assume it does if it does not respond to #private?.
+This fixes the NoMethodError on calling #sign on a generic PKey.
+---
+ ext/openssl/ossl_pkey.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 610a83fd2d..8d41623e80 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -252,12 +252,19 @@ GetPrivPKeyPtr(VALUE obj)
+ {
+     EVP_PKEY *pkey;
+ 
+-    if (rb_funcallv(obj, id_private_q, 0, NULL) != Qtrue) {
+-	ossl_raise(rb_eArgError, "Private key is needed.");
+-    }
+     GetPKey(obj, pkey);
++    if (OSSL_PKEY_IS_PRIVATE(obj))
++        return pkey;
++    /*
++     * The EVP API does not provide a way to check if the EVP_PKEY has private
++     * components. Assuming it does...
++     */
++    if (!rb_respond_to(obj, id_private_q))
++        return pkey;
++    if (RTEST(rb_funcallv(obj, id_private_q, 0, NULL)))
++        return pkey;
+ 
+-    return pkey;
++    rb_raise(rb_eArgError, "private key is needed");
+ }
+ 
+ EVP_PKEY *
+-- 
+2.32.0
+
+
+From 86508f74b3d41166ed6091b7b31f18a26478c347 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 20 Mar 2017 23:18:26 +0900
+Subject: [PATCH 2/6] pkey: add PKey.generate_parameters and .generate_key
+
+Add two methods to create a PKey using the generic EVP interface. This
+is useful for the PKey types we don't have a dedicated class.
+---
+ ext/openssl/ossl_pkey.c   | 222 ++++++++++++++++++++++++++++++++++++++
+ test/openssl/test_pkey.rb |  43 ++++++++
+ 2 files changed, 265 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 8d41623e80..1f3dd39b9b 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -197,6 +197,226 @@ ossl_pkey_new_from_data(int argc, VALUE *argv, VALUE self)
+     return ossl_pkey_new(pkey);
+ }
+ 
++static VALUE
++pkey_gen_apply_options_i(RB_BLOCK_CALL_FUNC_ARGLIST(i, ctx_v))
++{
++    VALUE key = rb_ary_entry(i, 0), value = rb_ary_entry(i, 1);
++    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)ctx_v;
++
++    if (SYMBOL_P(key))
++        key = rb_sym2str(key);
++    value = rb_String(value);
++
++    if (EVP_PKEY_CTX_ctrl_str(ctx, StringValueCStr(key), StringValueCStr(value)) <= 0)
++        ossl_raise(ePKeyError, "EVP_PKEY_CTX_ctrl_str(ctx, %+"PRIsVALUE", %+"PRIsVALUE")",
++                   key, value);
++    return Qnil;
++}
++
++static VALUE
++pkey_gen_apply_options0(VALUE args_v)
++{
++    VALUE *args = (VALUE *)args_v;
++
++    rb_block_call(args[1], rb_intern("each"), 0, NULL,
++                  pkey_gen_apply_options_i, args[0]);
++    return Qnil;
++}
++
++struct pkey_blocking_generate_arg {
++    EVP_PKEY_CTX *ctx;
++    EVP_PKEY *pkey;
++    int state;
++    int yield: 1;
++    int genparam: 1;
++    int stop: 1;
++};
++
++static VALUE
++pkey_gen_cb_yield(VALUE ctx_v)
++{
++    EVP_PKEY_CTX *ctx = (void *)ctx_v;
++    int i, info_num;
++    VALUE *argv;
++
++    info_num = EVP_PKEY_CTX_get_keygen_info(ctx, -1);
++    argv = ALLOCA_N(VALUE, info_num);
++    for (i = 0; i < info_num; i++)
++        argv[i] = INT2NUM(EVP_PKEY_CTX_get_keygen_info(ctx, i));
++
++    return rb_yield_values2(info_num, argv);
++}
++
++static int
++pkey_gen_cb(EVP_PKEY_CTX *ctx)
++{
++    struct pkey_blocking_generate_arg *arg = EVP_PKEY_CTX_get_app_data(ctx);
++
++    if (arg->yield) {
++        int state;
++        rb_protect(pkey_gen_cb_yield, (VALUE)ctx, &state);
++        if (state) {
++            arg->stop = 1;
++            arg->state = state;
++        }
++    }
++    return !arg->stop;
++}
++
++static void
++pkey_blocking_gen_stop(void *ptr)
++{
++    struct pkey_blocking_generate_arg *arg = ptr;
++    arg->stop = 1;
++}
++
++static void *
++pkey_blocking_gen(void *ptr)
++{
++    struct pkey_blocking_generate_arg *arg = ptr;
++
++    if (arg->genparam && EVP_PKEY_paramgen(arg->ctx, &arg->pkey) <= 0)
++        return NULL;
++    if (!arg->genparam && EVP_PKEY_keygen(arg->ctx, &arg->pkey) <= 0)
++        return NULL;
++    return arg->pkey;
++}
++
++static VALUE
++pkey_generate(int argc, VALUE *argv, VALUE self, int genparam)
++{
++    EVP_PKEY_CTX *ctx;
++    VALUE alg, options;
++    struct pkey_blocking_generate_arg gen_arg = { 0 };
++    int state;
++
++    rb_scan_args(argc, argv, "11", &alg, &options);
++    if (rb_obj_is_kind_of(alg, cPKey)) {
++        EVP_PKEY *base_pkey;
++
++        GetPKey(alg, base_pkey);
++        ctx = EVP_PKEY_CTX_new(base_pkey, NULL/* engine */);
++        if (!ctx)
++            ossl_raise(ePKeyError, "EVP_PKEY_CTX_new");
++    }
++    else {
++        const EVP_PKEY_ASN1_METHOD *ameth;
++        ENGINE *tmpeng;
++        int pkey_id;
++
++        StringValue(alg);
++        ameth = EVP_PKEY_asn1_find_str(&tmpeng, RSTRING_PTR(alg),
++                                       RSTRING_LENINT(alg));
++        if (!ameth)
++            ossl_raise(ePKeyError, "algorithm %"PRIsVALUE" not found", alg);
++        EVP_PKEY_asn1_get0_info(&pkey_id, NULL, NULL, NULL, NULL, ameth);
++#if !defined(OPENSSL_NO_ENGINE)
++        if (tmpeng)
++            ENGINE_finish(tmpeng);
++#endif
++
++        ctx = EVP_PKEY_CTX_new_id(pkey_id, NULL/* engine */);
++        if (!ctx)
++            ossl_raise(ePKeyError, "EVP_PKEY_CTX_new_id");
++    }
++
++    if (genparam && EVP_PKEY_paramgen_init(ctx) <= 0) {
++        EVP_PKEY_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_PKEY_paramgen_init");
++    }
++    if (!genparam && EVP_PKEY_keygen_init(ctx) <= 0) {
++        EVP_PKEY_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_PKEY_keygen_init");
++    }
++
++    if (!NIL_P(options)) {
++        VALUE args[2];
++
++        args[0] = (VALUE)ctx;
++        args[1] = options;
++        rb_protect(pkey_gen_apply_options0, (VALUE)args, &state);
++        if (state) {
++            EVP_PKEY_CTX_free(ctx);
++            rb_jump_tag(state);
++        }
++    }
++
++    gen_arg.genparam = genparam;
++    gen_arg.ctx = ctx;
++    gen_arg.yield = rb_block_given_p();
++    EVP_PKEY_CTX_set_app_data(ctx, &gen_arg);
++    EVP_PKEY_CTX_set_cb(ctx, pkey_gen_cb);
++    if (gen_arg.yield)
++        pkey_blocking_gen(&gen_arg);
++    else
++        rb_thread_call_without_gvl(pkey_blocking_gen, &gen_arg,
++                                   pkey_blocking_gen_stop, &gen_arg);
++    EVP_PKEY_CTX_free(ctx);
++    if (!gen_arg.pkey) {
++        if (gen_arg.state) {
++            ossl_clear_error();
++            rb_jump_tag(gen_arg.state);
++        }
++        else {
++            ossl_raise(ePKeyError, genparam ? "EVP_PKEY_paramgen" : "EVP_PKEY_keygen");
++        }
++    }
++
++    return ossl_pkey_new(gen_arg.pkey);
++}
++
++/*
++ * call-seq:
++ *    OpenSSL::PKey.generate_parameters(algo_name [, options]) -> pkey
++ *
++ * Generates new parameters for the algorithm. _algo_name_ is a String that
++ * represents the algorithm. The optional argument _options_ is a Hash that
++ * specifies the options specific to the algorithm. The order of the options
++ * can be important.
++ *
++ * A block can be passed optionally. The meaning of the arguments passed to
++ * the block varies depending on the implementation of the algorithm. The block
++ * may be called once or multiple times, or may not even be called.
++ *
++ * For the supported options, see the documentation for the 'openssl genpkey'
++ * utility command.
++ *
++ * == Example
++ *   pkey = OpenSSL::PKey.generate_parameters("DSA", "dsa_paramgen_bits" => 2048)
++ *   p pkey.p.num_bits #=> 2048
++ */
++static VALUE
++ossl_pkey_s_generate_parameters(int argc, VALUE *argv, VALUE self)
++{
++    return pkey_generate(argc, argv, self, 1);
++}
++
++/*
++ * call-seq:
++ *    OpenSSL::PKey.generate_key(algo_name [, options]) -> pkey
++ *    OpenSSL::PKey.generate_key(pkey [, options]) -> pkey
++ *
++ * Generates a new key (pair).
++ *
++ * If a String is given as the first argument, it generates a new random key
++ * for the algorithm specified by the name just as ::generate_parameters does.
++ * If an OpenSSL::PKey::PKey is given instead, it generates a new random key
++ * for the same algorithm as the key, using the parameters the key contains.
++ *
++ * See ::generate_parameters for the details of _options_ and the given block.
++ *
++ * == Example
++ *   pkey_params = OpenSSL::PKey.generate_parameters("DSA", "dsa_paramgen_bits" => 2048)
++ *   pkey_params.priv_key #=> nil
++ *   pkey = OpenSSL::PKey.generate_key(pkey_params)
++ *   pkey.priv_key #=> #<OpenSSL::BN 6277...
++ */
++static VALUE
++ossl_pkey_s_generate_key(int argc, VALUE *argv, VALUE self)
++{
++    return pkey_generate(argc, argv, self, 0);
++}
++
+ void
+ ossl_pkey_check_public_key(const EVP_PKEY *pkey)
+ {
+@@ -707,6 +927,8 @@ Init_ossl_pkey(void)
+     cPKey = rb_define_class_under(mPKey, "PKey", rb_cObject);
+ 
+     rb_define_module_function(mPKey, "read", ossl_pkey_new_from_data, -1);
++    rb_define_module_function(mPKey, "generate_parameters", ossl_pkey_s_generate_parameters, -1);
++    rb_define_module_function(mPKey, "generate_key", ossl_pkey_s_generate_key, -1);
+ 
+     rb_define_alloc_func(cPKey, ossl_pkey_alloc);
+     rb_define_method(cPKey, "initialize", ossl_pkey_initialize, 0);
+diff --git a/test/openssl/test_pkey.rb b/test/openssl/test_pkey.rb
+index 0bdc9795cc..a325a1ea2b 100644
+--- a/test/openssl/test_pkey.rb
++++ b/test/openssl/test_pkey.rb
+@@ -25,4 +25,47 @@ def test_generic_oid_inspect
+     assert_equal "X25519", x25519.oid
+     assert_match %r{oid=X25519}, x25519.inspect
+   end
++
++  def test_s_generate_parameters
++    # 512 is non-default; 1024 is used if 'dsa_paramgen_bits' is not specified
++    # with OpenSSL 1.1.0.
++    pkey = OpenSSL::PKey.generate_parameters("DSA", {
++      "dsa_paramgen_bits" => 512,
++      "dsa_paramgen_q_bits" => 256,
++    })
++    assert_instance_of OpenSSL::PKey::DSA, pkey
++    assert_equal 512, pkey.p.num_bits
++    assert_equal 256, pkey.q.num_bits
++    assert_equal nil, pkey.priv_key
++
++    # Invalid options are checked
++    assert_raise(OpenSSL::PKey::PKeyError) {
++      OpenSSL::PKey.generate_parameters("DSA", "invalid" => "option")
++    }
++
++    # Parameter generation callback is called
++    cb_called = []
++    assert_raise(RuntimeError) {
++      OpenSSL::PKey.generate_parameters("DSA") { |*args|
++        cb_called << args
++        raise "exit!" if cb_called.size == 3
++      }
++    }
++    assert_not_empty cb_called
++  end
++
++  def test_s_generate_key
++    assert_raise(OpenSSL::PKey::PKeyError) {
++      # DSA key pair cannot be generated without parameters
++      OpenSSL::PKey.generate_key("DSA")
++    }
++    pkey_params = OpenSSL::PKey.generate_parameters("DSA", {
++      "dsa_paramgen_bits" => 512,
++      "dsa_paramgen_q_bits" => 256,
++    })
++    pkey = OpenSSL::PKey.generate_key(pkey_params)
++    assert_instance_of OpenSSL::PKey::DSA, pkey
++    assert_equal 512, pkey.p.num_bits
++    assert_not_equal nil, pkey.priv_key
++  end
+ end
+-- 
+2.32.0
+
+
+From 5713605e70c96e3215aab0e0341548af29b5088e Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 15 May 2017 23:47:47 +0900
+Subject: [PATCH 3/6] pkey: port PKey::PKey#sign and #verify to the EVP_Digest*
+ interface
+
+Use EVP_DigestSign*() and EVP_DigestVerify*() interface instead of the
+old EVP_Sign*() and EVP_Verify*() functions. They were added in OpenSSL
+1.0.0.
+
+Also, allow the digest to be specified as nil, as certain EVP_PKEY types
+don't expect a digest algorithm.
+---
+ ext/openssl/ossl_pkey.c   | 90 ++++++++++++++++++++++-----------------
+ test/openssl/test_pkey.rb | 12 ++++++
+ 2 files changed, 63 insertions(+), 39 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 1f3dd39b9b..a0d73f5821 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -753,35 +753,47 @@ static VALUE
+ ossl_pkey_sign(VALUE self, VALUE digest, VALUE data)
+ {
+     EVP_PKEY *pkey;
+-    const EVP_MD *md;
++    const EVP_MD *md = NULL;
+     EVP_MD_CTX *ctx;
+-    unsigned int buf_len;
+-    VALUE str;
+-    int result;
++    size_t siglen;
++    int state;
++    VALUE sig;
+ 
+     pkey = GetPrivPKeyPtr(self);
+-    md = ossl_evp_get_digestbyname(digest);
++    if (!NIL_P(digest))
++        md = ossl_evp_get_digestbyname(digest);
+     StringValue(data);
+-    str = rb_str_new(0, EVP_PKEY_size(pkey));
+ 
+     ctx = EVP_MD_CTX_new();
+     if (!ctx)
+-	ossl_raise(ePKeyError, "EVP_MD_CTX_new");
+-    if (!EVP_SignInit_ex(ctx, md, NULL)) {
+-	EVP_MD_CTX_free(ctx);
+-	ossl_raise(ePKeyError, "EVP_SignInit_ex");
++        ossl_raise(ePKeyError, "EVP_MD_CTX_new");
++    if (EVP_DigestSignInit(ctx, NULL, md, /* engine */NULL, pkey) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestSignInit");
++    }
++    if (EVP_DigestSignUpdate(ctx, RSTRING_PTR(data), RSTRING_LEN(data)) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestSignUpdate");
++    }
++    if (EVP_DigestSignFinal(ctx, NULL, &siglen) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestSignFinal");
+     }
+-    if (!EVP_SignUpdate(ctx, RSTRING_PTR(data), RSTRING_LEN(data))) {
+-	EVP_MD_CTX_free(ctx);
+-	ossl_raise(ePKeyError, "EVP_SignUpdate");
++    if (siglen > LONG_MAX)
++        rb_raise(ePKeyError, "signature would be too large");
++    sig = ossl_str_new(NULL, (long)siglen, &state);
++    if (state) {
++        EVP_MD_CTX_free(ctx);
++        rb_jump_tag(state);
++    }
++    if (EVP_DigestSignFinal(ctx, (unsigned char *)RSTRING_PTR(sig),
++                            &siglen) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestSignFinal");
+     }
+-    result = EVP_SignFinal(ctx, (unsigned char *)RSTRING_PTR(str), &buf_len, pkey);
+     EVP_MD_CTX_free(ctx);
+-    if (!result)
+-	ossl_raise(ePKeyError, "EVP_SignFinal");
+-    rb_str_set_len(str, buf_len);
+-
+-    return str;
++    rb_str_set_len(sig, siglen);
++    return sig;
+ }
+ 
+ /*
+@@ -809,38 +821,38 @@ static VALUE
+ ossl_pkey_verify(VALUE self, VALUE digest, VALUE sig, VALUE data)
+ {
+     EVP_PKEY *pkey;
+-    const EVP_MD *md;
++    const EVP_MD *md = NULL;
+     EVP_MD_CTX *ctx;
+-    int siglen, result;
++    int ret;
+ 
+     GetPKey(self, pkey);
+     ossl_pkey_check_public_key(pkey);
+-    md = ossl_evp_get_digestbyname(digest);
++    if (!NIL_P(digest))
++        md = ossl_evp_get_digestbyname(digest);
+     StringValue(sig);
+-    siglen = RSTRING_LENINT(sig);
+     StringValue(data);
+ 
+     ctx = EVP_MD_CTX_new();
+     if (!ctx)
+-	ossl_raise(ePKeyError, "EVP_MD_CTX_new");
+-    if (!EVP_VerifyInit_ex(ctx, md, NULL)) {
+-	EVP_MD_CTX_free(ctx);
+-	ossl_raise(ePKeyError, "EVP_VerifyInit_ex");
++        ossl_raise(ePKeyError, "EVP_MD_CTX_new");
++    if (EVP_DigestVerifyInit(ctx, NULL, md, /* engine */NULL, pkey) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestVerifyInit");
+     }
+-    if (!EVP_VerifyUpdate(ctx, RSTRING_PTR(data), RSTRING_LEN(data))) {
+-	EVP_MD_CTX_free(ctx);
+-	ossl_raise(ePKeyError, "EVP_VerifyUpdate");
++    if (EVP_DigestVerifyUpdate(ctx, RSTRING_PTR(data), RSTRING_LEN(data)) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestVerifyUpdate");
+     }
+-    result = EVP_VerifyFinal(ctx, (unsigned char *)RSTRING_PTR(sig), siglen, pkey);
++    ret = EVP_DigestVerifyFinal(ctx, (unsigned char *)RSTRING_PTR(sig),
++                                RSTRING_LEN(sig));
+     EVP_MD_CTX_free(ctx);
+-    switch (result) {
+-    case 0:
+-	ossl_clear_error();
+-	return Qfalse;
+-    case 1:
+-	return Qtrue;
+-    default:
+-	ossl_raise(ePKeyError, "EVP_VerifyFinal");
++    if (ret < 0)
++        ossl_raise(ePKeyError, "EVP_DigestVerifyFinal");
++    if (ret)
++        return Qtrue;
++    else {
++        ossl_clear_error();
++        return Qfalse;
+     }
+ }
+ 
+diff --git a/test/openssl/test_pkey.rb b/test/openssl/test_pkey.rb
+index a325a1ea2b..247ba84f83 100644
+--- a/test/openssl/test_pkey.rb
++++ b/test/openssl/test_pkey.rb
+@@ -68,4 +68,16 @@ def test_s_generate_key
+     assert_equal 512, pkey.p.num_bits
+     assert_not_equal nil, pkey.priv_key
+   end
++
++  def test_hmac_sign_verify
++    pkey = OpenSSL::PKey.generate_key("HMAC", { "key" => "abcd" })
++
++    hmac = OpenSSL::HMAC.new("abcd", "SHA256").update("data").digest
++    assert_equal hmac, pkey.sign("SHA256", "data")
++
++    # EVP_PKEY_HMAC does not support verify
++    assert_raise(OpenSSL::PKey::PKeyError) {
++      pkey.verify("SHA256", "data", hmac)
++    }
++  end
+ end
+-- 
+2.32.0
+
+
+From 76566a2e1bab42a2e1587ecbec23779ee00020fc Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 15 May 2017 23:47:47 +0900
+Subject: [PATCH 4/6] pkey: support 'one-shot' signing and verification
+
+OpenSSL 1.1.1 added EVP_DigestSign() and EVP_DigestVerify() functions
+to the interface. Some EVP_PKEY methods such as PureEdDSA algorithms
+do not support the streaming mechanism and require us to use them.
+---
+ ext/openssl/ossl_pkey.c   | 30 ++++++++++++++++++++++++++
+ test/openssl/test_pkey.rb | 45 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 75 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index a0d73f5821..19544ec7f0 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -771,6 +771,26 @@ ossl_pkey_sign(VALUE self, VALUE digest, VALUE data)
+         EVP_MD_CTX_free(ctx);
+         ossl_raise(ePKeyError, "EVP_DigestSignInit");
+     }
++#if OPENSSL_VERSION_NUMBER >= 0x10101000 && !defined(LIBRESSL_VERSION_NUMBER)
++    if (EVP_DigestSign(ctx, NULL, &siglen, (unsigned char *)RSTRING_PTR(data),
++                       RSTRING_LEN(data)) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestSign");
++    }
++    if (siglen > LONG_MAX)
++        rb_raise(ePKeyError, "signature would be too large");
++    sig = ossl_str_new(NULL, (long)siglen, &state);
++    if (state) {
++        EVP_MD_CTX_free(ctx);
++        rb_jump_tag(state);
++    }
++    if (EVP_DigestSign(ctx, (unsigned char *)RSTRING_PTR(sig), &siglen,
++                       (unsigned char *)RSTRING_PTR(data),
++                       RSTRING_LEN(data)) < 1) {
++        EVP_MD_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_DigestSign");
++    }
++#else
+     if (EVP_DigestSignUpdate(ctx, RSTRING_PTR(data), RSTRING_LEN(data)) < 1) {
+         EVP_MD_CTX_free(ctx);
+         ossl_raise(ePKeyError, "EVP_DigestSignUpdate");
+@@ -791,6 +811,7 @@ ossl_pkey_sign(VALUE self, VALUE digest, VALUE data)
+         EVP_MD_CTX_free(ctx);
+         ossl_raise(ePKeyError, "EVP_DigestSignFinal");
+     }
++#endif
+     EVP_MD_CTX_free(ctx);
+     rb_str_set_len(sig, siglen);
+     return sig;
+@@ -839,6 +860,14 @@ ossl_pkey_verify(VALUE self, VALUE digest, VALUE sig, VALUE data)
+         EVP_MD_CTX_free(ctx);
+         ossl_raise(ePKeyError, "EVP_DigestVerifyInit");
+     }
++#if OPENSSL_VERSION_NUMBER >= 0x10101000 && !defined(LIBRESSL_VERSION_NUMBER)
++    ret = EVP_DigestVerify(ctx, (unsigned char *)RSTRING_PTR(sig),
++                           RSTRING_LEN(sig), (unsigned char *)RSTRING_PTR(data),
++                           RSTRING_LEN(data));
++    EVP_MD_CTX_free(ctx);
++    if (ret < 0)
++        ossl_raise(ePKeyError, "EVP_DigestVerify");
++#else
+     if (EVP_DigestVerifyUpdate(ctx, RSTRING_PTR(data), RSTRING_LEN(data)) < 1) {
+         EVP_MD_CTX_free(ctx);
+         ossl_raise(ePKeyError, "EVP_DigestVerifyUpdate");
+@@ -848,6 +877,7 @@ ossl_pkey_verify(VALUE self, VALUE digest, VALUE sig, VALUE data)
+     EVP_MD_CTX_free(ctx);
+     if (ret < 0)
+         ossl_raise(ePKeyError, "EVP_DigestVerifyFinal");
++#endif
+     if (ret)
+         return Qtrue;
+     else {
+diff --git a/test/openssl/test_pkey.rb b/test/openssl/test_pkey.rb
+index 247ba84f83..d811b9c75f 100644
+--- a/test/openssl/test_pkey.rb
++++ b/test/openssl/test_pkey.rb
+@@ -80,4 +80,49 @@ def test_hmac_sign_verify
+       pkey.verify("SHA256", "data", hmac)
+     }
+   end
++
++  def test_ed25519
++    # Test vector from RFC 8032 Section 7.1 TEST 2
++    priv_pem = <<~EOF
++    -----BEGIN PRIVATE KEY-----
++    MC4CAQAwBQYDK2VwBCIEIEzNCJso/5banbbDRuwRTg9bijGfNaumJNqM9u1PuKb7
++    -----END PRIVATE KEY-----
++    EOF
++    pub_pem = <<~EOF
++    -----BEGIN PUBLIC KEY-----
++    MCowBQYDK2VwAyEAPUAXw+hDiVqStwqnTRt+vJyYLM8uxJaMwM1V8Sr0Zgw=
++    -----END PUBLIC KEY-----
++    EOF
++    begin
++      priv = OpenSSL::PKey.read(priv_pem)
++      pub = OpenSSL::PKey.read(pub_pem)
++    rescue OpenSSL::PKey::PKeyError
++      # OpenSSL < 1.1.1
++      pend "Ed25519 is not implemented"
++    end
++    assert_instance_of OpenSSL::PKey::PKey, priv
++    assert_instance_of OpenSSL::PKey::PKey, pub
++    assert_equal priv_pem, priv.private_to_pem
++    assert_equal pub_pem, priv.public_to_pem
++    assert_equal pub_pem, pub.public_to_pem
++
++    sig = [<<~EOF.gsub(/[^0-9a-f]/, "")].pack("H*")
++    92a009a9f0d4cab8720e820b5f642540
++    a2b27b5416503f8fb3762223ebdb69da
++    085ac1e43e15996e458f3613d0f11d8c
++    387b2eaeb4302aeeb00d291612bb0c00
++    EOF
++    data = ["72"].pack("H*")
++    assert_equal sig, priv.sign(nil, data)
++    assert_equal true, priv.verify(nil, sig, data)
++    assert_equal true, pub.verify(nil, sig, data)
++    assert_equal false, pub.verify(nil, sig, data.succ)
++
++    # PureEdDSA wants nil as the message digest
++    assert_raise(OpenSSL::PKey::PKeyError) { priv.sign("SHA512", data) }
++    assert_raise(OpenSSL::PKey::PKeyError) { pub.verify("SHA512", sig, data) }
++
++    # Ed25519 pkey type does not support key derivation
++    assert_raise(OpenSSL::PKey::PKeyError) { priv.derive(pub) }
++  end
+ end
+-- 
+2.32.0
+
+
+From fabdd22bddc572ba3342ec0b09e3fef8ed6245b8 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sat, 18 Mar 2017 21:58:46 +0900
+Subject: [PATCH 5/6] pkey: add PKey::PKey#derive
+
+Add OpenSSL::PKey::PKey#derive as the wrapper for EVP_PKEY_CTX_derive().
+This is useful for pkey types that we don't have dedicated classes, such
+as X25519.
+---
+ ext/openssl/ossl_pkey.c      | 52 ++++++++++++++++++++++++++++++++++++
+ test/openssl/test_pkey.rb    | 26 ++++++++++++++++++
+ test/openssl/test_pkey_dh.rb | 13 +++++++++
+ test/openssl/test_pkey_ec.rb | 16 +++++++++++
+ 4 files changed, 107 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 19544ec7f0..df8b425a0f 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -886,6 +886,57 @@ ossl_pkey_verify(VALUE self, VALUE digest, VALUE sig, VALUE data)
+     }
+ }
+ 
++/*
++ * call-seq:
++ *    pkey.derive(peer_pkey) -> string
++ *
++ * Derives a shared secret from _pkey_ and _peer_pkey_. _pkey_ must contain
++ * the private components, _peer_pkey_ must contain the public components.
++ */
++static VALUE
++ossl_pkey_derive(int argc, VALUE *argv, VALUE self)
++{
++    EVP_PKEY *pkey, *peer_pkey;
++    EVP_PKEY_CTX *ctx;
++    VALUE peer_pkey_obj, str;
++    size_t keylen;
++    int state;
++
++    GetPKey(self, pkey);
++    rb_scan_args(argc, argv, "1", &peer_pkey_obj);
++    GetPKey(peer_pkey_obj, peer_pkey);
++
++    ctx = EVP_PKEY_CTX_new(pkey, /* engine */NULL);
++    if (!ctx)
++        ossl_raise(ePKeyError, "EVP_PKEY_CTX_new");
++    if (EVP_PKEY_derive_init(ctx) <= 0) {
++        EVP_PKEY_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_PKEY_derive_init");
++    }
++    if (EVP_PKEY_derive_set_peer(ctx, peer_pkey) <= 0) {
++        EVP_PKEY_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_PKEY_derive_set_peer");
++    }
++    if (EVP_PKEY_derive(ctx, NULL, &keylen) <= 0) {
++        EVP_PKEY_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_PKEY_derive");
++    }
++    if (keylen > LONG_MAX)
++        rb_raise(ePKeyError, "derived key would be too large");
++    str = ossl_str_new(NULL, (long)keylen, &state);
++    if (state) {
++        EVP_PKEY_CTX_free(ctx);
++        rb_jump_tag(state);
++    }
++    if (EVP_PKEY_derive(ctx, (unsigned char *)RSTRING_PTR(str), &keylen) <= 0) {
++        EVP_PKEY_CTX_free(ctx);
++        ossl_raise(ePKeyError, "EVP_PKEY_derive");
++    }
++    EVP_PKEY_CTX_free(ctx);
++    rb_str_set_len(str, keylen);
++    return str;
++}
++
+ /*
+  * INIT
+  */
+@@ -983,6 +1034,7 @@ Init_ossl_pkey(void)
+ 
+     rb_define_method(cPKey, "sign", ossl_pkey_sign, 2);
+     rb_define_method(cPKey, "verify", ossl_pkey_verify, 3);
++    rb_define_method(cPKey, "derive", ossl_pkey_derive, -1);
+ 
+     id_private_q = rb_intern("private?");
+ 
+diff --git a/test/openssl/test_pkey.rb b/test/openssl/test_pkey.rb
+index d811b9c75f..5307fe5b08 100644
+--- a/test/openssl/test_pkey.rb
++++ b/test/openssl/test_pkey.rb
+@@ -125,4 +125,30 @@ def test_ed25519
+     # Ed25519 pkey type does not support key derivation
+     assert_raise(OpenSSL::PKey::PKeyError) { priv.derive(pub) }
+   end
++
++  def test_x25519
++    # Test vector from RFC 7748 Section 6.1
++    alice_pem = <<~EOF
++    -----BEGIN PRIVATE KEY-----
++    MC4CAQAwBQYDK2VuBCIEIHcHbQpzGKV9PBbBclGyZkXfTC+H68CZKrF3+6UduSwq
++    -----END PRIVATE KEY-----
++    EOF
++    bob_pem = <<~EOF
++    -----BEGIN PUBLIC KEY-----
++    MCowBQYDK2VuAyEA3p7bfXt9wbTTW2HC7OQ1Nz+DQ8hbeGdNrfx+FG+IK08=
++    -----END PUBLIC KEY-----
++    EOF
++    shared_secret = "4a5d9d5ba4ce2de1728e3bf480350f25e07e21c947d19e3376f09b3c1e161742"
++    begin
++      alice = OpenSSL::PKey.read(alice_pem)
++      bob = OpenSSL::PKey.read(bob_pem)
++    rescue OpenSSL::PKey::PKeyError
++      # OpenSSL < 1.1.0
++      pend "X25519 is not implemented"
++    end
++    assert_instance_of OpenSSL::PKey::PKey, alice
++    assert_equal alice_pem, alice.private_to_pem
++    assert_equal bob_pem, bob.public_to_pem
++    assert_equal [shared_secret].pack("H*"), alice.derive(bob)
++  end
+ end
+diff --git a/test/openssl/test_pkey_dh.rb b/test/openssl/test_pkey_dh.rb
+index 4a05626a12..9efc3ba68d 100644
+--- a/test/openssl/test_pkey_dh.rb
++++ b/test/openssl/test_pkey_dh.rb
+@@ -18,6 +18,19 @@ def test_new_break
+     end
+   end
+ 
++  def test_derive_key
++    dh1 = Fixtures.pkey("dh1024").generate_key!
++    dh2 = Fixtures.pkey("dh1024").generate_key!
++    dh1_pub = OpenSSL::PKey.read(dh1.public_to_der)
++    dh2_pub = OpenSSL::PKey.read(dh2.public_to_der)
++    z = dh1.g.mod_exp(dh1.priv_key, dh1.p).mod_exp(dh2.priv_key, dh1.p).to_s(2)
++    assert_equal z, dh1.derive(dh2_pub)
++    assert_equal z, dh2.derive(dh1_pub)
++
++    assert_equal z, dh1.compute_key(dh2.pub_key)
++    assert_equal z, dh2.compute_key(dh1.pub_key)
++  end
++
+   def test_DHparams
+     dh1024 = Fixtures.pkey("dh1024")
+     asn1 = OpenSSL::ASN1::Sequence([
+diff --git a/test/openssl/test_pkey_ec.rb b/test/openssl/test_pkey_ec.rb
+index a0e6a23ff8..95d4338a51 100644
+--- a/test/openssl/test_pkey_ec.rb
++++ b/test/openssl/test_pkey_ec.rb
+@@ -93,6 +93,22 @@ def test_sign_verify
+     assert_equal false, p256.verify("SHA256", signature1, data)
+   end
+ 
++  def test_derive_key
++    # NIST CAVP, KAS_ECC_CDH_PrimitiveTest.txt, P-256 COUNT = 0
++    qCAVSx = "700c48f77f56584c5cc632ca65640db91b6bacce3a4df6b42ce7cc838833d287"
++    qCAVSy = "db71e509e3fd9b060ddb20ba5c51dcc5948d46fbf640dfe0441782cab85fa4ac"
++    dIUT = "7d7dc5f71eb29ddaf80d6214632eeae03d9058af1fb6d22ed80badb62bc1a534"
++    zIUT = "46fc62106420ff012e54a434fbdd2d25ccc5852060561e68040dd7778997bd7b"
++    a = OpenSSL::PKey::EC.new("prime256v1")
++    a.private_key = OpenSSL::BN.new(dIUT, 16)
++    b = OpenSSL::PKey::EC.new("prime256v1")
++    uncompressed = OpenSSL::BN.new("04" + qCAVSx + qCAVSy, 16)
++    b.public_key = OpenSSL::PKey::EC::Point.new(b.group, uncompressed)
++    assert_equal [zIUT].pack("H*"), a.derive(b)
++
++    assert_equal a.derive(b), a.dh_compute_key(b.public_key)
++  end
++
+   def test_dsa_sign_verify
+     data1 = "foo"
+     data2 = "bar"
+-- 
+2.32.0
+
+
+From 97078c7fa8a724c7c71f9850d31fc401239da228 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sat, 18 Mar 2017 22:34:19 +0900
+Subject: [PATCH 6/6] pkey: reimplement PKey::DH#compute_key and
+ PKey::EC#dh_compute_key
+
+Use the new OpenSSL::PKey::PKey#derive instead of the raw
+{EC,}DH_compute_key(), mainly to reduce amount of the C code.
+---
+ ext/openssl/lib/openssl/pkey.rb | 33 +++++++++++++++++++++++++++++++
+ ext/openssl/ossl_pkey_dh.c      | 35 ---------------------------------
+ ext/openssl/ossl_pkey_ec.c      | 32 ------------------------------
+ 3 files changed, 33 insertions(+), 67 deletions(-)
+
+diff --git a/ext/openssl/lib/openssl/pkey.rb b/ext/openssl/lib/openssl/pkey.rb
+index 9cc3276356..be60ac2beb 100644
+--- a/ext/openssl/lib/openssl/pkey.rb
++++ b/ext/openssl/lib/openssl/pkey.rb
+@@ -9,6 +9,24 @@
+ module OpenSSL::PKey
+   class DH
+     include OpenSSL::Marshal
++
++    # :call-seq:
++    #    dh.compute_key(pub_bn) -> string
++    #
++    # Returns a String containing a shared secret computed from the other
++    # party's public value.
++    #
++    # This method is provided for backwards compatibility, and calls #derive
++    # internally.
++    #
++    # === Parameters
++    # * _pub_bn_ is a OpenSSL::BN, *not* the DH instance returned by
++    #   DH#public_key as that contains the DH parameters only.
++    def compute_key(pub_bn)
++      peer = dup
++      peer.set_key(pub_bn, nil)
++      derive(peer)
++    end
+   end
+ 
+   class DSA
+@@ -18,7 +36,22 @@ class DSA
+   if defined?(EC)
+   class EC
+     include OpenSSL::Marshal
++
++    # :call-seq:
++    #    ec.dh_compute_key(pubkey) -> string
++    #
++    # Derives a shared secret by ECDH. _pubkey_ must be an instance of
++    # OpenSSL::PKey::EC::Point and must belong to the same group.
++    #
++    # This method is provided for backwards compatibility, and calls #derive
++    # internally.
++    def dh_compute_key(pubkey)
++      peer = OpenSSL::PKey::EC.new(group)
++      peer.public_key = pubkey
++      derive(peer)
++    end
+   end
++
+   class EC::Point
+     # :call-seq:
+     #    point.to_bn([conversion_form]) -> OpenSSL::BN
+diff --git a/ext/openssl/ossl_pkey_dh.c b/ext/openssl/ossl_pkey_dh.c
+index bc50e5566b..5bc1c49ca1 100644
+--- a/ext/openssl/ossl_pkey_dh.c
++++ b/ext/openssl/ossl_pkey_dh.c
+@@ -476,40 +476,6 @@ ossl_dh_generate_key(VALUE self)
+     return self;
+ }
+ 
+-/*
+- *  call-seq:
+- *     dh.compute_key(pub_bn) -> aString
+- *
+- * Returns a String containing a shared secret computed from the other party's public value.
+- * See DH_compute_key() for further information.
+- *
+- * === Parameters
+- * * _pub_bn_ is a OpenSSL::BN, *not* the DH instance returned by
+- *   DH#public_key as that contains the DH parameters only.
+- */
+-static VALUE
+-ossl_dh_compute_key(VALUE self, VALUE pub)
+-{
+-    DH *dh;
+-    const BIGNUM *pub_key, *dh_p;
+-    VALUE str;
+-    int len;
+-
+-    GetDH(self, dh);
+-    DH_get0_pqg(dh, &dh_p, NULL, NULL);
+-    if (!dh_p)
+-	ossl_raise(eDHError, "incomplete DH");
+-    pub_key = GetBNPtr(pub);
+-    len = DH_size(dh);
+-    str = rb_str_new(0, len);
+-    if ((len = DH_compute_key((unsigned char *)RSTRING_PTR(str), pub_key, dh)) < 0) {
+-	ossl_raise(eDHError, NULL);
+-    }
+-    rb_str_set_len(str, len);
+-
+-    return str;
+-}
+-
+ /*
+  * Document-method: OpenSSL::PKey::DH#set_pqg
+  * call-seq:
+@@ -587,7 +553,6 @@ Init_ossl_dh(void)
+     rb_define_method(cDH, "public_key", ossl_dh_to_public_key, 0);
+     rb_define_method(cDH, "params_ok?", ossl_dh_check_params, 0);
+     rb_define_method(cDH, "generate_key!", ossl_dh_generate_key, 0);
+-    rb_define_method(cDH, "compute_key", ossl_dh_compute_key, 1);
+ 
+     DEF_OSSL_PKEY_BN(cDH, dh, p);
+     DEF_OSSL_PKEY_BN(cDH, dh, q);
+diff --git a/ext/openssl/ossl_pkey_ec.c b/ext/openssl/ossl_pkey_ec.c
+index 6fe2533e2a..c2534251c3 100644
+--- a/ext/openssl/ossl_pkey_ec.c
++++ b/ext/openssl/ossl_pkey_ec.c
+@@ -487,37 +487,6 @@ static VALUE ossl_ec_key_check_key(VALUE self)
+     return Qtrue;
+ }
+ 
+-/*
+- *  call-seq:
+- *     key.dh_compute_key(pubkey)   => String
+- *
+- *  See the OpenSSL documentation for ECDH_compute_key()
+- */
+-static VALUE ossl_ec_key_dh_compute_key(VALUE self, VALUE pubkey)
+-{
+-    EC_KEY *ec;
+-    EC_POINT *point;
+-    int buf_len;
+-    VALUE str;
+-
+-    GetEC(self, ec);
+-    GetECPoint(pubkey, point);
+-
+-/* BUG: need a way to figure out the maximum string size */
+-    buf_len = 1024;
+-    str = rb_str_new(0, buf_len);
+-/* BUG: take KDF as a block */
+-    buf_len = ECDH_compute_key(RSTRING_PTR(str), buf_len, point, ec, NULL);
+-    if (buf_len < 0)
+-         ossl_raise(eECError, "ECDH_compute_key");
+-
+-    rb_str_resize(str, buf_len);
+-
+-    return str;
+-}
+-
+-/* sign_setup */
+-
+ /*
+  *  call-seq:
+  *     key.dsa_sign_asn1(data)   => String
+@@ -1657,7 +1626,6 @@ void Init_ossl_ec(void)
+     rb_define_alias(cEC, "generate_key", "generate_key!");
+     rb_define_method(cEC, "check_key", ossl_ec_key_check_key, 0);
+ 
+-    rb_define_method(cEC, "dh_compute_key", ossl_ec_key_dh_compute_key, 1);
+     rb_define_method(cEC, "dsa_sign_asn1", ossl_ec_key_dsa_sign_asn1, 1);
+     rb_define_method(cEC, "dsa_verify_asn1", ossl_ec_key_dsa_verify_asn1, 2);
+ /* do_sign/do_verify */
+-- 
+2.32.0
+

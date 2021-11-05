@@ -1,0 +1,29 @@
+From b4b5eab2a5fd0e9ac62c01102dd26d0a433c5683 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 18 May 2020 02:17:28 +0900
+Subject: [PATCH] test/openssl/test_digest: do not test constants for legacy
+ algorithms
+
+Remove availability test for MD4 and RIPEMD160 as they are considered
+legacy and may be missing depending on the compile-time options of
+OpenSSL. OpenSSL 3.0 by default disables them.
+---
+ test/openssl/test_digest.rb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/test/openssl/test_digest.rb b/test/openssl/test_digest.rb
+index 8d7046e831..84c128c12f 100644
+--- a/test/openssl/test_digest.rb
++++ b/test/openssl/test_digest.rb
+@@ -54,7 +54,7 @@ def test_reset
+   end
+ 
+   def test_digest_constants
+-    %w{MD4 MD5 RIPEMD160 SHA1 SHA224 SHA256 SHA384 SHA512}.each do |name|
++    %w{MD5 SHA1 SHA224 SHA256 SHA384 SHA512}.each do |name|
+       assert_not_nil(OpenSSL::Digest.new(name))
+       klass = OpenSSL::Digest.const_get(name.tr('-', '_'))
+       assert_not_nil(klass.new)
+-- 
+2.32.0
+

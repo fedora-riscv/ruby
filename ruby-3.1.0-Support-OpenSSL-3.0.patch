@@ -1,0 +1,1101 @@
+From bc9cbef395fc8fc7f81c3911b92966abc693169a Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sun, 24 Oct 2021 17:50:18 +0900
+Subject: [PATCH 01/10] test/openssl/test_cipher: update test_ciphers
+
+Do not attempt to actually use all algorithms. Not all algorithms listed
+in OpenSSL::Cipher.ciphers are always available; some may belong to the
+legacy provider in OpenSSL 3.0.
+---
+ test/openssl/test_cipher.rb | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/test/openssl/test_cipher.rb b/test/openssl/test_cipher.rb
+index 178f5aba0e..395183b22d 100644
+--- a/test/openssl/test_cipher.rb
++++ b/test/openssl/test_cipher.rb
+@@ -135,14 +135,11 @@ def test_ctr_if_exists
+   end
+ 
+   def test_ciphers
+-    OpenSSL::Cipher.ciphers.each{|name|
+-      next if /netbsd/ =~ RUBY_PLATFORM && /idea|rc5/i =~ name
+-      begin
+-        assert_kind_of(OpenSSL::Cipher, OpenSSL::Cipher.new(name))
+-      rescue OpenSSL::Cipher::CipherError => e
+-        raise unless /wrap/ =~ name and /wrap mode not allowed/ =~ e.message
+-      end
+-    }
++    ciphers = OpenSSL::Cipher.ciphers
++    assert_kind_of Array, ciphers
++    assert_include ciphers, "aes-128-cbc"
++    assert_include ciphers, "aes128" # alias of aes-128-cbc
++    assert_include ciphers, "aes-128-gcm"
+   end
+ 
+   def test_AES
+-- 
+2.32.0
+
+
+From f73998da49d2cd273b38b542ddd49a4ceaf5bfa9 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Wed, 3 Nov 2021 23:31:29 +0900
+Subject: [PATCH 02/10] test/openssl/test_pkey_rsa: test concatenated PEM
+ parsing
+
+PEM-encoded private keys are sometimes stored together with irrelevant
+PEM blocks, such as the corresponding X.509 certificate.
+
+PEM_read_bio_*() family automatically skips unknown PEM blocks, but on
+OpenSSL 3.0 we will be using the new OSSL_DECODER API instead, due to
+some behavior changes around the password callback.
+
+Let's add a test case so that we won't break the current behavior.
+---
+ test/openssl/test_pkey_rsa.rb | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/test/openssl/test_pkey_rsa.rb b/test/openssl/test_pkey_rsa.rb
+index 4548bdb2cf..327449ae03 100644
+--- a/test/openssl/test_pkey_rsa.rb
++++ b/test/openssl/test_pkey_rsa.rb
+@@ -306,6 +306,12 @@ def test_RSAPrivateKey
+ 
+     assert_equal asn1.to_der, rsa1024.to_der
+     assert_equal pem, rsa1024.export
++
++    # Unknown PEM prepended
++    cert = issue_cert(OpenSSL::X509::Name.new([["CN", "nobody"]]), rsa1024, 1, [], nil, nil)
++    str = cert.to_text + cert.to_pem + rsa1024.to_pem
++    key = OpenSSL::PKey::RSA.new(str)
++    assert_same_rsa rsa1024, key
+   end
+ 
+   def test_RSAPrivateKey_encrypted
+-- 
+2.32.0
+
+
+From eb44c4c0eff7a63f9b0bc5d7a7a0df014f1c1b62 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sat, 20 Mar 2021 23:16:16 +0900
+Subject: [PATCH 03/10] pkey: use OSSL_DECODER to load encrypted PEM on OpenSSL
+ 3.0
+
+The routines to load pkeys (PEM_read_bio_* and d2i_* functions) have
+been rewritten around the newly introduced OSSL_DECODER API in OpenSSL
+3.0. They now first try to decrypt and parse a PEM block, and then check
+the kind. Since we try to parse a given string using each of them in
+turn, this means the password callback may now be called more than once.
+
+Let's use the OSSL_DECODER API directly on OpenSSL 3.0 to avoid this
+from happening.
+---
+ ext/openssl/ossl_pkey.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index ba909c7632..4eab598942 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -78,6 +78,45 @@ ossl_pkey_new(EVP_PKEY *pkey)
+     return obj;
+ }
+ 
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++# include <openssl/decoder.h>
++
++EVP_PKEY *
++ossl_pkey_read_generic(BIO *bio, VALUE pass)
++{
++    void *ppass = (void *)pass;
++    OSSL_DECODER_CTX *dctx;
++    EVP_PKEY *pkey = NULL;
++    int pos = 0, pos2;
++
++    dctx = OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", NULL, NULL, 0, NULL, NULL);
++    if (!dctx)
++        goto out;
++    if (OSSL_DECODER_CTX_set_pem_password_cb(dctx, ossl_pem_passwd_cb, ppass) != 1)
++        goto out;
++
++    /* First check DER */
++    if (OSSL_DECODER_from_bio(dctx, bio) == 1)
++        goto out;
++
++    /* Then check PEM; multiple OSSL_DECODER_from_bio() calls may be needed */
++    OSSL_BIO_reset(bio);
++    if (OSSL_DECODER_CTX_set_input_type(dctx, "PEM") != 1)
++        goto out;
++    while (OSSL_DECODER_from_bio(dctx, bio) != 1) {
++        if (BIO_eof(bio))
++            goto out;
++        pos2 = BIO_tell(bio);
++        if (pos2 < 0 || pos2 <= pos)
++            goto out;
++        pos = pos2;
++    }
++
++  out:
++    OSSL_DECODER_CTX_free(dctx);
++    return pkey;
++}
++#else
+ EVP_PKEY *
+ ossl_pkey_read_generic(BIO *bio, VALUE pass)
+ {
+@@ -106,6 +145,7 @@ ossl_pkey_read_generic(BIO *bio, VALUE pass)
+   out:
+     return pkey;
+ }
++#endif
+ 
+ /*
+  *  call-seq:
+-- 
+2.32.0
+
+
+From 588165c3235a23f0df58c8ec50ad6f46a05580f1 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sat, 20 Mar 2021 23:16:41 +0900
+Subject: [PATCH 04/10] pkey: assume a pkey always has public key components on
+ OpenSSL 3.0
+
+Do not check the key components in this way because they are not
+necessarily accessible in this way.
+---
+ ext/openssl/ossl_pkey.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 4eab598942..a805b4dc99 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -428,9 +428,19 @@ ossl_pkey_s_generate_key(int argc, VALUE *argv, VALUE self)
+     return pkey_generate(argc, argv, self, 0);
+ }
+ 
++/*
++ * TODO: There is no convenient way to check the presence of public key
++ * components on OpenSSL 3.0. But since keys are immutable on 3.0, pkeys without
++ * these should only be created by OpenSSL::PKey.generate_parameters or by
++ * parsing DER-/PEM-encoded string. We would need another flag for that.
++ */
+ void
+ ossl_pkey_check_public_key(const EVP_PKEY *pkey)
+ {
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++    if (EVP_PKEY_missing_parameters(pkey))
++        ossl_raise(ePKeyError, "parameters missing");
++#else
+     void *ptr;
+     const BIGNUM *n, *e, *pubkey;
+ 
+@@ -466,6 +476,7 @@ ossl_pkey_check_public_key(const EVP_PKEY *pkey)
+ 	return;
+     }
+     ossl_raise(ePKeyError, "public key missing");
++#endif
+ }
+ 
+ EVP_PKEY *
+-- 
+2.32.0
+
+
+From 4c362a1fad72fd570985e4f401ba534456252cb3 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 12 Apr 2021 10:43:46 +0900
+Subject: [PATCH 05/10] pkey: use EVP_PKEY_CTX_new_from_name() on OpenSSL 3.0
+
+Replace EVP_PKEY_CTX_new_id() with the new EVP_PKEY_CTX_new_from_name()
+which takes the algorithm name as a string rather than a NID.
+---
+ ext/openssl/ossl_pkey.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index a805b4dc99..73a54eb2fb 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -315,6 +315,11 @@ pkey_generate(int argc, VALUE *argv, VALUE self, int genparam)
+             ossl_raise(ePKeyError, "EVP_PKEY_CTX_new");
+     }
+     else {
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++        ctx = EVP_PKEY_CTX_new_from_name(NULL, StringValueCStr(alg), NULL);
++        if (!ctx)
++            ossl_raise(ePKeyError, "EVP_PKEY_CTX_new_from_name");
++#else
+         const EVP_PKEY_ASN1_METHOD *ameth;
+         ENGINE *tmpeng;
+         int pkey_id;
+@@ -333,6 +338,7 @@ pkey_generate(int argc, VALUE *argv, VALUE self, int genparam)
+         ctx = EVP_PKEY_CTX_new_id(pkey_id, NULL/* engine */);
+         if (!ctx)
+             ossl_raise(ePKeyError, "EVP_PKEY_CTX_new_id");
++#endif
+     }
+ 
+     if (genparam && EVP_PKEY_paramgen_init(ctx) <= 0) {
+-- 
+2.32.0
+
+
+From 013c8552b845a8607f9a0639a07e1515fe067cd3 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 12 Apr 2021 13:55:10 +0900
+Subject: [PATCH 06/10] pkey: do not check NULL argument in ossl_pkey_new()
+
+Since the function takes the ownership, the caller is supposed to know
+that the lifetime of the object - that is, it is never NULL. In fact,
+it is properly checked by the caller in all code paths.
+---
+ ext/openssl/ossl_pkey.c | 6 +-----
+ ext/openssl/ossl_pkey.h | 1 +
+ 2 files changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 73a54eb2fb..5320d70a48 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -38,12 +38,8 @@ static VALUE
+ pkey_new0(EVP_PKEY *pkey)
+ {
+     VALUE klass, obj;
+-    int type;
+ 
+-    if (!pkey || (type = EVP_PKEY_base_id(pkey)) == EVP_PKEY_NONE)
+-	ossl_raise(rb_eRuntimeError, "pkey is empty");
+-
+-    switch (type) {
++    switch (EVP_PKEY_base_id(pkey)) {
+ #if !defined(OPENSSL_NO_RSA)
+       case EVP_PKEY_RSA: klass = cRSA; break;
+ #endif
+diff --git a/ext/openssl/ossl_pkey.h b/ext/openssl/ossl_pkey.h
+index 629c16ae1f..d57e9c0f15 100644
+--- a/ext/openssl/ossl_pkey.h
++++ b/ext/openssl/ossl_pkey.h
+@@ -35,6 +35,7 @@ extern const rb_data_type_t ossl_evp_pkey_type;
+     } \
+ } while (0)
+ 
++/* Takes ownership of the EVP_PKEY */
+ VALUE ossl_pkey_new(EVP_PKEY *);
+ void ossl_pkey_check_public_key(const EVP_PKEY *);
+ EVP_PKEY *ossl_pkey_read_generic(BIO *, VALUE);
+-- 
+2.32.0
+
+
+From 2a9f958d71922303f223d4dcc15049d7dfa962a9 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 12 Apr 2021 18:32:40 +0900
+Subject: [PATCH 07/10] pkey: lazily initialize EVP_PKEY
+
+Allocate an EVP_PKEY when the content is ready: when #initialize
+or #initialize_copy is called, rather than when OpenSSL::PKey::PKey is
+allocated.
+
+This simplifies #initialize's and the upcoming generic #initialize_copy
+implementation.
+---
+ ext/openssl/ossl_pkey.c     | 15 ++----
+ ext/openssl/ossl_pkey.h     | 19 +++-----
+ ext/openssl/ossl_pkey_dh.c  | 69 ++++++++++++++++++++--------
+ ext/openssl/ossl_pkey_dsa.c | 87 +++++++++++++++++++++--------------
+ ext/openssl/ossl_pkey_ec.c  | 92 ++++++++++++++++++++-----------------
+ ext/openssl/ossl_pkey_rsa.c | 91 +++++++++++++++++++++---------------
+ 6 files changed, 217 insertions(+), 156 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index 5320d70a48..9ddfaafe7c 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -54,8 +54,8 @@ pkey_new0(EVP_PKEY *pkey)
+ #endif
+       default:           klass = cPKey; break;
+     }
+-    obj = NewPKey(klass);
+-    SetPKey(obj, pkey);
++    obj = rb_obj_alloc(klass);
++    RTYPEDDATA_DATA(obj) = pkey;
+     return obj;
+ }
+ 
+@@ -528,16 +528,7 @@ DupPKeyPtr(VALUE obj)
+ static VALUE
+ ossl_pkey_alloc(VALUE klass)
+ {
+-    EVP_PKEY *pkey;
+-    VALUE obj;
+-
+-    obj = NewPKey(klass);
+-    if (!(pkey = EVP_PKEY_new())) {
+-	ossl_raise(ePKeyError, NULL);
+-    }
+-    SetPKey(obj, pkey);
+-
+-    return obj;
++    return TypedData_Wrap_Struct(klass, &ossl_evp_pkey_type, NULL);
+ }
+ 
+ /*
+diff --git a/ext/openssl/ossl_pkey.h b/ext/openssl/ossl_pkey.h
+index d57e9c0f15..ac386717d7 100644
+--- a/ext/openssl/ossl_pkey.h
++++ b/ext/openssl/ossl_pkey.h
+@@ -15,21 +15,14 @@ extern VALUE cPKey;
+ extern VALUE ePKeyError;
+ extern const rb_data_type_t ossl_evp_pkey_type;
+ 
+-#define OSSL_PKEY_SET_PRIVATE(obj) rb_iv_set((obj), "private", Qtrue)
+-#define OSSL_PKEY_SET_PUBLIC(obj)  rb_iv_set((obj), "private", Qfalse)
+-#define OSSL_PKEY_IS_PRIVATE(obj)  (rb_iv_get((obj), "private") == Qtrue)
++/* For ENGINE */
++#define OSSL_PKEY_SET_PRIVATE(obj) rb_ivar_set((obj), rb_intern("private"), Qtrue)
++#define OSSL_PKEY_IS_PRIVATE(obj)  (rb_attr_get((obj), rb_intern("private")) == Qtrue)
+ 
+-#define NewPKey(klass) \
+-    TypedData_Wrap_Struct((klass), &ossl_evp_pkey_type, 0)
+-#define SetPKey(obj, pkey) do { \
+-    if (!(pkey)) { \
+-	rb_raise(rb_eRuntimeError, "PKEY wasn't initialized!"); \
+-    } \
+-    RTYPEDDATA_DATA(obj) = (pkey); \
+-    OSSL_PKEY_SET_PUBLIC(obj); \
+-} while (0)
++#define GetPKey0(obj, pkey) \
++    TypedData_Get_Struct((obj), EVP_PKEY, &ossl_evp_pkey_type, (pkey))
+ #define GetPKey(obj, pkey) do {\
+-    TypedData_Get_Struct((obj), EVP_PKEY, &ossl_evp_pkey_type, (pkey)); \
++    GetPKey0((obj), (pkey)); \
+     if (!(pkey)) { \
+ 	rb_raise(rb_eRuntimeError, "PKEY wasn't initialized!");\
+     } \
+diff --git a/ext/openssl/ossl_pkey_dh.c b/ext/openssl/ossl_pkey_dh.c
+index ca782bbe59..7d8e0fa502 100644
+--- a/ext/openssl/ossl_pkey_dh.c
++++ b/ext/openssl/ossl_pkey_dh.c
+@@ -76,7 +76,10 @@ ossl_dh_initialize(int argc, VALUE *argv, VALUE self)
+     BIO *in;
+     VALUE arg;
+ 
+-    GetPKey(self, pkey);
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
++
+     /* The DH.new(size, generator) form is handled by lib/openssl/pkey.rb */
+     if (rb_scan_args(argc, argv, "01", &arg) == 0) {
+         dh = DH_new();
+@@ -84,22 +87,44 @@ ossl_dh_initialize(int argc, VALUE *argv, VALUE self)
+             ossl_raise(eDHError, "DH_new");
+     }
+     else {
+-	arg = ossl_to_der_if_possible(arg);
+-	in = ossl_obj2bio(&arg);
+-	dh = PEM_read_bio_DHparams(in, NULL, NULL, NULL);
+-	if (!dh){
+-	    OSSL_BIO_reset(in);
+-	    dh = d2i_DHparams_bio(in, NULL);
+-	}
+-	BIO_free(in);
+-	if (!dh) {
+-	    ossl_raise(eDHError, NULL);
+-	}
++        int type;
++
++        arg = ossl_to_der_if_possible(arg);
++        in = ossl_obj2bio(&arg);
++
++        /* First try DER-encoded parameters */
++        dh = d2i_DHparams_bio(in, NULL);
++        OSSL_BIO_reset(in);
++        if (dh) {
++            BIO_free(in);
++            goto legacy;
++        }
++
++        /* Use the generic routine - parses PEM-encoded parameters */
++        pkey = ossl_pkey_read_generic(in, Qnil);
++        BIO_free(in);
++        if (!pkey)
++            ossl_raise(eDHError, "could not parse pkey");
++
++        type = EVP_PKEY_base_id(pkey);
++        if (type != EVP_PKEY_DH) {
++            EVP_PKEY_free(pkey);
++            rb_raise(eDHError, "incorrect pkey type: %s", OBJ_nid2sn(type));
++        }
++        RTYPEDDATA_DATA(self) = pkey;
++        return self;
+     }
+-    if (!EVP_PKEY_assign_DH(pkey, dh)) {
+-	DH_free(dh);
+-	ossl_raise(eDHError, NULL);
++
++  legacy:
++    if (dh) {
++        pkey = EVP_PKEY_new();
++        if (!pkey || EVP_PKEY_assign_DH(pkey, dh) != 1) {
++            EVP_PKEY_free(pkey);
++            DH_free(dh);
++            ossl_raise(eDHError, "EVP_PKEY_assign_DH");
++        }
+     }
++    RTYPEDDATA_DATA(self) = pkey;
+     return self;
+ }
+ 
+@@ -110,15 +135,14 @@ ossl_dh_initialize_copy(VALUE self, VALUE other)
+     DH *dh, *dh_other;
+     const BIGNUM *pub, *priv;
+ 
+-    GetPKey(self, pkey);
+-    if (EVP_PKEY_base_id(pkey) != EVP_PKEY_NONE)
+-	ossl_raise(eDHError, "DH already initialized");
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+     GetDH(other, dh_other);
+ 
+     dh = DHparams_dup(dh_other);
+     if (!dh)
+ 	ossl_raise(eDHError, "DHparams_dup");
+-    EVP_PKEY_assign_DH(pkey, dh);
+ 
+     DH_get0_key(dh_other, &pub, &priv);
+     if (pub) {
+@@ -133,6 +157,13 @@ ossl_dh_initialize_copy(VALUE self, VALUE other)
+ 	DH_set0_key(dh, pub2, priv2);
+     }
+ 
++    pkey = EVP_PKEY_new();
++    if (!pkey || EVP_PKEY_assign_DH(pkey, dh) != 1) {
++        EVP_PKEY_free(pkey);
++        DH_free(dh);
++        ossl_raise(eDHError, "EVP_PKEY_assign_DH");
++    }
++    RTYPEDDATA_DATA(self) = pkey;
+     return self;
+ }
+ 
+diff --git a/ext/openssl/ossl_pkey_dsa.c b/ext/openssl/ossl_pkey_dsa.c
+index 7af00eebec..1bba6c54b7 100644
+--- a/ext/openssl/ossl_pkey_dsa.c
++++ b/ext/openssl/ossl_pkey_dsa.c
+@@ -83,12 +83,16 @@ VALUE eDSAError;
+ static VALUE
+ ossl_dsa_initialize(int argc, VALUE *argv, VALUE self)
+ {
+-    EVP_PKEY *pkey, *tmp;
+-    DSA *dsa = NULL;
++    EVP_PKEY *pkey;
++    DSA *dsa;
+     BIO *in;
+     VALUE arg, pass;
++    int type;
++
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+ 
+-    GetPKey(self, pkey);
+     /* The DSA.new(size, generator) form is handled by lib/openssl/pkey.rb */
+     rb_scan_args(argc, argv, "02", &arg, &pass);
+     if (argc == 0) {
+@@ -97,36 +101,41 @@ ossl_dsa_initialize(int argc, VALUE *argv, VALUE self)
+             ossl_raise(eDSAError, "DSA_new");
+     }
+     else {
+-	pass = ossl_pem_passwd_value(pass);
+-	arg = ossl_to_der_if_possible(arg);
+-	in = ossl_obj2bio(&arg);
+-
+-        tmp = ossl_pkey_read_generic(in, pass);
+-        if (tmp) {
+-            if (EVP_PKEY_base_id(tmp) != EVP_PKEY_DSA)
+-                rb_raise(eDSAError, "incorrect pkey type: %s",
+-                         OBJ_nid2sn(EVP_PKEY_base_id(tmp)));
+-            dsa = EVP_PKEY_get1_DSA(tmp);
+-            EVP_PKEY_free(tmp);
++        pass = ossl_pem_passwd_value(pass);
++        arg = ossl_to_der_if_possible(arg);
++        in = ossl_obj2bio(&arg);
++
++        dsa = (DSA *)PEM_ASN1_read_bio((d2i_of_void *)d2i_DSAPublicKey,
++                                       PEM_STRING_DSA_PUBLIC,
++                                       in, NULL, NULL, NULL);
++        OSSL_BIO_reset(in);
++        if (dsa)
++            goto legacy;
++
++        pkey = ossl_pkey_read_generic(in, pass);
++        BIO_free(in);
++        if (!pkey)
++            ossl_raise(eDSAError, "Neither PUB key nor PRIV key");
++
++        type = EVP_PKEY_base_id(pkey);
++        if (type != EVP_PKEY_DSA) {
++            EVP_PKEY_free(pkey);
++            rb_raise(eDSAError, "incorrect pkey type: %s", OBJ_nid2sn(type));
+         }
+-	if (!dsa) {
+-	    OSSL_BIO_reset(in);
+-#define PEM_read_bio_DSAPublicKey(bp,x,cb,u) (DSA *)PEM_ASN1_read_bio( \
+-	(d2i_of_void *)d2i_DSAPublicKey, PEM_STRING_DSA_PUBLIC, (bp), (void **)(x), (cb), (u))
+-	    dsa = PEM_read_bio_DSAPublicKey(in, NULL, NULL, NULL);
+-#undef PEM_read_bio_DSAPublicKey
+-	}
+-	BIO_free(in);
+-	if (!dsa) {
+-	    ossl_clear_error();
+-	    ossl_raise(eDSAError, "Neither PUB key nor PRIV key");
+-	}
+-    }
+-    if (!EVP_PKEY_assign_DSA(pkey, dsa)) {
+-	DSA_free(dsa);
+-	ossl_raise(eDSAError, NULL);
++        RTYPEDDATA_DATA(self) = pkey;
++        return self;
+     }
+ 
++  legacy:
++    if (dsa) {
++        pkey = EVP_PKEY_new();
++        if (!pkey || EVP_PKEY_assign_DSA(pkey, dsa) != 1) {
++            EVP_PKEY_free(pkey);
++            DSA_free(dsa);
++            ossl_raise(eDSAError, "EVP_PKEY_assign_DSA");
++        }
++    }
++    RTYPEDDATA_DATA(self) = pkey;
+     return self;
+ }
+ 
+@@ -136,16 +145,24 @@ ossl_dsa_initialize_copy(VALUE self, VALUE other)
+     EVP_PKEY *pkey;
+     DSA *dsa, *dsa_new;
+ 
+-    GetPKey(self, pkey);
+-    if (EVP_PKEY_base_id(pkey) != EVP_PKEY_NONE)
+-	ossl_raise(eDSAError, "DSA already initialized");
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+     GetDSA(other, dsa);
+ 
+-    dsa_new = ASN1_dup((i2d_of_void *)i2d_DSAPrivateKey, (d2i_of_void *)d2i_DSAPrivateKey, (char *)dsa);
++    dsa_new = (DSA *)ASN1_dup((i2d_of_void *)i2d_DSAPrivateKey,
++                              (d2i_of_void *)d2i_DSAPrivateKey,
++                              (char *)dsa);
+     if (!dsa_new)
+ 	ossl_raise(eDSAError, "ASN1_dup");
+ 
+-    EVP_PKEY_assign_DSA(pkey, dsa_new);
++    pkey = EVP_PKEY_new();
++    if (!pkey || EVP_PKEY_assign_DSA(pkey, dsa_new) != 1) {
++        EVP_PKEY_free(pkey);
++        DSA_free(dsa_new);
++        ossl_raise(eDSAError, "EVP_PKEY_assign_DSA");
++    }
++    RTYPEDDATA_DATA(self) = pkey;
+ 
+     return self;
+ }
+diff --git a/ext/openssl/ossl_pkey_ec.c b/ext/openssl/ossl_pkey_ec.c
+index f52e67079d..bec9937bc6 100644
+--- a/ext/openssl/ossl_pkey_ec.c
++++ b/ext/openssl/ossl_pkey_ec.c
+@@ -114,13 +114,16 @@ ossl_ec_key_s_generate(VALUE klass, VALUE arg)
+     VALUE obj;
+ 
+     obj = rb_obj_alloc(klass);
+-    GetPKey(obj, pkey);
+ 
+     ec = ec_key_new_from_group(arg);
+-    if (!EVP_PKEY_assign_EC_KEY(pkey, ec)) {
++    pkey = EVP_PKEY_new();
++    if (!pkey || EVP_PKEY_assign_EC_KEY(pkey, ec) != 1) {
++        EVP_PKEY_free(pkey);
+         EC_KEY_free(ec);
+         ossl_raise(eECError, "EVP_PKEY_assign_EC_KEY");
+     }
++    RTYPEDDATA_DATA(obj) = pkey;
++
+     if (!EC_KEY_generate_key(ec))
+ 	ossl_raise(eECError, "EC_KEY_generate_key");
+ 
+@@ -141,51 +144,55 @@ ossl_ec_key_s_generate(VALUE klass, VALUE arg)
+ static VALUE ossl_ec_key_initialize(int argc, VALUE *argv, VALUE self)
+ {
+     EVP_PKEY *pkey;
+-    EC_KEY *ec = NULL;
++    EC_KEY *ec;
++    BIO *in;
+     VALUE arg, pass;
++    int type;
+ 
+-    GetPKey(self, pkey);
+-    if (EVP_PKEY_base_id(pkey) != EVP_PKEY_NONE)
+-        ossl_raise(eECError, "EC_KEY already initialized");
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+ 
+     rb_scan_args(argc, argv, "02", &arg, &pass);
+-
+     if (NIL_P(arg)) {
+         if (!(ec = EC_KEY_new()))
+-	    ossl_raise(eECError, NULL);
+-    } else if (rb_obj_is_kind_of(arg, cEC)) {
+-	EC_KEY *other_ec = NULL;
+-
+-	GetEC(arg, other_ec);
+-	if (!(ec = EC_KEY_dup(other_ec)))
+-	    ossl_raise(eECError, NULL);
+-    } else if (rb_obj_is_kind_of(arg, cEC_GROUP)) {
+-	ec = ec_key_new_from_group(arg);
+-    } else {
+-        BIO *in = ossl_obj2bio(&arg);
+-        EVP_PKEY *tmp;
++            ossl_raise(eECError, "EC_KEY_new");
++    }
++    else if (rb_obj_is_kind_of(arg, cEC_GROUP)) {
++        ec = ec_key_new_from_group(arg);
++    }
++    else {
+         pass = ossl_pem_passwd_value(pass);
+-        tmp = ossl_pkey_read_generic(in, pass);
+-        if (tmp) {
+-            if (EVP_PKEY_base_id(tmp) != EVP_PKEY_EC)
+-                rb_raise(eECError, "incorrect pkey type: %s",
+-                         OBJ_nid2sn(EVP_PKEY_base_id(tmp)));
+-            ec = EVP_PKEY_get1_EC_KEY(tmp);
+-            EVP_PKEY_free(tmp);
++        arg = ossl_to_der_if_possible(arg);
++        in = ossl_obj2bio(&arg);
++
++        pkey = ossl_pkey_read_generic(in, pass);
++        BIO_free(in);
++        if (!pkey) {
++            ossl_clear_error();
++            ec = ec_key_new_from_group(arg);
++            goto legacy;
+         }
+-	BIO_free(in);
+ 
+-	if (!ec) {
+-	    ossl_clear_error();
+-	    ec = ec_key_new_from_group(arg);
+-	}
++        type = EVP_PKEY_base_id(pkey);
++        if (type != EVP_PKEY_EC) {
++            EVP_PKEY_free(pkey);
++            rb_raise(eDSAError, "incorrect pkey type: %s", OBJ_nid2sn(type));
++        }
++        RTYPEDDATA_DATA(self) = pkey;
++        return self;
+     }
+ 
+-    if (!EVP_PKEY_assign_EC_KEY(pkey, ec)) {
+-	EC_KEY_free(ec);
+-	ossl_raise(eECError, "EVP_PKEY_assign_EC_KEY");
++  legacy:
++    if (ec) {
++        pkey = EVP_PKEY_new();
++        if (!pkey || EVP_PKEY_assign_EC_KEY(pkey, ec) != 1) {
++            EVP_PKEY_free(pkey);
++            EC_KEY_free(ec);
++            ossl_raise(eECError, "EVP_PKEY_assign_EC_KEY");
++        }
+     }
+-
++    RTYPEDDATA_DATA(self) = pkey;
+     return self;
+ }
+ 
+@@ -195,18 +202,21 @@ ossl_ec_key_initialize_copy(VALUE self, VALUE other)
+     EVP_PKEY *pkey;
+     EC_KEY *ec, *ec_new;
+ 
+-    GetPKey(self, pkey);
+-    if (EVP_PKEY_base_id(pkey) != EVP_PKEY_NONE)
+-	ossl_raise(eECError, "EC already initialized");
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+     GetEC(other, ec);
+ 
+     ec_new = EC_KEY_dup(ec);
+     if (!ec_new)
+ 	ossl_raise(eECError, "EC_KEY_dup");
+-    if (!EVP_PKEY_assign_EC_KEY(pkey, ec_new)) {
+-	EC_KEY_free(ec_new);
+-	ossl_raise(eECError, "EVP_PKEY_assign_EC_KEY");
++
++    pkey = EVP_PKEY_new();
++    if (!pkey || EVP_PKEY_assign_EC_KEY(pkey, ec_new) != 1) {
++        EC_KEY_free(ec_new);
++        ossl_raise(eECError, "EVP_PKEY_assign_EC_KEY");
+     }
++    RTYPEDDATA_DATA(self) = pkey;
+ 
+     return self;
+ }
+diff --git a/ext/openssl/ossl_pkey_rsa.c b/ext/openssl/ossl_pkey_rsa.c
+index 8ebd3ec559..446150c8af 100644
+--- a/ext/openssl/ossl_pkey_rsa.c
++++ b/ext/openssl/ossl_pkey_rsa.c
+@@ -76,12 +76,16 @@ VALUE eRSAError;
+ static VALUE
+ ossl_rsa_initialize(int argc, VALUE *argv, VALUE self)
+ {
+-    EVP_PKEY *pkey, *tmp;
+-    RSA *rsa = NULL;
++    EVP_PKEY *pkey;
++    RSA *rsa;
+     BIO *in;
+     VALUE arg, pass;
++    int type;
++
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+ 
+-    GetPKey(self, pkey);
+     /* The RSA.new(size, generator) form is handled by lib/openssl/pkey.rb */
+     rb_scan_args(argc, argv, "02", &arg, &pass);
+     if (argc == 0) {
+@@ -90,37 +94,45 @@ ossl_rsa_initialize(int argc, VALUE *argv, VALUE self)
+             ossl_raise(eRSAError, "RSA_new");
+     }
+     else {
+-	pass = ossl_pem_passwd_value(pass);
+-	arg = ossl_to_der_if_possible(arg);
+-	in = ossl_obj2bio(&arg);
+-
+-        tmp = ossl_pkey_read_generic(in, pass);
+-        if (tmp) {
+-            if (EVP_PKEY_base_id(tmp) != EVP_PKEY_RSA)
+-                rb_raise(eRSAError, "incorrect pkey type: %s",
+-                         OBJ_nid2sn(EVP_PKEY_base_id(tmp)));
+-            rsa = EVP_PKEY_get1_RSA(tmp);
+-            EVP_PKEY_free(tmp);
++        pass = ossl_pem_passwd_value(pass);
++        arg = ossl_to_der_if_possible(arg);
++        in = ossl_obj2bio(&arg);
++
++        /* First try RSAPublicKey format */
++        rsa = d2i_RSAPublicKey_bio(in, NULL);
++        OSSL_BIO_reset(in);
++        if (rsa)
++            goto legacy;
++        rsa = PEM_read_bio_RSAPublicKey(in, NULL, NULL, NULL);
++        OSSL_BIO_reset(in);
++        if (rsa)
++            goto legacy;
++
++        /* Use the generic routine */
++        pkey = ossl_pkey_read_generic(in, pass);
++        BIO_free(in);
++        if (!pkey)
++            ossl_raise(eRSAError, "Neither PUB key nor PRIV key");
++
++        type = EVP_PKEY_base_id(pkey);
++        if (type != EVP_PKEY_RSA) {
++            EVP_PKEY_free(pkey);
++            rb_raise(eRSAError, "incorrect pkey type: %s", OBJ_nid2sn(type));
+         }
+-	if (!rsa) {
+-	    OSSL_BIO_reset(in);
+-	    rsa = PEM_read_bio_RSAPublicKey(in, NULL, NULL, NULL);
+-	}
+-	if (!rsa) {
+-	    OSSL_BIO_reset(in);
+-	    rsa = d2i_RSAPublicKey_bio(in, NULL);
+-	}
+-	BIO_free(in);
+-	if (!rsa) {
+-            ossl_clear_error();
+-	    ossl_raise(eRSAError, "Neither PUB key nor PRIV key");
+-	}
+-    }
+-    if (!EVP_PKEY_assign_RSA(pkey, rsa)) {
+-	RSA_free(rsa);
+-	ossl_raise(eRSAError, "EVP_PKEY_assign_RSA");
++        RTYPEDDATA_DATA(self) = pkey;
++        return self;
+     }
+ 
++  legacy:
++    if (rsa) {
++        pkey = EVP_PKEY_new();
++        if (!pkey || EVP_PKEY_assign_RSA(pkey, rsa) != 1) {
++            EVP_PKEY_free(pkey);
++            RSA_free(rsa);
++            ossl_raise(eRSAError, "EVP_PKEY_assign_RSA");
++        }
++    }
++    RTYPEDDATA_DATA(self) = pkey;
+     return self;
+ }
+ 
+@@ -130,16 +142,23 @@ ossl_rsa_initialize_copy(VALUE self, VALUE other)
+     EVP_PKEY *pkey;
+     RSA *rsa, *rsa_new;
+ 
+-    GetPKey(self, pkey);
+-    if (EVP_PKEY_base_id(pkey) != EVP_PKEY_NONE)
+-	ossl_raise(eRSAError, "RSA already initialized");
++    GetPKey0(self, pkey);
++    if (pkey)
++        rb_raise(rb_eTypeError, "pkey already initialized");
+     GetRSA(other, rsa);
+ 
+-    rsa_new = ASN1_dup((i2d_of_void *)i2d_RSAPrivateKey, (d2i_of_void *)d2i_RSAPrivateKey, (char *)rsa);
++    rsa_new = (RSA *)ASN1_dup((i2d_of_void *)i2d_RSAPrivateKey,
++                              (d2i_of_void *)d2i_RSAPrivateKey,
++                              (char *)rsa);
+     if (!rsa_new)
+ 	ossl_raise(eRSAError, "ASN1_dup");
+ 
+-    EVP_PKEY_assign_RSA(pkey, rsa_new);
++    pkey = EVP_PKEY_new();
++    if (!pkey || EVP_PKEY_assign_RSA(pkey, rsa_new) != 1) {
++        RSA_free(rsa_new);
++        ossl_raise(eRSAError, "EVP_PKEY_assign_RSA");
++    }
++    RTYPEDDATA_DATA(self) = pkey;
+ 
+     return self;
+ }
+-- 
+2.32.0
+
+
+From 0ea28ac73e094bbb379b0915a67d44582e5e20da Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Thu, 22 Apr 2021 18:29:30 +0900
+Subject: [PATCH 08/10] pkey: deprecate OpenSSL::PKey::{RSA,DSA,DH}#set_*
+ methods
+
+The underlying OpenSSL functions, {RSA,DSA,DH}_set_*() are removed in
+OpenSSL 3.0.
+
+Since the plan is to make EVP_PKEY immutable, there will be no direct
+replacement for them and we have no choice here.
+
+It is suggested for users to use OpenSSL::PKey.from_data instead,
+which construct a pkey from all necessary parameters at once.
+---
+ ext/openssl/ossl_pkey.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.h b/ext/openssl/ossl_pkey.h
+index ac386717d7..f6ad961937 100644
+--- a/ext/openssl/ossl_pkey.h
++++ b/ext/openssl/ossl_pkey.h
+@@ -130,6 +130,8 @@ static VALUE ossl_##_keytype##_set_##_group(VALUE self, VALUE v1, VALUE v2, VALU
+ 	BIGNUM *bn2 = NULL, *orig_bn2 = NIL_P(v2) ? NULL : GetBNPtr(v2);\
+ 	BIGNUM *bn3 = NULL, *orig_bn3 = NIL_P(v3) ? NULL : GetBNPtr(v3);\
+ 									\
++        rb_warning(#_keytype"#set_"#_group"= is incompatible with "	\
++                   "OpenSSL 3.0; check OpenSSL::PKey.from_data");	\
+ 	Get##_type(self, obj);						\
+         if ((orig_bn1 && !(bn1 = BN_dup(orig_bn1))) ||			\
+             (orig_bn2 && !(bn2 = BN_dup(orig_bn2))) ||			\
+@@ -160,6 +162,8 @@ static VALUE ossl_##_keytype##_set_##_group(VALUE self, VALUE v1, VALUE v2) \
+ 	BIGNUM *bn1 = NULL, *orig_bn1 = NIL_P(v1) ? NULL : GetBNPtr(v1);\
+ 	BIGNUM *bn2 = NULL, *orig_bn2 = NIL_P(v2) ? NULL : GetBNPtr(v2);\
+ 									\
++        rb_warning(#_keytype"#set_"#_group"= is incompatible with "	\
++                   "OpenSSL 3.0; check OpenSSL::PKey.from_data");	\
+ 	Get##_type(self, obj);						\
+         if ((orig_bn1 && !(bn1 = BN_dup(orig_bn1))) ||			\
+             (orig_bn2 && !(bn2 = BN_dup(orig_bn2)))) {			\
+-- 
+2.32.0
+
+
+From 6fda9b5c292fbaae2eb7d6c8e15f1ff53ae7e50c Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Tue, 21 Sep 2021 18:29:59 +0900
+Subject: [PATCH 09/10] test/openssl/test_pkey_ec: update test_check_key for
+ OpenSSL 3.0
+
+OpenSSL::PKey::EC#generate_key! or #private_key= will not work on
+OpenSSL 3.0.
+---
+ test/openssl/test_pkey_ec.rb | 32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
+
+diff --git a/test/openssl/test_pkey_ec.rb b/test/openssl/test_pkey_ec.rb
+index d62f1b5eb8..730ad28062 100644
+--- a/test/openssl/test_pkey_ec.rb
++++ b/test/openssl/test_pkey_ec.rb
+@@ -60,22 +60,28 @@ def test_marshal
+   end
+ 
+   def test_check_key
+-    key = OpenSSL::PKey::EC.new("prime256v1").generate_key!
+-    assert_equal(true, key.check_key)
+-    assert_equal(true, key.private?)
+-    assert_equal(true, key.public?)
+-    key2 = OpenSSL::PKey::EC.new(key.group)
+-    assert_equal(false, key2.private?)
+-    assert_equal(false, key2.public?)
+-    key2.public_key = key.public_key
+-    assert_equal(false, key2.private?)
+-    assert_equal(true, key2.public?)
+-    key2.private_key = key.private_key
++    key0 = Fixtures.pkey("p256")
++    assert_equal(true, key0.check_key)
++    assert_equal(true, key0.private?)
++    assert_equal(true, key0.public?)
++
++    key1 = OpenSSL::PKey.read(key0.public_to_der)
++    assert_equal(true, key1.check_key)
++    assert_equal(false, key1.private?)
++    assert_equal(true, key1.public?)
++
++    key2 = OpenSSL::PKey.read(key0.private_to_der)
+     assert_equal(true, key2.private?)
+     assert_equal(true, key2.public?)
+     assert_equal(true, key2.check_key)
+-    key2.private_key += 1
+-    assert_raise(OpenSSL::PKey::ECError) { key2.check_key }
++
++    # EC#private_key= is deprecated in 3.0 and won't work on OpenSSL 3.0
++    if !openssl?(3, 0, 0)
++      EnvUtil.suppress_warning do
++        key2.private_key += 1
++        assert_raise(OpenSSL::PKey::ECError) { key2.check_key }
++      end
++    end
+   end
+ 
+   def test_sign_verify
+-- 
+2.32.0
+
+
+From b63c0cb012981613463bdf4d80dcaedfa494a0d0 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 22 Oct 2021 16:24:07 +0900
+Subject: [PATCH 10/10] pkey/dh: deprecate OpenSSL::PKey::DH#generate_key!
+
+OpenSSL 3.0.0 has made keys immutable, so PKey::DH#generate_key! can't
+work on it anymore.
+
+It's advised to use OpenSSL::PKey.generate_key instead.
+---
+ ext/openssl/lib/openssl/pkey.rb | 26 ++++++++++++++++++++++----
+ test/openssl/test_pkey_dh.rb    | 33 ++++++++++++++++++---------------
+ 2 files changed, 40 insertions(+), 19 deletions(-)
+
+diff --git a/ext/openssl/lib/openssl/pkey.rb b/ext/openssl/lib/openssl/pkey.rb
+index f6bf5892b0..cad376855d 100644
+--- a/ext/openssl/lib/openssl/pkey.rb
++++ b/ext/openssl/lib/openssl/pkey.rb
+@@ -61,14 +61,32 @@ def compute_key(pub_bn)
+     # called first in order to generate the per-session keys before performing
+     # the actual key exchange.
+     #
++    # <b>Deprecated in version 3.0</b>. This method is incompatible with
++    # OpenSSL 3.0.0 or later.
++    #
+     # See also OpenSSL::PKey.generate_key.
+     #
+     # Example:
+-    #   dh = OpenSSL::PKey::DH.new(2048)
+-    #   public_key = dh.public_key #contains no private/public key yet
+-    #   public_key.generate_key!
+-    #   puts public_key.private? # => true
++    #   # DEPRECATED USAGE: This will not work on OpenSSL 3.0 or later
++    #   dh0 = OpenSSL::PKey::DH.new(2048)
++    #   dh = dh0.public_key # #public_key only copies the DH parameters (contrary to the name)
++    #   dh.generate_key!
++    #   puts dh.private? # => true
++    #   puts dh0.pub_key == dh.pub_key #=> false
++    #
++    #   # With OpenSSL::PKey.generate_key
++    #   dh0 = OpenSSL::PKey::DH.new(2048)
++    #   dh = OpenSSL::PKey.generate_key(dh0)
++    #   puts dh0.pub_key == dh.pub_key #=> false
+     def generate_key!
++      msg = "OpenSSL::PKey::DH is immutable on OpenSSL 3.0; " \
++        "use OpenSSL::PKey.generate_key instead"
++      if OpenSSL::OPENSSL_VERSION_NUMBER >= 0x30000000
++        raise DHError, msg
++      else
++        warn "#{caller(1, 1)[0]}: warning: #{msg}"
++      end
++
+       unless priv_key
+         tmp = OpenSSL::PKey.generate_key(self)
+         set_key(tmp.pub_key, tmp.priv_key)
+diff --git a/test/openssl/test_pkey_dh.rb b/test/openssl/test_pkey_dh.rb
+index 757704caf6..248f4ebb42 100644
+--- a/test/openssl/test_pkey_dh.rb
++++ b/test/openssl/test_pkey_dh.rb
+@@ -26,14 +26,19 @@ def test_new_break
+   end
+ 
+   def test_derive_key
+-    dh1 = Fixtures.pkey("dh1024").generate_key!
+-    dh2 = Fixtures.pkey("dh1024").generate_key!
++    params = Fixtures.pkey("dh1024")
++    dh1 = OpenSSL::PKey.generate_key(params)
++    dh2 = OpenSSL::PKey.generate_key(params)
+     dh1_pub = OpenSSL::PKey.read(dh1.public_to_der)
+     dh2_pub = OpenSSL::PKey.read(dh2.public_to_der)
++
+     z = dh1.g.mod_exp(dh1.priv_key, dh1.p).mod_exp(dh2.priv_key, dh1.p).to_s(2)
+     assert_equal z, dh1.derive(dh2_pub)
+     assert_equal z, dh2.derive(dh1_pub)
+ 
++    assert_raise(OpenSSL::PKey::PKeyError) { params.derive(dh1_pub) }
++    assert_raise(OpenSSL::PKey::PKeyError) { dh1_pub.derive(params) }
++
+     assert_equal z, dh1.compute_key(dh2.pub_key)
+     assert_equal z, dh2.compute_key(dh1.pub_key)
+   end
+@@ -74,19 +79,17 @@ def test_public_key
+   end
+ 
+   def test_generate_key
+-    dh = Fixtures.pkey("dh1024").public_key # creates a copy
+-    assert_no_key(dh)
+-    dh.generate_key!
+-    assert_key(dh)
+-  end
+-
+-  def test_key_exchange
+-    dh = Fixtures.pkey("dh1024")
+-    dh2 = dh.public_key
+-    dh.generate_key!
+-    dh2.generate_key!
+-    assert_equal(dh.compute_key(dh2.pub_key), dh2.compute_key(dh.pub_key))
+-  end
++    EnvUtil.suppress_warning { # Deprecated in v3.0.0; incompatible with OpenSSL 3.0
++      dh = Fixtures.pkey("dh1024").public_key # creates a copy with params only
++      assert_no_key(dh)
++      dh.generate_key!
++      assert_key(dh)
++
++      dh2 = dh.public_key
++      dh2.generate_key!
++      assert_equal(dh.compute_key(dh2.pub_key), dh2.compute_key(dh.pub_key))
++    }
++  end if !openssl?(3, 0, 0)
+ 
+   def test_params_ok?
+     dh0 = Fixtures.pkey("dh1024")
+-- 
+2.32.0
+

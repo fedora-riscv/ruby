@@ -1,0 +1,831 @@
+From cf070378020088cd7e69b1cb08be68152ab8a078 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sun, 17 May 2020 18:25:38 +0900
+Subject: [PATCH 1/3] pkey: implement #to_text using EVP API
+
+Use EVP_PKEY_print_private() instead of the low-level API *_print()
+functions, such as RSA_print().
+
+EVP_PKEY_print_*() family was added in OpenSSL 1.0.0.
+
+Note that it falls back to EVP_PKEY_print_public() and
+EVP_PKEY_print_params() as necessary. This is required for EVP_PKEY_DH
+type for which _private() fails if the private component is not set in
+the pkey object.
+
+Since the new API works in the same way for all key types, we now
+implement #to_text in the base class OpenSSL::PKey::PKey rather than in
+each subclass.
+---
+ ext/openssl/ossl_pkey.c     | 38 +++++++++++++++++++++++++++++++++++++
+ ext/openssl/ossl_pkey_dh.c  | 29 ----------------------------
+ ext/openssl/ossl_pkey_dsa.c | 29 ----------------------------
+ ext/openssl/ossl_pkey_ec.c  | 27 --------------------------
+ ext/openssl/ossl_pkey_rsa.c | 31 ------------------------------
+ test/openssl/test_pkey.rb   |  5 +++++
+ 6 files changed, 43 insertions(+), 116 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index f9282b9417..21cd4b2cda 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -539,6 +539,43 @@ ossl_pkey_inspect(VALUE self)
+                       OBJ_nid2sn(nid));
+ }
+ 
++/*
++ * call-seq:
++ *    pkey.to_text -> string
++ *
++ * Dumps key parameters, public key, and private key components contained in
++ * the key into a human-readable text.
++ *
++ * This is intended for debugging purpose.
++ *
++ * See also the man page EVP_PKEY_print_private(3).
++ */
++static VALUE
++ossl_pkey_to_text(VALUE self)
++{
++    EVP_PKEY *pkey;
++    BIO *bio;
++
++    GetPKey(self, pkey);
++    if (!(bio = BIO_new(BIO_s_mem())))
++        ossl_raise(ePKeyError, "BIO_new");
++
++    if (EVP_PKEY_print_private(bio, pkey, 0, NULL) == 1)
++        goto out;
++    OSSL_BIO_reset(bio);
++    if (EVP_PKEY_print_public(bio, pkey, 0, NULL) == 1)
++        goto out;
++    OSSL_BIO_reset(bio);
++    if (EVP_PKEY_print_params(bio, pkey, 0, NULL) == 1)
++        goto out;
++
++    BIO_free(bio);
++    ossl_raise(ePKeyError, "EVP_PKEY_print_params");
++
++  out:
++    return ossl_membio2str(bio);
++}
++
+ VALUE
+ ossl_pkey_export_traditional(int argc, VALUE *argv, VALUE self, int to_der)
+ {
+@@ -1039,6 +1076,7 @@ Init_ossl_pkey(void)
+     rb_define_method(cPKey, "initialize", ossl_pkey_initialize, 0);
+     rb_define_method(cPKey, "oid", ossl_pkey_oid, 0);
+     rb_define_method(cPKey, "inspect", ossl_pkey_inspect, 0);
++    rb_define_method(cPKey, "to_text", ossl_pkey_to_text, 0);
+     rb_define_method(cPKey, "private_to_der", ossl_pkey_private_to_der, -1);
+     rb_define_method(cPKey, "private_to_pem", ossl_pkey_private_to_pem, -1);
+     rb_define_method(cPKey, "public_to_der", ossl_pkey_public_to_der, 0);
+diff --git a/ext/openssl/ossl_pkey_dh.c b/ext/openssl/ossl_pkey_dh.c
+index 6b477b077c..acd3bf474e 100644
+--- a/ext/openssl/ossl_pkey_dh.c
++++ b/ext/openssl/ossl_pkey_dh.c
+@@ -266,34 +266,6 @@ ossl_dh_get_params(VALUE self)
+     return hash;
+ }
+ 
+-/*
+- *  call-seq:
+- *     dh.to_text -> aString
+- *
+- * Prints all parameters of key to buffer
+- * INSECURE: PRIVATE INFORMATIONS CAN LEAK OUT!!!
+- * Don't use :-)) (I's up to you)
+- */
+-static VALUE
+-ossl_dh_to_text(VALUE self)
+-{
+-    DH *dh;
+-    BIO *out;
+-    VALUE str;
+-
+-    GetDH(self, dh);
+-    if (!(out = BIO_new(BIO_s_mem()))) {
+-	ossl_raise(eDHError, NULL);
+-    }
+-    if (!DHparams_print(out, dh)) {
+-	BIO_free(out);
+-	ossl_raise(eDHError, NULL);
+-    }
+-    str = ossl_membio2str(out);
+-
+-    return str;
+-}
+-
+ /*
+  *  call-seq:
+  *     dh.public_key -> aDH
+@@ -426,7 +398,6 @@ Init_ossl_dh(void)
+     rb_define_method(cDH, "initialize_copy", ossl_dh_initialize_copy, 1);
+     rb_define_method(cDH, "public?", ossl_dh_is_public, 0);
+     rb_define_method(cDH, "private?", ossl_dh_is_private, 0);
+-    rb_define_method(cDH, "to_text", ossl_dh_to_text, 0);
+     rb_define_method(cDH, "export", ossl_dh_export, 0);
+     rb_define_alias(cDH, "to_pem", "export");
+     rb_define_alias(cDH, "to_s", "export");
+diff --git a/ext/openssl/ossl_pkey_dsa.c b/ext/openssl/ossl_pkey_dsa.c
+index 1c5a8a737e..f017cceb4a 100644
+--- a/ext/openssl/ossl_pkey_dsa.c
++++ b/ext/openssl/ossl_pkey_dsa.c
+@@ -264,34 +264,6 @@ ossl_dsa_get_params(VALUE self)
+     return hash;
+ }
+ 
+-/*
+- *  call-seq:
+- *    dsa.to_text -> aString
+- *
+- * Prints all parameters of key to buffer
+- * INSECURE: PRIVATE INFORMATIONS CAN LEAK OUT!!!
+- * Don't use :-)) (I's up to you)
+- */
+-static VALUE
+-ossl_dsa_to_text(VALUE self)
+-{
+-    DSA *dsa;
+-    BIO *out;
+-    VALUE str;
+-
+-    GetDSA(self, dsa);
+-    if (!(out = BIO_new(BIO_s_mem()))) {
+-	ossl_raise(eDSAError, NULL);
+-    }
+-    if (!DSA_print(out, dsa, 0)) { /* offset = 0 */
+-	BIO_free(out);
+-	ossl_raise(eDSAError, NULL);
+-    }
+-    str = ossl_membio2str(out);
+-
+-    return str;
+-}
+-
+ /*
+  *  call-seq:
+  *    dsa.public_key -> aDSA
+@@ -469,7 +441,6 @@ Init_ossl_dsa(void)
+ 
+     rb_define_method(cDSA, "public?", ossl_dsa_is_public, 0);
+     rb_define_method(cDSA, "private?", ossl_dsa_is_private, 0);
+-    rb_define_method(cDSA, "to_text", ossl_dsa_to_text, 0);
+     rb_define_method(cDSA, "export", ossl_dsa_export, -1);
+     rb_define_alias(cDSA, "to_pem", "export");
+     rb_define_alias(cDSA, "to_s", "export");
+diff --git a/ext/openssl/ossl_pkey_ec.c b/ext/openssl/ossl_pkey_ec.c
+index c2534251c3..ecb8305184 100644
+--- a/ext/openssl/ossl_pkey_ec.c
++++ b/ext/openssl/ossl_pkey_ec.c
+@@ -417,32 +417,6 @@ ossl_ec_key_to_der(VALUE self)
+     else
+         return ossl_pkey_export_spki(self, 1);
+ }
+-
+-/*
+- *  call-seq:
+- *     key.to_text   => String
+- *
+- *  See the OpenSSL documentation for EC_KEY_print()
+- */
+-static VALUE ossl_ec_key_to_text(VALUE self)
+-{
+-    EC_KEY *ec;
+-    BIO *out;
+-    VALUE str;
+-
+-    GetEC(self, ec);
+-    if (!(out = BIO_new(BIO_s_mem()))) {
+-	ossl_raise(eECError, "BIO_new(BIO_s_mem())");
+-    }
+-    if (!EC_KEY_print(out, ec, 0)) {
+-	BIO_free(out);
+-	ossl_raise(eECError, "EC_KEY_print");
+-    }
+-    str = ossl_membio2str(out);
+-
+-    return str;
+-}
+-
+ /*
+  *  call-seq:
+  *     key.generate_key!   => self
+@@ -1633,7 +1607,6 @@ void Init_ossl_ec(void)
+     rb_define_method(cEC, "export", ossl_ec_key_export, -1);
+     rb_define_alias(cEC, "to_pem", "export");
+     rb_define_method(cEC, "to_der", ossl_ec_key_to_der, 0);
+-    rb_define_method(cEC, "to_text", ossl_ec_key_to_text, 0);
+ 
+ 
+     rb_define_alloc_func(cEC_GROUP, ossl_ec_group_alloc);
+diff --git a/ext/openssl/ossl_pkey_rsa.c b/ext/openssl/ossl_pkey_rsa.c
+index 43f82cb29e..7a7e66dbda 100644
+--- a/ext/openssl/ossl_pkey_rsa.c
++++ b/ext/openssl/ossl_pkey_rsa.c
+@@ -587,36 +587,6 @@ ossl_rsa_get_params(VALUE self)
+     return hash;
+ }
+ 
+-/*
+- * call-seq:
+- *   rsa.to_text => String
+- *
+- * THIS METHOD IS INSECURE, PRIVATE INFORMATION CAN LEAK OUT!!!
+- *
+- * Dumps all parameters of a keypair to a String
+- *
+- * Don't use :-)) (It's up to you)
+- */
+-static VALUE
+-ossl_rsa_to_text(VALUE self)
+-{
+-    RSA *rsa;
+-    BIO *out;
+-    VALUE str;
+-
+-    GetRSA(self, rsa);
+-    if (!(out = BIO_new(BIO_s_mem()))) {
+-	ossl_raise(eRSAError, NULL);
+-    }
+-    if (!RSA_print(out, rsa, 0)) { /* offset = 0 */
+-	BIO_free(out);
+-	ossl_raise(eRSAError, NULL);
+-    }
+-    str = ossl_membio2str(out);
+-
+-    return str;
+-}
+-
+ /*
+  * call-seq:
+  *    rsa.public_key -> RSA
+@@ -738,7 +708,6 @@ Init_ossl_rsa(void)
+ 
+     rb_define_method(cRSA, "public?", ossl_rsa_is_public, 0);
+     rb_define_method(cRSA, "private?", ossl_rsa_is_private, 0);
+-    rb_define_method(cRSA, "to_text", ossl_rsa_to_text, 0);
+     rb_define_method(cRSA, "export", ossl_rsa_export, -1);
+     rb_define_alias(cRSA, "to_pem", "export");
+     rb_define_alias(cRSA, "to_s", "export");
+diff --git a/test/openssl/test_pkey.rb b/test/openssl/test_pkey.rb
+index 5307fe5b08..3630458b3c 100644
+--- a/test/openssl/test_pkey.rb
++++ b/test/openssl/test_pkey.rb
+@@ -151,4 +151,9 @@ def test_x25519
+     assert_equal bob_pem, bob.public_to_pem
+     assert_equal [shared_secret].pack("H*"), alice.derive(bob)
+   end
++
++  def test_to_text
++    rsa = Fixtures.pkey("rsa1024")
++    assert_include rsa.to_text, "publicExponent"
++  end
+ end
+-- 
+2.32.0
+
+
+From 0c45b22e485bfa62f4d704b08e3704e6444118c4 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Thu, 15 Apr 2021 19:11:32 +0900
+Subject: [PATCH 2/3] pkey: implement {DH,DSA,RSA}#public_key in Ruby
+
+The low-level API that is used to implement #public_key is deprecated
+in OpenSSL 3.0. It is actually very simple to implement in another way,
+using existing methods only, in much shorter code. Let's do it.
+
+While we are at it, the documentation is updated to recommend against
+using #public_key. Now that OpenSSL::PKey::PKey implements public_to_der
+method, there is no real use case for #public_key in newly written Ruby
+programs.
+---
+ ext/openssl/lib/openssl/pkey.rb | 55 ++++++++++++++++++++++++++++
+ ext/openssl/ossl_pkey_dh.c      | 63 +++++++--------------------------
+ ext/openssl/ossl_pkey_dsa.c     | 42 ----------------------
+ ext/openssl/ossl_pkey_rsa.c     | 58 +-----------------------------
+ test/openssl/test_pkey_rsa.rb   | 37 ++++++++++---------
+ 5 files changed, 87 insertions(+), 168 deletions(-)
+
+diff --git a/ext/openssl/lib/openssl/pkey.rb b/ext/openssl/lib/openssl/pkey.rb
+index 53ee52f98b..569559e1ce 100644
+--- a/ext/openssl/lib/openssl/pkey.rb
++++ b/ext/openssl/lib/openssl/pkey.rb
+@@ -10,6 +10,30 @@ module OpenSSL::PKey
+   class DH
+     include OpenSSL::Marshal
+ 
++    # :call-seq:
++    #    dh.public_key -> dhnew
++    #
++    # Returns a new DH instance that carries just the \DH parameters.
++    #
++    # Contrary to the method name, the returned DH object contains only
++    # parameters and not the public key.
++    #
++    # This method is provided for backwards compatibility. In most cases, there
++    # is no need to call this method.
++    #
++    # For the purpose of re-generating the key pair while keeping the
++    # parameters, check OpenSSL::PKey.generate_key.
++    #
++    # Example:
++    #   # OpenSSL::PKey::DH.generate by default generates a random key pair
++    #   dh1 = OpenSSL::PKey::DH.generate(2048)
++    #   p dh1.priv_key #=> #<OpenSSL::BN 1288347...>
++    #   dhcopy = dh1.public_key
++    #   p dhcopy.priv_key #=> nil
++    def public_key
++      DH.new(to_der)
++    end
++
+     # :call-seq:
+     #    dh.compute_key(pub_bn) -> string
+     #
+@@ -89,6 +113,22 @@ def new(*args, &blk) # :nodoc:
+   class DSA
+     include OpenSSL::Marshal
+ 
++    # :call-seq:
++    #    dsa.public_key -> dsanew
++    #
++    # Returns a new DSA instance that carries just the \DSA parameters and the
++    # public key.
++    #
++    # This method is provided for backwards compatibility. In most cases, there
++    # is no need to call this method.
++    #
++    # For the purpose of serializing the public key, to PEM or DER encoding of
++    # X.509 SubjectPublicKeyInfo format, check PKey#public_to_pem and
++    # PKey#public_to_der.
++    def public_key
++      OpenSSL::PKey.read(public_to_der)
++    end
++
+     class << self
+       # :call-seq:
+       #    DSA.generate(size) -> dsa
+@@ -159,6 +199,21 @@ def to_bn(conversion_form = group.point_conversion_form)
+   class RSA
+     include OpenSSL::Marshal
+ 
++    # :call-seq:
++    #    rsa.public_key -> rsanew
++    #
++    # Returns a new RSA instance that carries just the public key components.
++    #
++    # This method is provided for backwards compatibility. In most cases, there
++    # is no need to call this method.
++    #
++    # For the purpose of serializing the public key, to PEM or DER encoding of
++    # X.509 SubjectPublicKeyInfo format, check PKey#public_to_pem and
++    # PKey#public_to_der.
++    def public_key
++      OpenSSL::PKey.read(public_to_der)
++    end
++
+     class << self
+       # :call-seq:
+       #    RSA.generate(size, exponent = 65537) -> RSA
+diff --git a/ext/openssl/ossl_pkey_dh.c b/ext/openssl/ossl_pkey_dh.c
+index acd3bf474e..a512b209d3 100644
+--- a/ext/openssl/ossl_pkey_dh.c
++++ b/ext/openssl/ossl_pkey_dh.c
+@@ -266,48 +266,6 @@ ossl_dh_get_params(VALUE self)
+     return hash;
+ }
+ 
+-/*
+- *  call-seq:
+- *     dh.public_key -> aDH
+- *
+- * Returns a new DH instance that carries just the public information, i.e.
+- * the prime _p_ and the generator _g_, but no public/private key yet. Such
+- * a pair may be generated using DH#generate_key!. The "public key" needed
+- * for a key exchange with DH#compute_key is considered as per-session
+- * information and may be retrieved with DH#pub_key once a key pair has
+- * been generated.
+- * If the current instance already contains private information (and thus a
+- * valid public/private key pair), this information will no longer be present
+- * in the new instance generated by DH#public_key. This feature is helpful for
+- * publishing the Diffie-Hellman parameters without leaking any of the private
+- * per-session information.
+- *
+- * === Example
+- *  dh = OpenSSL::PKey::DH.new(2048) # has public and private key set
+- *  public_key = dh.public_key # contains only prime and generator
+- *  parameters = public_key.to_der # it's safe to publish this
+- */
+-static VALUE
+-ossl_dh_to_public_key(VALUE self)
+-{
+-    EVP_PKEY *pkey;
+-    DH *orig_dh, *dh;
+-    VALUE obj;
+-
+-    obj = rb_obj_alloc(rb_obj_class(self));
+-    GetPKey(obj, pkey);
+-
+-    GetDH(self, orig_dh);
+-    dh = DHparams_dup(orig_dh);
+-    if (!dh)
+-        ossl_raise(eDHError, "DHparams_dup");
+-    if (!EVP_PKEY_assign_DH(pkey, dh)) {
+-        DH_free(dh);
+-        ossl_raise(eDHError, "EVP_PKEY_assign_DH");
+-    }
+-    return obj;
+-}
+-
+ /*
+  *  call-seq:
+  *     dh.params_ok? -> true | false
+@@ -384,14 +342,20 @@ Init_ossl_dh(void)
+      *   The per-session private key, an OpenSSL::BN.
+      *
+      * === Example of a key exchange
+-     *  dh1 = OpenSSL::PKey::DH.new(2048)
+-     *  der = dh1.public_key.to_der #you may send this publicly to the participating party
+-     *  dh2 = OpenSSL::PKey::DH.new(der)
+-     *  dh2.generate_key! #generate the per-session key pair
+-     *  symm_key1 = dh1.compute_key(dh2.pub_key)
+-     *  symm_key2 = dh2.compute_key(dh1.pub_key)
++     *   # you may send the parameters (der) and own public key (pub1) publicly
++     *   # to the participating party
++     *   dh1 = OpenSSL::PKey::DH.new(2048)
++     *   der = dh1.to_der
++     *   pub1 = dh1.pub_key
++     *
++     *   # the other party generates its per-session key pair
++     *   dhparams = OpenSSL::PKey::DH.new(der)
++     *   dh2 = OpenSSL::PKey.generate_key(dhparams)
++     *   pub2 = dh2.pub_key
+      *
+-     *  puts symm_key1 == symm_key2 # => true
++     *   symm_key1 = dh1.compute_key(pub2)
++     *   symm_key2 = dh2.compute_key(pub1)
++     *   puts symm_key1 == symm_key2 # => true
+      */
+     cDH = rb_define_class_under(mPKey, "DH", cPKey);
+     rb_define_method(cDH, "initialize", ossl_dh_initialize, -1);
+@@ -402,7 +366,6 @@ Init_ossl_dh(void)
+     rb_define_alias(cDH, "to_pem", "export");
+     rb_define_alias(cDH, "to_s", "export");
+     rb_define_method(cDH, "to_der", ossl_dh_to_der, 0);
+-    rb_define_method(cDH, "public_key", ossl_dh_to_public_key, 0);
+     rb_define_method(cDH, "params_ok?", ossl_dh_check_params, 0);
+ 
+     DEF_OSSL_PKEY_BN(cDH, dh, p);
+diff --git a/ext/openssl/ossl_pkey_dsa.c b/ext/openssl/ossl_pkey_dsa.c
+index f017cceb4a..ab9ac781e8 100644
+--- a/ext/openssl/ossl_pkey_dsa.c
++++ b/ext/openssl/ossl_pkey_dsa.c
+@@ -264,47 +264,6 @@ ossl_dsa_get_params(VALUE self)
+     return hash;
+ }
+ 
+-/*
+- *  call-seq:
+- *    dsa.public_key -> aDSA
+- *
+- * Returns a new DSA instance that carries just the public key information.
+- * If the current instance has also private key information, this will no
+- * longer be present in the new instance. This feature is helpful for
+- * publishing the public key information without leaking any of the private
+- * information.
+- *
+- * === Example
+- *  dsa = OpenSSL::PKey::DSA.new(2048) # has public and private information
+- *  pub_key = dsa.public_key # has only the public part available
+- *  pub_key_der = pub_key.to_der # it's safe to publish this
+- *
+- *
+- */
+-static VALUE
+-ossl_dsa_to_public_key(VALUE self)
+-{
+-    EVP_PKEY *pkey, *pkey_new;
+-    DSA *dsa;
+-    VALUE obj;
+-
+-    GetPKeyDSA(self, pkey);
+-    obj = rb_obj_alloc(rb_obj_class(self));
+-    GetPKey(obj, pkey_new);
+-
+-#define DSAPublicKey_dup(dsa) (DSA *)ASN1_dup( \
+-	(i2d_of_void *)i2d_DSAPublicKey, (d2i_of_void *)d2i_DSAPublicKey, (char *)(dsa))
+-    dsa = DSAPublicKey_dup(EVP_PKEY_get0_DSA(pkey));
+-#undef DSAPublicKey_dup
+-    if (!dsa)
+-        ossl_raise(eDSAError, "DSAPublicKey_dup");
+-    if (!EVP_PKEY_assign_DSA(pkey_new, dsa)) {
+-        DSA_free(dsa);
+-        ossl_raise(eDSAError, "EVP_PKEY_assign_DSA");
+-    }
+-    return obj;
+-}
+-
+ /*
+  *  call-seq:
+  *    dsa.syssign(string) -> aString
+@@ -445,7 +404,6 @@ Init_ossl_dsa(void)
+     rb_define_alias(cDSA, "to_pem", "export");
+     rb_define_alias(cDSA, "to_s", "export");
+     rb_define_method(cDSA, "to_der", ossl_dsa_to_der, 0);
+-    rb_define_method(cDSA, "public_key", ossl_dsa_to_public_key, 0);
+     rb_define_method(cDSA, "syssign", ossl_dsa_sign, 1);
+     rb_define_method(cDSA, "sysverify", ossl_dsa_verify, 2);
+ 
+diff --git a/ext/openssl/ossl_pkey_rsa.c b/ext/openssl/ossl_pkey_rsa.c
+index 7a7e66dbda..1c5476cdcd 100644
+--- a/ext/openssl/ossl_pkey_rsa.c
++++ b/ext/openssl/ossl_pkey_rsa.c
+@@ -390,7 +390,7 @@ ossl_rsa_private_decrypt(int argc, VALUE *argv, VALUE self)
+  *   data = "Sign me!"
+  *   pkey = OpenSSL::PKey::RSA.new(2048)
+  *   signature = pkey.sign_pss("SHA256", data, salt_length: :max, mgf1_hash: "SHA256")
+- *   pub_key = pkey.public_key
++ *   pub_key = OpenSSL::PKey.read(pkey.public_to_der)
+  *   puts pub_key.verify_pss("SHA256", signature, data,
+  *                           salt_length: :auto, mgf1_hash: "SHA256") # => true
+  */
+@@ -587,61 +587,6 @@ ossl_rsa_get_params(VALUE self)
+     return hash;
+ }
+ 
+-/*
+- * call-seq:
+- *    rsa.public_key -> RSA
+- *
+- * Makes new RSA instance containing the public key from the private key.
+- */
+-static VALUE
+-ossl_rsa_to_public_key(VALUE self)
+-{
+-    EVP_PKEY *pkey, *pkey_new;
+-    RSA *rsa;
+-    VALUE obj;
+-
+-    GetPKeyRSA(self, pkey);
+-    obj = rb_obj_alloc(rb_obj_class(self));
+-    GetPKey(obj, pkey_new);
+-
+-    rsa = RSAPublicKey_dup(EVP_PKEY_get0_RSA(pkey));
+-    if (!rsa)
+-        ossl_raise(eRSAError, "RSAPublicKey_dup");
+-    if (!EVP_PKEY_assign_RSA(pkey_new, rsa)) {
+-        RSA_free(rsa);
+-        ossl_raise(eRSAError, "EVP_PKEY_assign_RSA");
+-    }
+-    return obj;
+-}
+-
+-/*
+- * TODO: Test me
+-
+-static VALUE
+-ossl_rsa_blinding_on(VALUE self)
+-{
+-    RSA *rsa;
+-
+-    GetRSA(self, rsa);
+-
+-    if (RSA_blinding_on(rsa, ossl_bn_ctx) != 1) {
+-	ossl_raise(eRSAError, NULL);
+-    }
+-    return self;
+-}
+-
+-static VALUE
+-ossl_rsa_blinding_off(VALUE self)
+-{
+-    RSA *rsa;
+-
+-    GetRSA(self, rsa);
+-    RSA_blinding_off(rsa);
+-
+-    return self;
+-}
+- */
+-
+ /*
+  * Document-method: OpenSSL::PKey::RSA#set_key
+  * call-seq:
+@@ -712,7 +657,6 @@ Init_ossl_rsa(void)
+     rb_define_alias(cRSA, "to_pem", "export");
+     rb_define_alias(cRSA, "to_s", "export");
+     rb_define_method(cRSA, "to_der", ossl_rsa_to_der, 0);
+-    rb_define_method(cRSA, "public_key", ossl_rsa_to_public_key, 0);
+     rb_define_method(cRSA, "public_encrypt", ossl_rsa_public_encrypt, -1);
+     rb_define_method(cRSA, "public_decrypt", ossl_rsa_public_decrypt, -1);
+     rb_define_method(cRSA, "private_encrypt", ossl_rsa_private_encrypt, -1);
+diff --git a/test/openssl/test_pkey_rsa.rb b/test/openssl/test_pkey_rsa.rb
+index d1e68dbc9f..5f8d04e754 100644
+--- a/test/openssl/test_pkey_rsa.rb
++++ b/test/openssl/test_pkey_rsa.rb
+@@ -69,29 +69,28 @@ def test_private
+   end
+ 
+   def test_new
+-    key = OpenSSL::PKey::RSA.new 512
+-    pem  = key.public_key.to_pem
+-    OpenSSL::PKey::RSA.new pem
+-    assert_equal([], OpenSSL.errors)
+-  end
++    key = OpenSSL::PKey::RSA.new(512)
++    assert_equal 512, key.n.num_bits
++    assert_equal 65537, key.e
++    assert_not_nil key.d
+ 
+-  def test_new_exponent_default
+-    assert_equal(65537, OpenSSL::PKey::RSA.new(512).e)
++    # Specify public exponent
++    key2 = OpenSSL::PKey::RSA.new(512, 3)
++    assert_equal 512, key2.n.num_bits
++    assert_equal 3, key2.e
++    assert_not_nil key2.d
+   end
+ 
+-  def test_new_with_exponent
+-    1.upto(30) do |idx|
+-      e = (2 ** idx) + 1
+-      key = OpenSSL::PKey::RSA.new(512, e)
+-      assert_equal(e, key.e)
+-    end
+-  end
++  def test_s_generate
++    key1 = OpenSSL::PKey::RSA.generate(512)
++    assert_equal 512, key1.n.num_bits
++    assert_equal 65537, key1.e
+ 
+-  def test_generate
+-    key = OpenSSL::PKey::RSA.generate(512, 17)
+-    assert_equal 512, key.n.num_bits
+-    assert_equal 17, key.e
+-    assert_not_nil key.d
++    # Specify public exponent
++    key2 = OpenSSL::PKey::RSA.generate(512, 3)
++    assert_equal 512, key2.n.num_bits
++    assert_equal 3, key2.e
++    assert_not_nil key2.d
+   end
+ 
+   def test_new_break
+-- 
+2.32.0
+
+
+From 2150af0e55b2a25c24f62006e27e0aec3dc81b57 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 10 Jul 2020 14:34:51 +0900
+Subject: [PATCH 3/3] pkey/dh, pkey/ec: use EVP_PKEY_check() family
+
+Use EVP_PKEY_param_check() instead of DH_check() if available. Also,
+use EVP_PKEY_public_check() instead of EC_KEY_check_key().
+
+EVP_PKEY_*check() is part of the EVP API and is meant to replace those
+low-level functions. They were added by OpenSSL 1.1.1. It is currently
+not provided by LibreSSL.
+---
+ ext/openssl/extconf.rb       |  3 +++
+ ext/openssl/ossl_pkey_dh.c   | 27 +++++++++++++++++++++++----
+ ext/openssl/ossl_pkey_ec.c   | 23 +++++++++++++++++++----
+ test/openssl/test_pkey_dh.rb | 16 ++++++++++++++++
+ 4 files changed, 61 insertions(+), 8 deletions(-)
+
+diff --git a/ext/openssl/extconf.rb b/ext/openssl/extconf.rb
+index b3c6647faf..17d93443fc 100644
+--- a/ext/openssl/extconf.rb
++++ b/ext/openssl/extconf.rb
+@@ -173,6 +173,9 @@ def find_openssl_library
+ have_func("EVP_PBE_scrypt")
+ have_func("SSL_CTX_set_post_handshake_auth")
+ 
++# added in 1.1.1
++have_func("EVP_PKEY_check")
++
+ Logging::message "=== Checking done. ===\n"
+ 
+ create_header
+diff --git a/ext/openssl/ossl_pkey_dh.c b/ext/openssl/ossl_pkey_dh.c
+index a512b209d3..ca782bbe59 100644
+--- a/ext/openssl/ossl_pkey_dh.c
++++ b/ext/openssl/ossl_pkey_dh.c
+@@ -273,19 +273,38 @@ ossl_dh_get_params(VALUE self)
+  * Validates the Diffie-Hellman parameters associated with this instance.
+  * It checks whether a safe prime and a suitable generator are used. If this
+  * is not the case, +false+ is returned.
++ *
++ * See also the man page EVP_PKEY_param_check(3).
+  */
+ static VALUE
+ ossl_dh_check_params(VALUE self)
+ {
++    int ret;
++#ifdef HAVE_EVP_PKEY_CHECK
++    EVP_PKEY *pkey;
++    EVP_PKEY_CTX *pctx;
++
++    GetPKey(self, pkey);
++    pctx = EVP_PKEY_CTX_new(pkey, /* engine */NULL);
++    if (!pctx)
++        ossl_raise(eDHError, "EVP_PKEY_CTX_new");
++    ret = EVP_PKEY_param_check(pctx);
++    EVP_PKEY_CTX_free(pctx);
++#else
+     DH *dh;
+     int codes;
+ 
+     GetDH(self, dh);
+-    if (!DH_check(dh, &codes)) {
+-	return Qfalse;
+-    }
++    ret = DH_check(dh, &codes) == 1 && codes == 0;
++#endif
+ 
+-    return codes == 0 ? Qtrue : Qfalse;
++    if (ret == 1)
++        return Qtrue;
++    else {
++        /* DH_check_ex() will put error entry on failure */
++        ossl_clear_error();
++        return Qfalse;
++    }
+ }
+ 
+ /*
+diff --git a/ext/openssl/ossl_pkey_ec.c b/ext/openssl/ossl_pkey_ec.c
+index ecb8305184..829529d4b9 100644
+--- a/ext/openssl/ossl_pkey_ec.c
++++ b/ext/openssl/ossl_pkey_ec.c
+@@ -443,20 +443,35 @@ static VALUE ossl_ec_key_generate_key(VALUE self)
+ }
+ 
+ /*
+- *  call-seq:
+- *     key.check_key   => true
++ * call-seq:
++ *    key.check_key   => true
+  *
+- *  Raises an exception if the key is invalid.
++ * Raises an exception if the key is invalid.
+  *
+- *  See the OpenSSL documentation for EC_KEY_check_key()
++ * See also the man page EVP_PKEY_public_check(3).
+  */
+ static VALUE ossl_ec_key_check_key(VALUE self)
+ {
++#ifdef HAVE_EVP_PKEY_CHECK
++    EVP_PKEY *pkey;
++    EVP_PKEY_CTX *pctx;
++    int ret;
++
++    GetPKey(self, pkey);
++    pctx = EVP_PKEY_CTX_new(pkey, /* engine */NULL);
++    if (!pctx)
++        ossl_raise(eDHError, "EVP_PKEY_CTX_new");
++    ret = EVP_PKEY_public_check(pctx);
++    EVP_PKEY_CTX_free(pctx);
++    if (ret != 1)
++        ossl_raise(eECError, "EVP_PKEY_public_check");
++#else
+     EC_KEY *ec;
+ 
+     GetEC(self, ec);
+     if (EC_KEY_check_key(ec) != 1)
+ 	ossl_raise(eECError, "EC_KEY_check_key");
++#endif
+ 
+     return Qtrue;
+ }
+diff --git a/test/openssl/test_pkey_dh.rb b/test/openssl/test_pkey_dh.rb
+index 279ce1984c..f80af8f841 100644
+--- a/test/openssl/test_pkey_dh.rb
++++ b/test/openssl/test_pkey_dh.rb
+@@ -86,6 +86,22 @@ def test_key_exchange
+     assert_equal(dh.compute_key(dh2.pub_key), dh2.compute_key(dh.pub_key))
+   end
+ 
++  def test_params_ok?
++    dh0 = Fixtures.pkey("dh1024")
++
++    dh1 = OpenSSL::PKey::DH.new(OpenSSL::ASN1::Sequence([
++      OpenSSL::ASN1::Integer(dh0.p),
++      OpenSSL::ASN1::Integer(dh0.g)
++    ]))
++    assert_equal(true, dh1.params_ok?)
++
++    dh2 = OpenSSL::PKey::DH.new(OpenSSL::ASN1::Sequence([
++      OpenSSL::ASN1::Integer(dh0.p + 1),
++      OpenSSL::ASN1::Integer(dh0.g)
++    ]))
++    assert_equal(false, dh2.params_ok?)
++  end
++
+   def test_dup
+     dh = Fixtures.pkey("dh1024")
+     dh2 = dh.dup
+-- 
+2.32.0
+

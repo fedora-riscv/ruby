@@ -167,6 +167,71 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 # Add AC_PROG_CC to make C++ compiler dependency optional on autoconf >= 2.70.
 # https://github.com/ruby/ruby/commit/912a8dcfc5369d840dcd6bf0f88ee0bac7d902d6
 Patch20: ruby-3.1.0-autoconf-2.70-add-ac-prog-cc.patch
+# Allow to exclude test with fully qualified name.
+# https://bugs.ruby-lang.org/issues/16936
+# https://github.com/ruby/ruby/pull/5026
+Patch21: ruby-3.1.0-Properly-exclude-test-cases.patch
+
+
+# OpenSSL 3.0 compatibility patches
+
+# Switch from legacy DES-CBC to AES-256-CBC.
+# https://github.com/rubygems/rubygems/pull/4986
+Patch30: rubygems-3.2.30-Switch-from-DES-CBC-to-AES-256-CBC.patch
+# Fix test broken by wrongly formatted distinguished name submitted to
+# `OpenSSL::X509::Name.parse`.
+# https://github.com/ruby/openssl/issues/470
+# https://github.com/rubygems/rubygems/pull/5030
+Patch31: rubygems-3.2.30-Provide-distinguished-name-which-will-be-correctly-p.patch
+# Fix TestGemRequest#test_verify_certificate_extra_message compatibility
+# with OpenSSL 3.x.
+# https://github.com/rubygems/rubygems/pull/5040
+Patch32: rubygems-3.2.30-Use-OpenSSL-constants-for-error-codes.patch
+
+# Refactor PEM/DER serialization code.
+# https://github.com/ruby/openssl/pull/328
+Patch40: ruby-3.1.0-Refactor-PEM-DER-serialization-code.patch
+# Implement more 'generic' operations using the EVP API.
+# https://github.com/ruby/openssl/pull/329
+Patch41: ruby-3.1.0-Add-more-support-for-generic-pkey-types.patch
+# Allow setting algorithm-specific options in #sign and #verify.
+# https://github.com/ruby/openssl/pull/374
+Patch42: ruby-3.1.0-Allow-setting-algorithm-specific-options-in-sign-and-verify.patch
+# Use high level EVP interface to generate parameters and keys.
+# https://github.com/ruby/openssl/pull/397
+Patch43: ruby-3.1.0-Use-high-level-EVP-interface-to-generate-parameters-and-keys.patch
+# Use EVP API in more places.
+# https://github.com/ruby/openssl/pull/436
+Patch44: ruby-3.1.0-Use-EVP-API-in-more-places.patch
+# Implement PKey#{encrypt,decrypt,sign_raw,verify_{raw,verify_recover}}.
+# https://github.com/ruby/openssl/pull/382
+Patch45: ruby-3.1.0-Implement-PKey-encrypt-decrypt-sign_raw-verify_raw-and-verify_recover.patch
+# Fix `OpenSSL::TestSSL#test_dup` test failure.
+# https://github.com/ruby/openssl/commit/7b66eaa2dbabb6570dbbbdfac24c4dcdcc6793d7
+Patch46: ruby-3.1.0-test-openssl-utils-remove-dup_public-helper-method.patch
+# Fix `OpenSSL::TestDigest#test_digest_constants` test case.
+# https://github.com/ruby/openssl/commit/a3e59f4c2e200c76ef1d93945ff8737a05715e17
+Patch47: ruby-3.1.0-test-openssl-test_digest-do-not-test-constants-for-l.patch
+# Fix `OpenSSL::TestSSL#test_connect_certificate_verify_failed_exception_message`
+# test case.
+# https://github.com/ruby/openssl/commit/b5a0a198505452c7457b192da2e5cd5dda04f23d
+Patch48: ruby-3.1.0-test-openssl-test_ssl-relax-regex-to-match-OpenSSL-s.patch
+# Fix `OpenSSL::TestPKCS12#test_{new_with_no_keys,new_with_one_key_and_one_cert}`
+# test failures.
+# https://github.com/ruby/openssl/commit/998406d18f2acf73090e9fd9d92a7b4227ac593b
+Patch49: ruby-3.1.0-test-openssl-test_pkcs12-fix-test-failures-with-Open.patch
+# Fix `OpenSSL::TestPKey#test_s_generate_key` test case.
+# https://github.com/ruby/openssl/commit/c732387ee5aaa8c5a9717e8b3ffebb3d7430e99a
+Patch50: ruby-3.1.0-test-openssl-test_pkey-use-EC-keys-for-PKey.generate.patch
+# Miscellaneous changes for OpenSSL 3.0 support.
+# https://github.com/ruby/openssl/pull/468
+Patch51: ruby-3.1.0-Miscellaneous-changes-for-OpenSSL-3.0-support.patch
+# Support OpenSSL 3.0.
+# https://github.com/ruby/openssl/pull/399
+Patch52: ruby-3.1.0-Support-OpenSSL-3.0.patch
+# Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
+# https://github.com/ruby/openssl/pull/399#issuecomment-966239736
+Patch53: ruby-3.1.0-SSL_read-EOF-handling.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -618,6 +683,24 @@ rm -rf ext/fiddle/libffi*
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
+%patch30 -p1
+%patch31 -p1
+%patch32 -p1
+%patch40 -p1
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
+%patch44 -p1
+%patch45 -p1
+%patch46 -p1
+%patch47 -p1
+%patch48 -p1
+%patch49 -p1
+%patch50 -p1
+%patch51 -p1
+%patch52 -p1
+%patch53 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -895,6 +978,13 @@ MSPECOPTS=""
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
+
+# Some tests are failing upstream due to OpenSSL 3.x compatibility.
+# https://github.com/ruby/openssl/pull/399/checks?check_run_id=3716152870
+DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestEC#test_check_key/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_derive_key/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_key_exchange/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
@@ -1374,6 +1464,10 @@ MSPECOPTS=""
 
 
 %changelog
+* Fri Nov 05 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-153
+- Fix OpenSSL 3.0 compatibility.
+  Resolves: rhbz#2021922
+
 * Tue Sep 14 2021 Sahana Prasad <sahana@redhat.com>
 - Rebuilt with OpenSSL 3.0.0
 

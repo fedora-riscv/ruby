@@ -1,0 +1,142 @@
+From 8f948ed68a4ed6c05ff66d822711e3b70ae4bb3f Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Mon, 27 Sep 2021 13:32:03 +0900
+Subject: [PATCH 1/3] ext/openssl/ossl.h: add helper macros for
+ OpenSSL/LibreSSL versions
+
+Add following convenient macros:
+
+ - OSSL_IS_LIBRESSL
+ - OSSL_OPENSSL_PREREQ(maj, min, pat)
+ - OSSL_LIBRESSL_PREREQ(maj, min, pat)
+---
+ ext/openssl/ossl.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/ext/openssl/ossl.h b/ext/openssl/ossl.h
+index c20f506bda..a0cef29d74 100644
+--- a/ext/openssl/ossl.h
++++ b/ext/openssl/ossl.h
+@@ -43,6 +43,18 @@
+ #include <openssl/evp.h>
+ #include <openssl/dh.h>
+ 
++#ifndef LIBRESSL_VERSION_NUMBER
++# define OSSL_IS_LIBRESSL 0
++# define OSSL_OPENSSL_PREREQ(maj, min, pat) \
++      (OPENSSL_VERSION_NUMBER >= (maj << 28) | (min << 20) | (pat << 12))
++# define OSSL_LIBRESSL_PREREQ(maj, min, pat) 0
++#else
++# define OSSL_IS_LIBRESSL 1
++# define OSSL_OPENSSL_PREREQ(maj, min, pat) 0
++# define OSSL_LIBRESSL_PREREQ(maj, min, pat) \
++      (LIBRESSL_VERSION_NUMBER >= (maj << 28) | (min << 20) | (pat << 12))
++#endif
++
+ /*
+  * Common Module
+  */
+-- 
+2.32.0
+
+
+From bbf235091e49807ece8f3a3df95bbfcc9d3ab43d Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sat, 22 Feb 2020 05:37:01 +0900
+Subject: [PATCH 2/3] ts: use TS_VERIFY_CTX_set_certs instead of
+ TS_VERIFY_CTS_set_certs
+
+OpenSSL 3.0 fixed the typo in the function name and replaced the
+current 'CTS' version with a macro.
+---
+ ext/openssl/extconf.rb        | 5 ++++-
+ ext/openssl/openssl_missing.h | 5 +++++
+ ext/openssl/ossl_ts.c         | 2 +-
+ 3 files changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/ext/openssl/extconf.rb b/ext/openssl/extconf.rb
+index 17d93443fc..09cae05b72 100644
+--- a/ext/openssl/extconf.rb
++++ b/ext/openssl/extconf.rb
+@@ -166,7 +166,7 @@ def find_openssl_library
+ have_func("TS_STATUS_INFO_get0_status")
+ have_func("TS_STATUS_INFO_get0_text")
+ have_func("TS_STATUS_INFO_get0_failure_info")
+-have_func("TS_VERIFY_CTS_set_certs")
++have_func("TS_VERIFY_CTS_set_certs(NULL, NULL)", "openssl/ts.h")
+ have_func("TS_VERIFY_CTX_set_store")
+ have_func("TS_VERIFY_CTX_add_flags")
+ have_func("TS_RESP_CTX_set_time_cb")
+@@ -175,6 +175,9 @@ def find_openssl_library
+ 
+ # added in 1.1.1
+ have_func("EVP_PKEY_check")
++ 
++# added in 3.0.0
++have_func("TS_VERIFY_CTX_set_certs(NULL, NULL)", "openssl/ts.h")
+ 
+ Logging::message "=== Checking done. ===\n"
+ 
+diff --git a/ext/openssl/openssl_missing.h b/ext/openssl/openssl_missing.h
+index e575415f49..fe486bcfcf 100644
+--- a/ext/openssl/openssl_missing.h
++++ b/ext/openssl/openssl_missing.h
+@@ -242,4 +242,9 @@ IMPL_PKEY_GETTER(EC_KEY, ec)
+     } while (0)
+ #endif
+ 
++/* added in 3.0.0 */
++#if !defined(HAVE_TS_VERIFY_CTX_SET_CERTS)
++#  define TS_VERIFY_CTX_set_certs(ctx, crts) TS_VERIFY_CTS_set_certs(ctx, crts)
++#endif
++
+ #endif /* _OSSL_OPENSSL_MISSING_H_ */
+diff --git a/ext/openssl/ossl_ts.c b/ext/openssl/ossl_ts.c
+index 692c0d620f..f1da7c1947 100644
+--- a/ext/openssl/ossl_ts.c
++++ b/ext/openssl/ossl_ts.c
+@@ -816,7 +816,7 @@ ossl_ts_resp_verify(int argc, VALUE *argv, VALUE self)
+         X509_up_ref(cert);
+     }
+ 
+-    TS_VERIFY_CTS_set_certs(ctx, x509inter);
++    TS_VERIFY_CTX_set_certs(ctx, x509inter);
+     TS_VERIFY_CTX_add_flags(ctx, TS_VFY_SIGNATURE);
+     TS_VERIFY_CTX_set_store(ctx, x509st);
+ 
+-- 
+2.32.0
+
+
+From 5fba3bc1df93ab6abc3ea53be3393480f36ea259 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 19 Mar 2021 19:18:25 +0900
+Subject: [PATCH 3/3] ssl: use SSL_get_rbio() to check if SSL is started or not
+
+Use SSL_get_rbio() instead of SSL_get_fd(). SSL_get_fd() internally
+calls SSL_get_rbio() and it's enough for our purpose.
+
+In OpenSSL 3.0, SSL_get_fd() leaves an entry in the OpenSSL error queue
+if BIO has not been set up yet, and we would have to clean it up.
+---
+ ext/openssl/ossl_ssl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ext/openssl/ossl_ssl.c b/ext/openssl/ossl_ssl.c
+index 4b7efa39f5..ec430bfb0c 100644
+--- a/ext/openssl/ossl_ssl.c
++++ b/ext/openssl/ossl_ssl.c
+@@ -1522,8 +1522,8 @@ ossl_sslctx_flush_sessions(int argc, VALUE *argv, VALUE self)
+ static inline int
+ ssl_started(SSL *ssl)
+ {
+-    /* the FD is set in ossl_ssl_setup(), called by #connect or #accept */
+-    return SSL_get_fd(ssl) >= 0;
++    /* BIO is created through ossl_ssl_setup(), called by #connect or #accept */
++    return SSL_get_rbio(ssl) != NULL;
+ }
+ 
+ static void
+-- 
+2.32.0
+

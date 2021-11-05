@@ -1,0 +1,75 @@
+From 8acf8e95dcaebe227f779271b8213c15eceb846f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Mon, 1 Nov 2021 18:40:06 +0100
+Subject: [PATCH] Use OpenSSL constants for error codes.
+
+This fixes the following test error testing against OpenSSL 3.x:
+
+~~~
+  2) Failure:
+TestGemRequest#test_verify_certificate_extra_message [/builddir/build/BUILD/ruby-3.0.2/test/rubygems/test_gem_request.rb:358]:
+<"ERROR:  SSL verification error at depth 0: invalid CA certificate (24)\n" +
+"ERROR:  Certificate  is an invalid CA certificate\n"> expected but was
+<"ERROR:  SSL verification error at depth 0: invalid CA certificate (79)\n" +
+"ERROR:  Certificate  is an invalid CA certificate\n">.
+~~~
+
+Where the root cause is this OpenSSL commit:
+
+https://github.com/openssl/openssl/commit/1e41dadfa7b9f792ed0f4714a3d3d36f070cf30e
+
+It seems that OpenSSL upstream considers the constant value just an
+implementation detail and therefore this changes the test case to
+follow the suite.
+---
+ test/rubygems/test_gem_request.rb | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/test/rubygems/test_gem_request.rb b/test/rubygems/test_gem_request.rb
+index 66477be7bc..47654f6fa4 100644
+--- a/test/rubygems/test_gem_request.rb
++++ b/test/rubygems/test_gem_request.rb
+@@ -328,30 +328,36 @@ def test_user_agent_revision_missing
+ 
+   def test_verify_certificate
+     pend if Gem.java_platform?
++
++    error_number = OpenSSL::X509::V_ERR_OUT_OF_MEM
++
+     store = OpenSSL::X509::Store.new
+     context = OpenSSL::X509::StoreContext.new store
+-    context.error = OpenSSL::X509::V_ERR_OUT_OF_MEM
++    context.error = error_number
+ 
+     use_ui @ui do
+       Gem::Request.verify_certificate context
+     end
+ 
+-    assert_equal "ERROR:  SSL verification error at depth 0: out of memory (17)\n",
++    assert_equal "ERROR:  SSL verification error at depth 0: out of memory (#{error_number})\n",
+                  @ui.error
+   end
+ 
+   def test_verify_certificate_extra_message
+     pend if Gem.java_platform?
++
++    error_number = OpenSSL::X509::V_ERR_INVALID_CA
++
+     store = OpenSSL::X509::Store.new
+     context = OpenSSL::X509::StoreContext.new store
+-    context.error = OpenSSL::X509::V_ERR_INVALID_CA
++    context.error = error_number
+ 
+     use_ui @ui do
+       Gem::Request.verify_certificate context
+     end
+ 
+     expected = <<-ERROR
+-ERROR:  SSL verification error at depth 0: invalid CA certificate (24)
++ERROR:  SSL verification error at depth 0: invalid CA certificate (#{error_number})
+ ERROR:  Certificate  is an invalid CA certificate
+     ERROR
+ 
+-- 
+2.32.0
+

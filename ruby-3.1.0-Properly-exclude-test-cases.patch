@@ -1,0 +1,93 @@
+From 96684439e96aa92e10376b5be45f006772028295 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Thu, 21 Oct 2021 13:02:38 +0200
+Subject: [PATCH] Properly exclude test cases.
+
+Lets consider the following scenario:
+
+~~~
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):001:0> p suite
+OpenSSL::TestEC
+=> OpenSSL::TestEC
+
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):002:0> p all_test_methods
+["test_ECPrivateKey", "test_ECPrivateKey_encrypted", "test_PUBKEY", "test_check_key", "test_derive_key", "test_dh_compute_key", "test_dsa_sign_asn1_FIPS186_3", "test_ec_group", "test_ec_key", "test_ec_point", "test_ec_point_add", "test_ec_point_mul", "test_generate", "test_marshal", "test_sign_verify", "test_sign_verify_raw"]
+=>
+["test_ECPrivateKey",
+ "test_ECPrivateKey_encrypted",
+ "test_PUBKEY",
+ "test_check_key",
+ "test_derive_key",
+ "test_dh_compute_key",
+ "test_dsa_sign_asn1_FIPS186_3",
+ "test_ec_group",
+ "test_ec_key",
+ "test_ec_point",
+ "test_ec_point_add",
+ "test_ec_point_mul",
+ "test_generate",
+ "test_marshal",
+ "test_sign_verify",
+ "test_sign_verify_raw"]
+
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):003:0> p filter
+/\A(?=.*)(?!.*(?-mix:(?-mix:memory_leak)|(?-mix:OpenSSL::TestEC.test_check_key)))/
+=> /\A(?=.*)(?!.*(?-mix:(?-mix:memory_leak)|(?-mix:OpenSSL::TestEC.test_check_key)))/
+
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):004:0> method = "test_check_key"
+=> "test_check_key"
+~~~
+
+The intention here is to exclude the `test_check_key` test case.
+Unfortunately this does not work as expected, because the negative filter
+is never checked:
+
+~~~
+
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):005:0> filter === method
+=> true
+
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):006:0> filter === "#{suite}##{method}"
+=> false
+
+irb(#<Test::Unit::AutoRunner::Runner:0x0000560f68afc3c8>):007:0> filter === method || filter === "#{suite}##{method}"
+=> true
+~~~
+
+Therefore always filter against the fully qualified method name
+`#{suite}##{method}`, which should provide the expected result.
+
+However, if plain string filter is used, keep checking also only the
+method name.
+
+This resolves [Bug #16936].
+---
+ tool/lib/minitest/unit.rb | 12 +++++++++---
+ 1 file changed, 9 insertion(+), 3 deletion(-)
+
+diff --git a/tool/lib/minitest/unit.rb b/tool/lib/minitest/unit.rb
+index c58a609bfa..d5af6cb906 100644
+--- a/tool/lib/minitest/unit.rb
++++ b/tool/lib/minitest/unit.rb
+@@ -956,9 +956,15 @@ def _run_suite suite, type
+ 
+       all_test_methods = suite.send "#{type}_methods"
+ 
+-      filtered_test_methods = all_test_methods.find_all { |m|
+-        filter === m || filter === "#{suite}##{m}"
+-      }
++      filtered_test_methods = if Regexp === filter
++        all_test_methods.find_all { |m|
++          filter === "#{suite}##{m}"
++        }
++      else
++        all_test_methods.find_all {|m|
++          filter === m || filter === "#{suite}##{m}"
++        }
++      end
+ 
+       leakchecker = LeakChecker.new
+ 
+-- 
+2.32.0
+
