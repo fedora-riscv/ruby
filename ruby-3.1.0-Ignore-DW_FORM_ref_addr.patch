@@ -13,7 +13,7 @@ diff --git a/addr2line.c b/addr2line.c
 index fed1a8da84e5..92c6da5e3bea 100644
 --- a/addr2line.c
 +++ b/addr2line.c
-@@ -1592,14 +1592,31 @@ di_read_cu(DebugInfoReader *reader)
+@@ -1593,14 +1593,31 @@ di_read_cu(DebugInfoReader *reader)
  }
  
  static void
@@ -47,7 +47,7 @@ index fed1a8da84e5..92c6da5e3bea 100644
      if (!di_read_die(reader, &die)) goto finish;
  
      /* enumerate abbrev */
-@@ -1664,7 +1681,7 @@ debug_info_read(DebugInfoReader *reader, int num_traces, void **traces,
+@@ -1665,7 +1682,7 @@ debug_info_read(DebugInfoReader *reader, int num_traces, void **traces,
                  /* 1 or 3 */
                  break; /* goto skip_die; */
                case DW_AT_abstract_origin:

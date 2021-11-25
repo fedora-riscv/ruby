@@ -63,7 +63,7 @@ method name.
 This resolves [Bug #16936].
 ---
  tool/lib/minitest/unit.rb | 12 +++++++++---
- 1 file changed, 9 insertion(+), 3 deletion(-)
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/tool/lib/minitest/unit.rb b/tool/lib/minitest/unit.rb
 index c58a609bfa..d5af6cb906 100644

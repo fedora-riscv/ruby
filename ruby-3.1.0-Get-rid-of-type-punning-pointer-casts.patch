@@ -6,7 +6,7 @@ Subject: [PATCH] Get rid of type-punning pointer casts [Bug #18062]
 ---
  vm_eval.c       |  4 +++-
  vm_insnhelper.c |  7 +++++--
- vm_method.c     | 41 +++++++++++++++++++++++++---------------
+ vm_method.c     | 41 ++++++++++++++++++++++++++---------------
  3 files changed, 34 insertions(+), 18 deletions(-)
 
 diff --git a/vm_eval.c b/vm_eval.c
@@ -30,7 +30,7 @@ diff --git a/vm_insnhelper.c b/vm_insnhelper.c
 index 14928b2afe8e..e186376b24d7 100644
 --- a/vm_insnhelper.c
 +++ b/vm_insnhelper.c
-@@ -1636,9 +1636,11 @@ vm_search_cc(const VALUE klass, const struct rb_callinfo * const ci)
+@@ -1637,9 +1637,11 @@ vm_search_cc(const VALUE klass, const struct rb_callinfo * const ci)
      const ID mid = vm_ci_mid(ci);
      struct rb_id_table *cc_tbl = RCLASS_CC_TBL(klass);
      struct rb_class_cc_entries *ccs = NULL;
@@ -43,7 +43,7 @@ index 14928b2afe8e..e186376b24d7 100644
              const int ccs_len = ccs->len;
              VM_ASSERT(vm_ccs_verify(ccs, mid, klass));
  
-@@ -1705,8 +1707,9 @@ vm_search_cc(const VALUE klass, const struct rb_callinfo * const ci)
+@@ -1706,8 +1708,9 @@ vm_search_cc(const VALUE klass, const struct rb_callinfo * const ci)
      if (ccs == NULL) {
          VM_ASSERT(cc_tbl != NULL);
  
@@ -123,7 +123,7 @@ index 016dba1dbb18..1fd0bd57f7ca 100644
  
                  RB_DEBUG_COUNTER_INC(cc_invalidate_negative);
              }
-@@ -1023,6 +1024,7 @@ prepare_callable_method_entry(VALUE defined_class, ID id, const rb_method_entry_
+@@ -1023,6 +1025,7 @@ prepare_callable_method_entry(VALUE defined_class, ID id, const rb_method_entry_
  {
      struct rb_id_table *mtbl;
      const rb_callable_method_entry_t *cme;
@@ -131,7 +131,7 @@ index 016dba1dbb18..1fd0bd57f7ca 100644
  
      if (me) {
          if (me->defined_class == 0) {
-@@ -1032,7 +1034,8 @@ prepare_callable_method_entry(VALUE defined_class, ID id, const rb_method_entry_
+@@ -1032,7 +1035,8 @@ prepare_callable_method_entry(VALUE defined_class, ID id, const rb_method_entry_
  
              mtbl = RCLASS_CALLABLE_M_TBL(defined_class);
  
@@ -141,7 +141,7 @@ index 016dba1dbb18..1fd0bd57f7ca 100644
                  RB_DEBUG_COUNTER_INC(mc_cme_complement_hit);
                  VM_ASSERT(callable_method_entry_p(cme));
                  VM_ASSERT(!METHOD_ENTRY_INVALIDATED(cme));
-@@ -1076,9 +1079,10 @@ cached_callable_method_entry(VALUE klass, ID mid)
+@@ -1076,9 +1080,10 @@ cached_callable_method_entry(VALUE klass, ID mid)
      ASSERT_vm_locking();
  
      struct rb_id_table *cc_tbl = RCLASS_CC_TBL(klass);
@@ -154,7 +154,7 @@ index 016dba1dbb18..1fd0bd57f7ca 100644
          VM_ASSERT(vm_ccs_p(ccs));
  
          if (LIKELY(!METHOD_ENTRY_INVALIDATED(ccs->cme))) {
-@@ -1104,12 +1108,14 @@ cache_callable_method_entry(VALUE klass, ID mid, const rb_callable_method_entry_
+@@ -1104,12 +1109,14 @@ cache_callable_method_entry(VALUE klass, ID mid, const rb_callable_method_entry_
  
      struct rb_id_table *cc_tbl = RCLASS_CC_TBL(klass);
      struct rb_class_cc_entries *ccs;
@@ -170,7 +170,7 @@ index 016dba1dbb18..1fd0bd57f7ca 100644
          VM_ASSERT(ccs->cme == cme);
      }
      else {
-@@ -1123,8 +1129,12 @@ negative_cme(ID mid)
+@@ -1123,8 +1130,12 @@ negative_cme(ID mid)
  {
      rb_vm_t *vm = GET_VM();
      const rb_callable_method_entry_t *cme;

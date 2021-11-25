@@ -30,7 +30,7 @@ diff --git a/lib/rubygems/security.rb b/lib/rubygems/security.rb
 index c80639af6d..12de141f36 100644
 --- a/lib/rubygems/security.rb
 +++ b/lib/rubygems/security.rb
-@@ -476,7 +476,7 @@ def self.email_to_name(email_address)
+@@ -510,7 +510,7 @@ def self.email_to_name(email_address)
  
      dcs = dcs.split '.'
  

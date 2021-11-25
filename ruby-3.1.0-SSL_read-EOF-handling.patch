@@ -2,7 +2,7 @@ diff --git a/ext/openssl/ossl_ssl.c b/ext/openssl/ossl_ssl.c
 index 3b425ca..40e748c 100644
 --- a/ext/openssl/ossl_ssl.c
 +++ b/ext/openssl/ossl_ssl.c
-@@ -1844,6 +1844,11 @@ ossl_ssl_read_internal(int argc, VALUE *argv, VALUE self, int nonblock)
+@@ -1870,6 +1870,11 @@ ossl_ssl_read_internal(int argc, VALUE *argv, VALUE self, int nonblock)
  	return str;
  
      GetSSL(self, ssl);

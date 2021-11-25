@@ -95,7 +95,7 @@ diff --git a/ext/openssl/ossl_ts.c b/ext/openssl/ossl_ts.c
 index 692c0d620f..f1da7c1947 100644
 --- a/ext/openssl/ossl_ts.c
 +++ b/ext/openssl/ossl_ts.c
-@@ -816,7 +816,7 @@ ossl_ts_resp_verify(int argc, VALUE *argv, VALUE self)
+@@ -820,7 +820,7 @@ ossl_ts_resp_verify(int argc, VALUE *argv, VALUE self)
          X509_up_ref(cert);
      }
  
@@ -126,7 +126,7 @@ diff --git a/ext/openssl/ossl_ssl.c b/ext/openssl/ossl_ssl.c
 index 4b7efa39f5..ec430bfb0c 100644
 --- a/ext/openssl/ossl_ssl.c
 +++ b/ext/openssl/ossl_ssl.c
-@@ -1522,8 +1522,8 @@ ossl_sslctx_flush_sessions(int argc, VALUE *argv, VALUE self)
+@@ -1535,8 +1535,8 @@ ossl_sslctx_flush_sessions(int argc, VALUE *argv, VALUE self)
  static inline int
  ssl_started(SSL *ssl)
  {

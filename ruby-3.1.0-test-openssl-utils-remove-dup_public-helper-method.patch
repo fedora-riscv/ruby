@@ -227,7 +227,7 @@ diff --git a/test/openssl/utils.rb b/test/openssl/utils.rb
 index c1d737b2ab..f664bd3074 100644
 --- a/test/openssl/utils.rb
 +++ b/test/openssl/utils.rb
-@@ -305,32 +305,6 @@ def check_component(base, test, keys)
+@@ -313,32 +313,6 @@ def check_component(base, test, keys)
        assert_equal base.send(comp), test.send(comp)
      }
    end
