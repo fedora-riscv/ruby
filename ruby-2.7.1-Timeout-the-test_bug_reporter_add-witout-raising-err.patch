@@ -20,7 +20,7 @@ diff --git a/test/-ext-/bug_reporter/test_bug_reporter.rb b/test/-ext-/bug_repor
 index 628fcd0340..2c677cc8a7 100644
 --- a/test/-ext-/bug_reporter/test_bug_reporter.rb
 +++ b/test/-ext-/bug_reporter/test_bug_reporter.rb
-@@ -21,7 +21,7 @@ def test_bug_reporter_add
+@@ -22,7 +22,7 @@ def test_bug_reporter_add
      args = ["--disable-gems", "-r-test-/bug_reporter",
              "-C", tmpdir]
      stdin = "register_sample_bug_reporter(12345); Process.kill :SEGV, $$"

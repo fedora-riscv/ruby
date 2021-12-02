@@ -1,6 +1,6 @@
 %global major_version 3
-%global minor_version 0
-%global teeny_version 3
+%global minor_version 1
+%global teeny_version 0
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-#%%global revision 684649ea05
+%global revision a84dc9d80d
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 154
+%global release 1
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,39 +30,47 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.32
+%global rubygems_version 3.3.0.dev
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.32
+%global bundler_version 2.3.0.dev
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
 %global bundler_net_http_persistent_version 4.0.0
 %global bundler_thor_version 1.1.0
 %global bundler_tmpdir_version 0.1.0
-%global bundler_uri_version 0.10.0
+%global bundler_uri_version 0.10.1
 
-%global bigdecimal_version 3.0.0
-%global did_you_mean_version 1.5.0
-%global erb_version 2.2.0
-%global io_console_version 0.5.7
-%global irb_version 1.3.5
-%global json_version 2.5.1
-%global openssl_version 2.2.1
-%global psych_version 3.3.2
-%global racc_version 1.5.2
-%global rdoc_version 6.3.3
+%global bigdecimal_version 3.1.0.dev
+%global did_you_mean_version 1.6.0.pre.alpha
+%global erb_version 2.2.3
+%global io_console_version 0.5.9
+%global irb_version 1.3.8.pre.11
+%global json_version 2.6.1
+%global openssl_version 3.0.0.pre
+%global psych_version 4.0.2
+%global racc_version 1.6.0
+%global rdoc_version 6.3.2
 
 # Bundled gems.
-%global minitest_version 5.14.2
-%global power_assert_version 1.2.0
-%global rake_version 13.0.3
-%global rbs_version 1.4.0
-%global test_unit_version 3.3.7
+%global minitest_version 5.14.4
+%global power_assert_version 2.0.1
+%global rake_version 13.0.6
+%global test_unit_version 3.5.1
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
-%global typeprof_version 0.15.2
+%global net_ftp_version 0.1.3
+%global net_imap_version 0.2.2
+%global net_pop_version 0.1.1
+%global net_smtp_version 0.3.0
+%global matrix_version 0.4.2
+%global prime_version 0.1.2
+# Binary extension in RBS 1.7.1 fails to build.
+# https://bugs.ruby-lang.org/issues/18373
+%global rbs_version 1.6.2
+%global typeprof_version 0.20.4
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -138,44 +146,12 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/LH6L6YJOYQT4Y5ZNOO4SLIPTUWZ5V45Q/
 # For now, load the ABRT hook via this simple patch:
 Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
-# Workaround "an invalid stdio handle" error on PPC, due to recently introduced
-# hardening features of glibc (rhbz#1361037).
-# https://bugs.ruby-lang.org/issues/12666
-Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
-# Fix DWARF5 support.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1920533
-# https://bugs.ruby-lang.org/issues/17585
-# https://github.com/ruby/ruby/pull/4240
-Patch15: ruby-3.1.0-Support-GCCs-DWARF-5.patch
-# Fix segfaults with enabled LTO.
-# https://bugs.ruby-lang.org/issues/18062
-# https://github.com/ruby/ruby/pull/4716
-Patch16: ruby-3.1.0-Get-rid-of-type-punning-pointer-casts.patch
-# DWARF5/LTO fixes for SIGSEV handler.
-# https://bugs.ruby-lang.org/issues/17052
-# https://github.com/ruby/ruby/commit/72317b333b85eed483ad00bcd4f40944019a7c13
-Patch17: ruby-3.1.0-Ignore-DW_FORM_ref_addr.patch
-# https://bugs.ruby-lang.org/issues/17052#note-9
-# https://bugs.ruby-lang.org/attachments/download/8974/ruby-addr2line-DW_FORM_ref_addr.patch
-# https://github.com/ruby/ruby/commit/a9977ba2f9863e3fb1b2346589ebbca67d80536c
-Patch18: ruby-3.1.0-addr2line-DW_FORM_ref_addr.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
-# Add AC_PROG_CC to make C++ compiler dependency optional on autoconf >= 2.70.
-# https://github.com/ruby/ruby/commit/912a8dcfc5369d840dcd6bf0f88ee0bac7d902d6
-Patch20: ruby-3.1.0-autoconf-2.70-add-ac-prog-cc.patch
-# Allow to exclude test with fully qualified name.
-# https://bugs.ruby-lang.org/issues/16936
-# https://github.com/ruby/ruby/pull/5026
-Patch21: ruby-3.1.0-Properly-exclude-test-cases.patch
 
 
 # OpenSSL 3.0 compatibility patches
-
-# Revert OpenSSL < 3.x enforcement.
-# https://github.com/ruby/openssl/commit/202ff1372a40a8adf9aac74bfe8a39141b0c57e5
-Patch30: ruby-3.0.3-ext-openssl-extconf.rb-require-OpenSSL-version-1.0.1.patch
 
 # Fix test broken by wrongly formatted distinguished name submitted to
 # `OpenSSL::X509::Name.parse`.
@@ -183,44 +159,6 @@ Patch30: ruby-3.0.3-ext-openssl-extconf.rb-require-OpenSSL-version-1.0.1.patch
 # https://github.com/rubygems/rubygems/pull/5030
 Patch31: rubygems-3.2.30-Provide-distinguished-name-which-will-be-correctly-p.patch
 
-# Refactor PEM/DER serialization code.
-# https://github.com/ruby/openssl/pull/328
-Patch40: ruby-3.1.0-Refactor-PEM-DER-serialization-code.patch
-# Implement more 'generic' operations using the EVP API.
-# https://github.com/ruby/openssl/pull/329
-Patch41: ruby-3.1.0-Add-more-support-for-generic-pkey-types.patch
-# Allow setting algorithm-specific options in #sign and #verify.
-# https://github.com/ruby/openssl/pull/374
-Patch42: ruby-3.1.0-Allow-setting-algorithm-specific-options-in-sign-and-verify.patch
-# Use high level EVP interface to generate parameters and keys.
-# https://github.com/ruby/openssl/pull/397
-Patch43: ruby-3.1.0-Use-high-level-EVP-interface-to-generate-parameters-and-keys.patch
-# Use EVP API in more places.
-# https://github.com/ruby/openssl/pull/436
-Patch44: ruby-3.1.0-Use-EVP-API-in-more-places.patch
-# Implement PKey#{encrypt,decrypt,sign_raw,verify_{raw,verify_recover}}.
-# https://github.com/ruby/openssl/pull/382
-Patch45: ruby-3.1.0-Implement-PKey-encrypt-decrypt-sign_raw-verify_raw-and-verify_recover.patch
-# Fix `OpenSSL::TestSSL#test_dup` test failure.
-# https://github.com/ruby/openssl/commit/7b66eaa2dbabb6570dbbbdfac24c4dcdcc6793d7
-Patch46: ruby-3.1.0-test-openssl-utils-remove-dup_public-helper-method.patch
-# Fix `OpenSSL::TestDigest#test_digest_constants` test case.
-# https://github.com/ruby/openssl/commit/a3e59f4c2e200c76ef1d93945ff8737a05715e17
-Patch47: ruby-3.1.0-test-openssl-test_digest-do-not-test-constants-for-l.patch
-# Fix `OpenSSL::TestSSL#test_connect_certificate_verify_failed_exception_message`
-# test case.
-# https://github.com/ruby/openssl/commit/b5a0a198505452c7457b192da2e5cd5dda04f23d
-Patch48: ruby-3.1.0-test-openssl-test_ssl-relax-regex-to-match-OpenSSL-s.patch
-# Fix `OpenSSL::TestPKCS12#test_{new_with_no_keys,new_with_one_key_and_one_cert}`
-# test failures.
-# https://github.com/ruby/openssl/commit/998406d18f2acf73090e9fd9d92a7b4227ac593b
-Patch49: ruby-3.1.0-test-openssl-test_pkcs12-fix-test-failures-with-Open.patch
-# Fix `OpenSSL::TestPKey#test_s_generate_key` test case.
-# https://github.com/ruby/openssl/commit/c732387ee5aaa8c5a9717e8b3ffebb3d7430e99a
-Patch50: ruby-3.1.0-test-openssl-test_pkey-use-EC-keys-for-PKey.generate.patch
-# Miscellaneous changes for OpenSSL 3.0 support.
-# https://github.com/ruby/openssl/pull/468
-Patch51: ruby-3.1.0-Miscellaneous-changes-for-OpenSSL-3.0-support.patch
 # Support OpenSSL 3.0.
 # https://github.com/ruby/openssl/pull/399
 Patch52: ruby-3.1.0-Support-OpenSSL-3.0.patch
@@ -234,7 +172,6 @@ Recommends: ruby(rubygems) >= %{rubygems_version}
 Recommends: rubygem(bigdecimal) >= %{bigdecimal_version}
 
 BuildRequires: autoconf
-BuildRequires: gdbm-devel
 %{?with_gmp:BuildRequires: gmp-devel}
 BuildRequires: libffi-devel
 BuildRequires: openssl-devel
@@ -511,6 +448,21 @@ many machines, systematically and repeatably.
 # These are regular packages, which might be installed just optionally. Users
 # should list them among their dependencies (in Gemfile).
 
+%package bundled-gems
+Summary:    Bundled gems which are part of Ruby StdLib
+Requires:   ruby(rubygems) >= %{rubygems_version}
+Provides:   rubygem(net-ftp) = %{net_ftp_version}
+Provides:   rubygem(net-imap) = %{net_imap_version}
+Provides:   rubygem(net-pop) = %{net_pop_version}
+Provides:   rubygem(net-smtp) = %{net_smtp_version}
+Provides:   rubygem(matrix) = %{matrix_version}
+Provides:   rubygem(prime) = %{prime_version}
+BuildArch:  noarch
+
+%description bundled-gems
+Gems bundled with Ruby.
+
+
 %package -n rubygem-minitest
 Summary:    Minitest provides a complete suite of testing facilities
 Version:    %{minitest_version}
@@ -670,28 +622,8 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch9 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
 %patch19 -p1
-%patch20 -p1
-%patch21 -p1
-%patch30 -p1 -R
 %patch31 -p1
-%patch40 -p1
-%patch41 -p1
-%patch42 -p1
-%patch43 -p1
-%patch44 -p1
-%patch45 -p1
-%patch46 -p1
-%patch47 -p1
-%patch48 -p1
-%patch49 -p1
-%patch50 -p1
-%patch51 -p1
 %patch52 -p1
 %patch53 -p1
 
@@ -928,7 +860,10 @@ checksec --file=libruby.so.%{ruby_version} | \
   == '%{bundler_molinillo_version}' ]
 
 # Net::HTTP::Persistent.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+# Require `rubygems` to workaround the `<class:Wrapper>': uninitialized
+# constant Gem (NameError) issue.
+# https://github.com/rubygems/rubygems/issues/5119
+[ "`make runruby TESTRUN_SCRIPT=\"-rrubygems -e \\\" \
   module Bundler; module Persistent; module Net; module HTTP; \
   end; end; end; end; \
   require 'bundler/vendor/net-http-persistent/lib/net/http/persistent'; \
@@ -978,6 +913,12 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestEC#test_check_key/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_derive_key/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_key_exchange/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
+# These fails on top of Ruby 3.0, although the #test_dup might be just flaky.
+DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestSSL#test_accept_errors_include_peeraddr/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestHMAC#test_dup/"
+
+# https://bugs.ruby-lang.org/issues/18380
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_domain_blocking/"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
@@ -1036,12 +977,12 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{ruby_libdir}/coverage.rb
 %{ruby_libdir}/csv*
 %{ruby_libdir}/date.rb
-%{ruby_libdir}/debug.rb
 %{ruby_libdir}/delegate*
 %{ruby_libdir}/digest*
 %{ruby_libdir}/drb*
 %{ruby_libdir}/English.rb
-%{ruby_libdir}/erb.rb
+%{ruby_libdir}/erb*
+%{ruby_libdir}/error_highlight*
 %{ruby_libdir}/expect.rb
 %{ruby_libdir}/fiddle*
 %{ruby_libdir}/fileutils.rb
@@ -1052,12 +993,11 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{ruby_libdir}/ipaddr.rb
 %{ruby_libdir}/kconv.rb
 %{ruby_libdir}/logger*
-%{ruby_libdir}/matrix*
 %{ruby_libdir}/mkmf.rb
 %{ruby_libdir}/monitor.rb
 %{ruby_libdir}/mutex_m.rb
 %{ruby_libdir}/net
-%{ruby_libdir}/objspace.rb
+%{ruby_libdir}/objspace*
 %{ruby_libdir}/observer*
 %{ruby_libdir}/open-uri.rb
 %{ruby_libdir}/open3*
@@ -1067,7 +1007,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{ruby_libdir}/pathname.rb
 %{ruby_libdir}/pp.rb
 %{ruby_libdir}/prettyprint.rb
-%{ruby_libdir}/prime.rb
 %{ruby_libdir}/pstore*
 %{ruby_libdir}/readline.rb
 %{ruby_libdir}/reline*
@@ -1085,7 +1024,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{ruby_libdir}/timeout*
 %{ruby_libdir}/time.rb
 %{ruby_libdir}/tmpdir.rb
-%{ruby_libdir}/tracer*
 %{ruby_libdir}/tsort.rb
 %{ruby_libdir}/unicode_normalize
 %{ruby_libdir}/un.rb
@@ -1101,7 +1039,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{ruby_libarchdir}/continuation.so
 %{ruby_libarchdir}/coverage.so
 %{ruby_libarchdir}/date_core.so
-%{ruby_libarchdir}/dbm.so
 %dir %{ruby_libarchdir}/digest
 %{ruby_libarchdir}/digest.so
 %{ruby_libarchdir}/digest/bubblebabble.so
@@ -1174,9 +1111,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{ruby_libarchdir}/enc/windows_31j.so
 %{ruby_libarchdir}/etc.so
 %{ruby_libarchdir}/fcntl.so
-%{ruby_libarchdir}/fiber.so
 %{ruby_libarchdir}/fiddle.so
-%{ruby_libarchdir}/gdbm.so
 %dir %{ruby_libarchdir}/io
 %{ruby_libarchdir}/io/nonblock.so
 %{ruby_libarchdir}/io/wait.so
@@ -1237,77 +1172,69 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 %files default-gems
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
-%{gem_dir}/specifications/default/base64-0.1.0.gemspec
-%{gem_dir}/specifications/default/benchmark-0.1.1.gemspec
-%{gem_dir}/specifications/default/cgi-0.2.1.gemspec
-%{gem_dir}/specifications/default/csv-3.1.9.gemspec
-%{gem_dir}/specifications/default/date-3.1.3.gemspec
-%{gem_dir}/specifications/default/dbm-1.1.0.gemspec
-%{gem_dir}/specifications/default/debug-0.2.1.gemspec
+%{gem_dir}/specifications/default/base64-0.1.1.gemspec
+%{gem_dir}/specifications/default/benchmark-0.2.0.gemspec
+%{gem_dir}/specifications/default/cgi-0.3.1.gemspec
+%{gem_dir}/specifications/default/csv-3.2.1.gemspec
+%{gem_dir}/specifications/default/date-3.2.2.gemspec
 %{gem_dir}/specifications/default/delegate-0.2.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
-%{gem_dir}/specifications/default/digest-3.0.0.gemspec
-%{gem_dir}/specifications/default/drb-2.0.5.gemspec
+%{gem_dir}/specifications/default/digest-3.1.0.pre3.gemspec
+%{gem_dir}/specifications/default/drb-2.1.0.gemspec
 %{gem_dir}/specifications/default/english-0.7.1.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
+%{gem_dir}/specifications/default/error_highlight-0.2.0.gemspec
 %{gem_dir}/specifications/default/etc-1.3.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.1.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.8.gemspec
-%{gem_dir}/specifications/default/fileutils-1.5.0.gemspec
-%{gem_dir}/specifications/default/find-0.1.0.gemspec
+%{gem_dir}/specifications/default/fiddle-1.1.0.gemspec
+%{gem_dir}/specifications/default/fileutils-1.6.0.gemspec
+%{gem_dir}/specifications/default/find-0.1.1.gemspec
 %{gem_dir}/specifications/default/forwardable-1.3.2.gemspec
-%{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
 %{gem_dir}/specifications/default/getoptlong-0.1.1.gemspec
 %{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
 %{gem_dir}/specifications/default/io-wait-0.2.0.gemspec
-%{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
-%{gem_dir}/specifications/default/logger-1.4.3.gemspec
-%{gem_dir}/specifications/default/matrix-0.3.1.gemspec
+%{gem_dir}/specifications/default/ipaddr-1.2.3.gemspec
+%{gem_dir}/specifications/default/logger-1.4.4.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-ftp-0.1.2.gemspec
-%{gem_dir}/specifications/default/net-http-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-imap-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-pop-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-protocol-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-smtp-0.2.1.gemspec
-%{gem_dir}/specifications/default/nkf-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-http-0.2.0.gemspec
+%{gem_dir}/specifications/default/net-protocol-0.1.2.gemspec
+%{gem_dir}/specifications/default/nkf-0.1.1.gemspec
 %{gem_dir}/specifications/default/observer-0.1.1.gemspec
 %{gem_dir}/specifications/default/open3-0.1.1.gemspec
-%{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
-%{gem_dir}/specifications/default/optparse-0.1.1.gemspec
+%{gem_dir}/specifications/default/open-uri-0.2.0.gemspec
+%{gem_dir}/specifications/default/optparse-0.2.0.gemspec
 %{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
-%{gem_dir}/specifications/default/ostruct-0.3.1.gemspec
-%{gem_dir}/specifications/default/pathname-0.1.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.5.0.gemspec
+%{gem_dir}/specifications/default/pathname-0.2.0.gemspec
 %{gem_dir}/specifications/default/pp-0.2.1.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.1.gemspec
-%{gem_dir}/specifications/default/prime-0.1.2.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.1.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
-%{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
-%{gem_dir}/specifications/default/reline-0.2.5.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.3.gemspec
+%{gem_dir}/specifications/default/reline-0.2.8.pre.11.gemspec
 %{gem_dir}/specifications/default/resolv-0.2.1.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.1.gemspec
-%{gem_dir}/specifications/default/securerandom-0.1.0.gemspec
-%{gem_dir}/specifications/default/set-1.0.1.gemspec
+%{gem_dir}/specifications/default/ruby2_keywords-0.0.5.gemspec
+%{gem_dir}/specifications/default/securerandom-0.1.1.gemspec
+%{gem_dir}/specifications/default/set-1.0.2.gemspec
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.1.gemspec
 %{gem_dir}/specifications/default/stringio-3.0.1.gemspec
 %{gem_dir}/specifications/default/strscan-3.0.1.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
-%{gem_dir}/specifications/default/tempfile-0.1.1.gemspec
-%{gem_dir}/specifications/default/time-0.1.0.gemspec
-%{gem_dir}/specifications/default/timeout-0.1.1.gemspec
+%{gem_dir}/specifications/default/tempfile-0.1.2.gemspec
+%{gem_dir}/specifications/default/time-0.2.0.gemspec
+%{gem_dir}/specifications/default/timeout-0.2.0.gemspec
 %{gem_dir}/specifications/default/tmpdir-0.1.2.gemspec
 %{gem_dir}/specifications/default/tsort-0.1.0.gemspec
-%{gem_dir}/specifications/default/tracer-0.1.1.gemspec
-%{gem_dir}/specifications/default/un-0.1.0.gemspec
-%{gem_dir}/specifications/default/uri-0.10.1.gemspec
+%{gem_dir}/specifications/default/un-0.2.0.gemspec
+%{gem_dir}/specifications/default/uri-0.11.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.1.gemspec
 #%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
-%{gem_dir}/specifications/default/yaml-0.1.1.gemspec
-%{gem_dir}/specifications/default/zlib-2.0.0.gemspec
+%{gem_dir}/specifications/default/yaml-0.2.0.gemspec
+%{gem_dir}/specifications/default/zlib-2.1.1.gemspec
 
 %{gem_dir}/gems/erb-%{erb_version}
 # Use standalone rubygem-racc if Racc binary is required. Shipping this
@@ -1373,6 +1300,53 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %{gem_dir}/specifications/bundler-%{bundler_version}.gemspec
 %{_mandir}/man1/bundle*.1*
 %{_mandir}/man5/gemfile.5*
+
+%files bundled-gems
+%dir %{gem_dir}/gems/net-ftp-%{net_ftp_version}
+%{gem_dir}/gems/net-ftp-%{net_ftp_version}/Gemfile
+%license %{gem_dir}/gems/net-ftp-%{net_ftp_version}/LICENSE.txt
+%{gem_dir}/gems/net-ftp-%{net_ftp_version}/README.md
+%{gem_dir}/gems/net-ftp-%{net_ftp_version}/Rakefile
+%{gem_dir}/gems/net-ftp-%{net_ftp_version}/bin
+%{gem_dir}/gems/net-ftp-%{net_ftp_version}/lib
+%{gem_dir}/specifications/net-ftp-%{net_ftp_version}.gemspec
+
+%dir %{gem_dir}/gems/net-imap-%{net_imap_version}
+%{gem_dir}/gems/net-imap-%{net_imap_version}/Gemfile
+%license %{gem_dir}/gems/net-imap-%{net_imap_version}/LICENSE.txt
+%{gem_dir}/gems/net-imap-%{net_imap_version}/README.md
+%{gem_dir}/gems/net-imap-%{net_imap_version}/Rakefile
+%{gem_dir}/gems/net-imap-%{net_imap_version}/bin
+%{gem_dir}/gems/net-imap-%{net_imap_version}/lib
+%{gem_dir}/specifications/net-imap-%{net_imap_version}.gemspec
+
+%dir %{gem_dir}/gems/net-pop-%{net_pop_version}
+%{gem_dir}/gems/net-pop-%{net_pop_version}/Gemfile
+%license %{gem_dir}/gems/net-pop-%{net_pop_version}/LICENSE.txt
+%{gem_dir}/gems/net-pop-%{net_pop_version}/README.md
+%{gem_dir}/gems/net-pop-%{net_pop_version}/Rakefile
+%{gem_dir}/gems/net-pop-%{net_pop_version}/bin
+%{gem_dir}/gems/net-pop-%{net_pop_version}/lib
+%{gem_dir}/specifications/net-pop-%{net_pop_version}.gemspec
+
+%dir %{gem_dir}/gems/net-smtp-%{net_smtp_version}
+%license %{gem_dir}/gems/net-smtp-%{net_smtp_version}/LICENSE.txt
+%{gem_dir}/gems/net-smtp-%{net_smtp_version}/lib
+%{gem_dir}/specifications/net-smtp-%{net_smtp_version}.gemspec
+
+%dir %{gem_dir}/gems/matrix-%{matrix_version}
+%license %{gem_dir}/gems/matrix-%{matrix_version}/LICENSE.txt
+%{gem_dir}/gems/matrix-%{matrix_version}/lib
+%{gem_dir}/specifications/matrix-%{matrix_version}.gemspec
+
+%dir %{gem_dir}/gems/prime-%{prime_version}
+%{gem_dir}/gems/prime-%{prime_version}/Gemfile
+%license %{gem_dir}/gems/prime-%{prime_version}/LICENSE.txt
+%{gem_dir}/gems/prime-%{prime_version}/README.md
+%{gem_dir}/gems/prime-%{prime_version}/Rakefile
+%{gem_dir}/gems/prime-%{prime_version}/bin
+%{gem_dir}/gems/prime-%{prime_version}/lib
+%{gem_dir}/specifications/prime-%{prime_version}.gemspec
 
 %files -n rubygem-minitest
 %{gem_dir}/gems/minitest-%{minitest_version}
@@ -1444,18 +1418,19 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 %license %{gem_dir}/gems/typeprof-%{typeprof_version}/LICENSE
 %{gem_dir}/gems/typeprof-%{typeprof_version}/exe
 %{gem_dir}/gems/typeprof-%{typeprof_version}/lib
-%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/smoke
 %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/tools
+%exclude %{gem_dir}/gems/typeprof-%{typeprof_version}/typeprof-lsp
+%exclude %{gem_dir}/gems/typeprof-%{typeprof_version}/vscode
 %{gem_dir}/specifications/typeprof-%{typeprof_version}.gemspec
 %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/Gemfile*
 %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/README.md
 %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/Rakefile
-%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc
-%lang(ja) %doc %{gem_dir}/gems/typeprof-%{typeprof_version}/doc/doc.ja.md
-%doc %{gem_dir}/gems/typeprof-%{typeprof_version}/testbed
 
 
 %changelog
+* Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
+- Upgrade to Ruby 3.1.0 (a84dc9d80d).
+
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
 
