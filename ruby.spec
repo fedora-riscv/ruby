@@ -41,6 +41,8 @@
 %global bundler_net_http_persistent_version 4.0.0
 %global bundler_thor_version 1.1.0
 %global bundler_tmpdir_version 0.1.0
+# TODO: Check the version if/when available in library.
+%global bundler_tsort_version 0.1.1
 %global bundler_uri_version 0.10.1
 
 %global bigdecimal_version 3.1.0.dev
