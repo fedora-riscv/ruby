@@ -1,6 +1,6 @@
 %global major_version 2
 %global minor_version 6
-%global teeny_version 8
+%global teeny_version 9
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -21,7 +21,7 @@
 %endif
 
 
-%global release 129
+%global release 130
 %{!?release_string:%global release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1095,7 +1095,7 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 # TODO: Gemify these libraries
 %{gem_dir}/specifications/default/cmath-1.0.0.gemspec
 %{gem_dir}/specifications/default/csv-3.0.9.gemspec
-%{gem_dir}/specifications/default/date-2.0.0.gemspec
+%{gem_dir}/specifications/default/date-2.0.2.gemspec
 %{gem_dir}/specifications/default/dbm-1.0.0.gemspec
 %{gem_dir}/specifications/default/e2mmap-0.1.0.gemspec
 %{gem_dir}/specifications/default/etc-1.0.1.gemspec
@@ -1238,6 +1238,9 @@ MSPECOPTS="$MSPECOPTS -P 'File.lchmod raises a NotImplementedError when called'"
 %{_mandir}/man5/gemfile.5*
 
 %changelog
+* Sun Dec 05 2021 Pavel Valena <pvalena@redhat.com> - 2.6.9-130
+- Upgrade to Ruby 2.6.9.
+
 * Fri Nov 12 2021 Pavel Valena <pvalena@redhat.com> - 2.6.8-129
 - Upgrade Ruby to 2.6.8.
 - Resolv::DNS: timeouts if multiple IPv6 name servers are given an address
