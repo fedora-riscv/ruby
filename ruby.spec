@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision a84dc9d80d
+%global revision 715a51a0d6
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -154,12 +154,6 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 
 
 # OpenSSL 3.0 compatibility patches
-
-# Fix test broken by wrongly formatted distinguished name submitted to
-# `OpenSSL::X509::Name.parse`.
-# https://github.com/ruby/openssl/issues/470
-# https://github.com/rubygems/rubygems/pull/5030
-Patch31: rubygems-3.2.30-Provide-distinguished-name-which-will-be-correctly-p.patch
 
 # Support OpenSSL 3.0.
 # https://github.com/ruby/openssl/pull/399
@@ -625,7 +619,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch19 -p1
-%patch31 -p1
 %patch52 -p1
 %patch53 -p1
 
@@ -1431,7 +1424,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_do
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (a84dc9d80d).
+- Upgrade to Ruby 3.1.0 (715a51a0d6).
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
