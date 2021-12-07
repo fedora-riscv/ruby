@@ -915,6 +915,13 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestHMAC#test_dup/"
 # https://bugs.ruby-lang.org/issues/18380
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_domain_blocking/"
 
+%ifarch armv7hl
+# TestReadline#test_interrupt_in_other_thread fails on 32 bit arches according
+# to upstream, but the test is disabled just on Travis, not in test suite.
+# https://bugs.ruby-lang.org/issues/18393
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
+%endif
+
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
