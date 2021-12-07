@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 715a51a0d6
+%global revision ec878dac90
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1199,7 +1199,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_do
 %{gem_dir}/specifications/default/open-uri-0.2.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.2.0.gemspec
 %{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
-%{gem_dir}/specifications/default/ostruct-0.5.0.gemspec
+%{gem_dir}/specifications/default/ostruct-0.5.1.gemspec
 %{gem_dir}/specifications/default/pathname-0.2.0.gemspec
 %{gem_dir}/specifications/default/pp-0.2.1.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.1.gemspec
@@ -1424,7 +1424,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_do
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (715a51a0d6).
+- Upgrade to Ruby 3.1.0 (ec878dac90).
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
