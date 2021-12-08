@@ -1456,7 +1456,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 
 %changelog
-* Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
+* Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.3-154
 - Upgrade to Ruby 3.0.3.
 
 * Fri Nov 05 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-153
