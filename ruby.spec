@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 152
+%global release 153
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -158,6 +158,10 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 # https://bugs.ruby-lang.org/issues/18746
 # https://bugs.ruby-lang.org/issues/18394
 Patch20: ruby-3.1.0-Use-mmap-for-allocating-heap-pages-in-the-GC.patch
+# Fix loading of default gems.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2027099
+# https://github.com/rubygems/rubygems/pull/5154
+Patch22: rubygems-3.2.33-Fix-loading-operating_system-rb-customizations-too-late.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -605,6 +609,7 @@ rm -rf ext/fiddle/libffi*
 %patch15 -p1
 %patch19 -p1
 %patch20 -p1
+%patch22 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1360,7 +1365,11 @@ MSPECOPTS=""
 
 
 %changelog
-* Tue Apr 19 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.2-152
+* Wed Apr 27 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.4-153
+- Fix loading of default gems.
+  Resolves: rhbz#2027099
+
+* Tue Apr 19 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.4-152
 - Upgrade to Ruby 3.0.4.
 
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org>
