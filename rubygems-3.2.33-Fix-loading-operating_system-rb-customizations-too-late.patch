@@ -1,0 +1,262 @@
+From e80e7a3d0b3d72f7af7286b935702b3fab117008 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?David=20Rodr=C3=ADguez?= <deivid.rodriguez@riseup.net>
+Date: Wed, 8 Dec 2021 21:12:24 +0100
+Subject: [PATCH 1/5] More explicit require
+
+This class does not use `rubygems/deprecate`. It uses
+`rubygems/version`, which in turn uses `rubygems/deprecate`. Make this
+explicit.
+---
+ lib/rubygems/requirement.rb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/rubygems/requirement.rb b/lib/rubygems/requirement.rb
+index d2e28fab5b4..9edd6aa7d3c 100644
+--- a/lib/rubygems/requirement.rb
++++ b/lib/rubygems/requirement.rb
+@@ -1,5 +1,5 @@
+ # frozen_string_literal: true
+-require_relative "deprecate"
++require_relative "version"
+ 
+ ##
+ # A Requirement is a set of one or more version restrictions. It supports a
+
+From 4e46dcc17ee5cabbde43b8a34063b8ab042536f9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?David=20Rodr=C3=ADguez?= <deivid.rodriguez@riseup.net>
+Date: Wed, 8 Dec 2021 21:17:30 +0100
+Subject: [PATCH 2/5] Remove ineffective autoloads
+
+These files are loaded on startup unconditionally, so we can require
+them relatively when needed.
+---
+ lib/rubygems.rb               | 4 +---
+ lib/rubygems/specification.rb | 2 ++
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lib/rubygems.rb b/lib/rubygems.rb
+index f803e47628e..b8747409304 100644
+--- a/lib/rubygems.rb
++++ b/lib/rubygems.rb
+@@ -1310,19 +1310,17 @@ def default_gem_load_paths
+   autoload :Licenses,           File.expand_path('rubygems/util/licenses', __dir__)
+   autoload :NameTuple,          File.expand_path('rubygems/name_tuple', __dir__)
+   autoload :PathSupport,        File.expand_path('rubygems/path_support', __dir__)
+-  autoload :Platform,           File.expand_path('rubygems/platform', __dir__)
+   autoload :RequestSet,         File.expand_path('rubygems/request_set', __dir__)
+-  autoload :Requirement,        File.expand_path('rubygems/requirement', __dir__)
+   autoload :Resolver,           File.expand_path('rubygems/resolver', __dir__)
+   autoload :Source,             File.expand_path('rubygems/source', __dir__)
+   autoload :SourceList,         File.expand_path('rubygems/source_list', __dir__)
+   autoload :SpecFetcher,        File.expand_path('rubygems/spec_fetcher', __dir__)
+-  autoload :Specification,      File.expand_path('rubygems/specification', __dir__)
+   autoload :Util,               File.expand_path('rubygems/util', __dir__)
+   autoload :Version,            File.expand_path('rubygems/version', __dir__)
+ end
+ 
+ require_relative 'rubygems/exceptions'
++require_relative 'rubygems/specification'
+ 
+ # REFACTOR: This should be pulled out into some kind of hacks file.
+ begin
+diff --git a/lib/rubygems/specification.rb b/lib/rubygems/specification.rb
+index d3b96491a28..dc5e5ba0138 100644
+--- a/lib/rubygems/specification.rb
++++ b/lib/rubygems/specification.rb
+@@ -9,6 +9,8 @@
+ require_relative 'deprecate'
+ require_relative 'basic_specification'
+ require_relative 'stub_specification'
++require_relative 'platform'
++require_relative 'requirement'
+ require_relative 'specification_policy'
+ require_relative 'util/list'
+ 
+
+From 96b6b3e04e8e4fec17f63079a0caf999a2709d71 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?David=20Rodr=C3=ADguez?= <deivid.rodriguez@riseup.net>
+Date: Wed, 8 Dec 2021 21:45:16 +0100
+Subject: [PATCH 3/5] Load `operating_system.rb` customizations before setting
+ up default gems
+
+It's very common for packagers to configure gem paths in this file, for
+example, `Gem.default_dir`. Also, setting up default gems requires these
+paths to be set, so that we know which default gems need to be setup.
+
+If we setup default gems before loading `operatin_system.rb`
+customizations, the wrong default gems will be setup.
+
+Unfortunately, default gems loaded by `operating_system.rb` can't be
+upgraded if we do this, but it seems much of a smaller issue. I wasn't
+even fully sure it was the right thing to do when I added that, and it
+was not the culprit of the end user issue that led to making that
+change.
+---
+ .github/workflows/install-rubygems.yml |  5 ----
+ lib/rubygems.rb                        | 32 +++++++++++++-------------
+ test/rubygems/test_rubygems.rb         | 23 ++++++++++++++++++
+ 3 files changed, 39 insertions(+), 21 deletions(-)
+
+diff --git a/lib/rubygems.rb b/lib/rubygems.rb
+index b8747409304..11474b6554c 100644
+--- a/lib/rubygems.rb
++++ b/lib/rubygems.rb
+@@ -1323,22 +1323,6 @@ def default_gem_load_paths
+ require_relative 'rubygems/specification'
+ 
+ # REFACTOR: This should be pulled out into some kind of hacks file.
+-begin
+-  ##
+-  # Defaults the Ruby implementation wants to provide for RubyGems
+-
+-  require "rubygems/defaults/#{RUBY_ENGINE}"
+-rescue LoadError
+-end
+-
+-##
+-# Loads the default specs.
+-Gem::Specification.load_defaults
+-
+-require_relative 'rubygems/core_ext/kernel_gem'
+-require_relative 'rubygems/core_ext/kernel_require'
+-require_relative 'rubygems/core_ext/kernel_warn'
+-
+ begin
+   ##
+   # Defaults the operating system (or packager) wants to provide for RubyGems.
+@@ -1354,3 +1338,19 @@ def default_gem_load_paths
+     "the problem and ask for help."
+   raise e.class, msg
+ end
++
++begin
++  ##
++  # Defaults the Ruby implementation wants to provide for RubyGems
++
++  require "rubygems/defaults/#{RUBY_ENGINE}"
++rescue LoadError
++end
++
++##
++# Loads the default specs.
++Gem::Specification.load_defaults
++
++require_relative 'rubygems/core_ext/kernel_gem'
++require_relative 'rubygems/core_ext/kernel_require'
++require_relative 'rubygems/core_ext/kernel_warn'
+diff --git a/test/rubygems/test_rubygems.rb b/test/rubygems/test_rubygems.rb
+index 493b9fdf4a3..fa77a299322 100644
+--- a/test/rubygems/test_rubygems.rb
++++ b/test/rubygems/test_rubygems.rb
+@@ -22,6 +22,29 @@ def test_operating_system_other_exceptions
+     "the problem and ask for help."
+   end
+ 
++  def test_operating_system_customizing_default_dir
++    pend "does not apply to truffleruby" if RUBY_ENGINE == 'truffleruby'
++    pend "loads a custom defaults/jruby file that gets in the middle" if RUBY_ENGINE == 'jruby'
++
++    # On a non existing default dir, there should be no gems
++
++    path = util_install_operating_system_rb <<-RUBY
++      module Gem
++        def self.default_dir
++          File.expand_path("foo")
++        end
++      end
++    RUBY
++
++    output = Gem::Util.popen(
++      *ruby_with_rubygems_and_fake_operating_system_in_load_path(path),
++      '-e',
++      "require \"rubygems\"; puts Gem::Specification.stubs.map(&:full_name)",
++      {:err => [:child, :out]}
++    ).strip
++    assert_empty output
++  end
++
+   private
+ 
+   def util_install_operating_system_rb(content)
+
+From 52cfdd14fd1213a97aac12f01177e27779de9035 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?David=20Rodr=C3=ADguez?= <deivid.rodriguez@riseup.net>
+Date: Thu, 9 Dec 2021 06:08:31 +0100
+Subject: [PATCH 4/5] Install default fiddle on latest ruby on specs that need
+ it
+
+Otherwise first OS customizations load and activate that fiddle version,
+but then when we change to `Gem.default_dir`, that fiddle version is no
+longer there.
+---
+ bundler/spec/commands/clean_spec.rb          | 2 +-
+ bundler/spec/install/gems/standalone_spec.rb | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/spec/bundler/commands/clean_spec.rb b/spec/bundler/commands/clean_spec.rb
+index ffaf22dbb32..65231b35fac 100644
+--- a/spec/bundler/commands/clean_spec.rb
++++ b/spec/bundler/commands/clean_spec.rb
+@@ -638,7 +638,7 @@ def should_not_have_gems(*gems)
+       s.executables = "irb"
+     end
+ 
+-    realworld_system_gems "fiddle --version 1.0.6", "tsort --version 0.1.0", "pathname --version 0.1.0", "set --version 1.0.1"
++    realworld_system_gems "fiddle --version 1.0.8", "tsort --version 0.1.0", "pathname --version 0.1.0", "set --version 1.0.1"
+ 
+     install_gemfile <<-G
+       source "#{file_uri_for(gem_repo2)}"
+diff --git a/spec/bundler/install/gems/standalone_spec.rb b/spec/bundler/install/gems/standalone_spec.rb
+index db16a1b0e13..faefda25f45 100644
+--- a/spec/bundler/install/gems/standalone_spec.rb
++++ b/spec/bundler/install/gems/standalone_spec.rb
+@@ -113,7 +113,7 @@
+       skip "does not work on rubygems versions where `--install_dir` doesn't respect --default" unless Gem::Installer.for_spec(loaded_gemspec, :install_dir => "/foo").default_spec_file == "/foo/specifications/default/bundler-#{Bundler::VERSION}.gemspec" # Since rubygems 3.2.0.rc.2
+       skip "does not work on old rubies because the realworld gems that need to be installed don't support them" if RUBY_VERSION < "2.7.0"
+ 
+-      realworld_system_gems "fiddle --version 1.0.6", "tsort --version 0.1.0"
++      realworld_system_gems "fiddle --version 1.0.8", "tsort --version 0.1.0"
+ 
+       necessary_system_gems = ["optparse --version 0.1.1", "psych --version 3.3.2", "yaml --version 0.1.1", "logger --version 1.4.3", "etc --version 1.2.0", "stringio --version 3.0.0"]
+       necessary_system_gems += ["shellwords --version 0.1.0", "base64 --version 0.1.0", "resolv --version 0.2.1"] if Gem.rubygems_version < Gem::Version.new("3.3.3.a")
+
+From c6a9c81021092c9157f5616a2bbe1323411a5bf8 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?David=20Rodr=C3=ADguez?= <deivid.rodriguez@riseup.net>
+Date: Thu, 9 Dec 2021 12:46:23 +0100
+Subject: [PATCH 5/5] Resolve symlinks in LOAD_PATH when activating
+ pre-required default gems
+
+Some double load issues were reported a while ago by OS packagers where
+if a gem has been required before rubygems, and then after, rubygems
+require would cause a double load.
+
+We avoid this issue by activating the corresponding gem if we detect
+that a file in the default LOAD_PATH that belongs to a default gem has
+already been required when rubygems registers default gems.
+
+However, the fix does not take into account that the default LOAD_PATH
+could potentially include symlinks. This change fixes the same double
+load issue described above but for situations where the default
+LOAD_PATH includes symlinks.
+---
+ lib/rubygems.rb | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/lib/rubygems.rb b/lib/rubygems.rb
+index 11474b6554c..b7dda38d522 100644
+--- a/lib/rubygems.rb
++++ b/lib/rubygems.rb
+@@ -1293,7 +1293,12 @@ def already_loaded?(file)
+     end
+ 
+     def default_gem_load_paths
+-      @default_gem_load_paths ||= $LOAD_PATH[load_path_insert_index..-1]
++      @default_gem_load_paths ||= $LOAD_PATH[load_path_insert_index..-1].map do |lp|
++        expanded = File.expand_path(lp)
++        next expanded unless File.exist?(expanded)
++
++        File.realpath(expanded)
++      end
+     end
+   end
+ 
