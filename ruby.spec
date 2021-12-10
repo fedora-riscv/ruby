@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 154
+%global release 155
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -169,6 +169,10 @@ Patch20: ruby-3.1.0-autoconf-2.70-add-ac-prog-cc.patch
 # https://bugs.ruby-lang.org/issues/16936
 # https://github.com/ruby/ruby/pull/5026
 Patch21: ruby-3.1.0-Properly-exclude-test-cases.patch
+# Fix loading of default gems.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2027099
+# https://github.com/rubygems/rubygems/pull/5154
+Patch22: rubygems-3.2.33-Fix-loading-operating_system-rb-customizations-too-late.patch
 
 
 # OpenSSL 3.0 compatibility patches
@@ -678,6 +682,7 @@ rm -rf ext/fiddle/libffi*
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
+%patch22 -p1
 %patch30 -p1 -R
 %patch31 -p1
 %patch40 -p1
@@ -1456,6 +1461,10 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 
 %changelog
+* Thu Dec 09 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.3-155
+- Fix loading of default gems.
+  Resolves: rhbz#2027099
+
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.3-154
 - Upgrade to Ruby 3.0.3.
 
