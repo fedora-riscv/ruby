@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision ec878dac90
+%global revision 74b58dd690
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -57,22 +57,23 @@
 %global rdoc_version 6.3.2
 
 # Bundled gems.
-%global minitest_version 5.14.4
+%global minitest_version 5.15.0
 %global power_assert_version 2.0.1
 %global rake_version 13.0.6
-%global test_unit_version 3.5.1
+%global test_unit_version 3.5.2
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
 %global net_ftp_version 0.1.3
 %global net_imap_version 0.2.2
 %global net_pop_version 0.1.1
-%global net_smtp_version 0.3.0
+%global net_smtp_version 0.3.1
 %global matrix_version 0.4.2
 %global prime_version 0.1.2
 # Binary extension in RBS 1.7.1 fails to build.
 # https://bugs.ruby-lang.org/issues/18373
-%global rbs_version 1.6.2
+%global rbs_version 1.8.1
 %global typeprof_version 0.20.4
+%global debug_version 1.3.4
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -453,7 +454,7 @@ Provides:   rubygem(net-pop) = %{net_pop_version}
 Provides:   rubygem(net-smtp) = %{net_smtp_version}
 Provides:   rubygem(matrix) = %{matrix_version}
 Provides:   rubygem(prime) = %{prime_version}
-BuildArch:  noarch
+Provides:   rubygem(debug) = %{debug_version}
 
 %description bundled-gems
 Gems bundled with Ruby.
@@ -520,7 +521,6 @@ License:    Ruby or BSD
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(rbs) = %{version}-%{release}
-BuildArch:  noarch
 
 %description -n rubygem-rbs
 RBS is the language for type signatures for Ruby and standard library
@@ -654,6 +654,14 @@ autoconf
 
 %install
 rm -rf %{buildroot}
+
+# Workaround binary extensions installation issues.
+# https://bugs.ruby-lang.org/issues/18133
+find .bundle -name extconf.rb -exec \
+  sed -i \
+    -e '/create_makefile/i \$arch_hdrdir = "$(hdrdir)/../.ext/include/$(arch)"' \
+    -e '/create_makefile/i \$DLDFLAGS << " -L#{$top_srcdir}"' {} \;
+
 %make_install
 
 # TODO: Regenerate RBS parser in lib/rbs/parser.rb
@@ -776,9 +784,15 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
+# TODO: Get information about extension form .gemspec files.
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
+  -exec rm '{}/gem_make.out' \; \
   -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \; \
   || echo "No gem binary extensions to move."
+
+# Remove the extension sources and library copies from `lib` dir.
+find %{buildroot}%{gem_dir}/gems/*/ext -maxdepth 0 -exec rm -rf '{}' +
+find %{buildroot}%{gem_dir}/gems/*/lib -name \*.so -delete
 
 # Move man pages into proper location
 mkdir -p %{buildroot}%{_mandir}/man{1,5}
@@ -1010,6 +1024,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{ruby_libdir}/pp.rb
 %{ruby_libdir}/prettyprint.rb
 %{ruby_libdir}/pstore*
+%{ruby_libdir}/random
 %{ruby_libdir}/readline.rb
 %{ruby_libdir}/reline*
 %{ruby_libdir}/resolv.rb
@@ -1194,7 +1209,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/forwardable-1.3.2.gemspec
 %{gem_dir}/specifications/default/getoptlong-0.1.1.gemspec
 %{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
-%{gem_dir}/specifications/default/io-wait-0.2.0.gemspec
+%{gem_dir}/specifications/default/io-wait-0.2.1.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.3.gemspec
 %{gem_dir}/specifications/default/logger-1.4.4.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
@@ -1206,7 +1221,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/open-uri-0.2.0.gemspec
 %{gem_dir}/specifications/default/optparse-0.2.0.gemspec
 %{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
-%{gem_dir}/specifications/default/ostruct-0.5.1.gemspec
+%{gem_dir}/specifications/default/ostruct-0.5.2.gemspec
 %{gem_dir}/specifications/default/pathname-0.2.0.gemspec
 %{gem_dir}/specifications/default/pp-0.2.1.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.1.gemspec
@@ -1234,7 +1249,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/un-0.2.0.gemspec
 %{gem_dir}/specifications/default/uri-0.11.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.1.gemspec
-#%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
+# This is very likely installed by mistake.
+# https://bugs.ruby-lang.org/issues/18414
+%exclude %{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
 %{gem_dir}/specifications/default/yaml-0.2.0.gemspec
 %{gem_dir}/specifications/default/zlib-2.1.1.gemspec
 
@@ -1304,6 +1321,25 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{_mandir}/man5/gemfile.5*
 
 %files bundled-gems
+%{_bindir}/rdbg
+%dir %{_libdir}/gems/%{name}/debug-%{debug_version}
+%{_libdir}/gems/%{name}/debug-%{debug_version}/gem.build_complete
+%dir %{_libdir}/gems/%{name}/debug-%{debug_version}/debug
+%{_libdir}/gems/%{name}/debug-%{debug_version}/debug/debug.so
+%dir %{gem_dir}/gems/debug-%{debug_version}
+%exclude %{gem_dir}/gems/debug-%{debug_version}/.*
+%doc %{gem_dir}/gems/debug-%{debug_version}/CONTRIBUTING.md
+%{gem_dir}/gems/debug-%{debug_version}/Gemfile
+%license %{gem_dir}/gems/debug-%{debug_version}/LICENSE.txt
+%doc %{gem_dir}/gems/debug-%{debug_version}/README.md
+%{gem_dir}/gems/debug-%{debug_version}/Rakefile
+%doc %{gem_dir}/gems/debug-%{debug_version}/TODO.md
+%{gem_dir}/gems/debug-%{debug_version}/bin
+%{gem_dir}/gems/debug-%{debug_version}/exe
+%{gem_dir}/gems/debug-%{debug_version}/lib
+%{gem_dir}/gems/debug-%{debug_version}/misc
+%{gem_dir}/specifications/debug-%{debug_version}.gemspec
+
 %dir %{gem_dir}/gems/net-ftp-%{net_ftp_version}
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/Gemfile
 %license %{gem_dir}/gems/net-ftp-%{net_ftp_version}/LICENSE.txt
@@ -1368,6 +1404,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 
 %files -n rubygem-rbs
 %{_bindir}/rbs
+%dir %{_libdir}/gems/%{name}/rbs-%{rbs_version}
+%{_libdir}/gems/%{name}/rbs-%{rbs_version}/gem.build_complete
+%{_libdir}/gems/%{name}/rbs-%{rbs_version}/rbs_extension.so
 %dir %{gem_dir}/gems/rbs-%{rbs_version}
 %exclude %{gem_dir}/gems/rbs-%{rbs_version}/.*
 %license %{gem_dir}/gems/rbs-%{rbs_version}/BSDL
@@ -1431,7 +1470,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (ec878dac90).
+- Upgrade to Ruby 3.1.0 (74b58dd690).
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
