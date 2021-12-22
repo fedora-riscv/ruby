@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 74b58dd690
+%global revision cdb7d699d0
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.3.0.dev
+%global rubygems_version 3.3.0
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.3.0.dev
+%global bundler_version 2.3.0
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
@@ -52,7 +52,7 @@
 %global irb_version 1.3.8.pre.11
 %global json_version 2.6.1
 %global openssl_version 3.0.0.pre
-%global psych_version 4.0.2
+%global psych_version 4.0.3
 %global racc_version 1.6.0
 %global rdoc_version 6.3.2
 
@@ -60,7 +60,7 @@
 %global minitest_version 5.15.0
 %global power_assert_version 2.0.1
 %global rake_version 13.0.6
-%global test_unit_version 3.5.2
+%global test_unit_version 3.5.3
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
 %global net_ftp_version 0.1.3
@@ -72,8 +72,8 @@
 # Binary extension in RBS 1.7.1 fails to build.
 # https://bugs.ruby-lang.org/issues/18373
 %global rbs_version 1.8.1
-%global typeprof_version 0.20.4
-%global debug_version 1.3.4
+%global typeprof_version 0.21.0
+%global debug_version 1.4.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -156,9 +156,6 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 
 # OpenSSL 3.0 compatibility patches
 
-# Support OpenSSL 3.0.
-# https://github.com/ruby/openssl/pull/399
-Patch52: ruby-3.1.0-Support-OpenSSL-3.0.patch
 # Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
 # https://github.com/ruby/openssl/pull/399#issuecomment-966239736
 Patch53: ruby-3.1.0-SSL_read-EOF-handling.patch
@@ -619,7 +616,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch19 -p1
-%patch52 -p1
 %patch53 -p1
 
 # Provide an example of usage of the tapset:
@@ -916,15 +912,10 @@ MSPECOPTS=""
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
-# Some tests are failing upstream due to OpenSSL 3.x compatibility.
-# https://github.com/ruby/openssl/pull/399/checks?check_run_id=3716152870
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestEC#test_check_key/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_derive_key/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_key_exchange/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
-# These fails on top of Ruby 3.0, although the #test_dup might be just flaky.
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestSSL#test_accept_errors_include_peeraddr/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestHMAC#test_dup/"
+# Some RubyGmes tests are failing upstream due to OpenSSL 3.x compatibility.
+# https://github.com/rubygems/rubygems/issues/5192
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestGemCommandsCertCommand#test_execute_build\(\|_key_algorithm\)_ec_key/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestGemSecurity#test_class_get_public_key_ec/"
 
 # https://bugs.ruby-lang.org/issues/18380
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_domain_blocking/"
@@ -1211,7 +1202,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
 %{gem_dir}/specifications/default/io-wait-0.2.1.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.3.gemspec
-%{gem_dir}/specifications/default/logger-1.4.4.gemspec
+%{gem_dir}/specifications/default/logger-1.5.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-http-0.2.0.gemspec
 %{gem_dir}/specifications/default/net-protocol-0.1.2.gemspec
@@ -1223,7 +1214,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
 %{gem_dir}/specifications/default/ostruct-0.5.2.gemspec
 %{gem_dir}/specifications/default/pathname-0.2.0.gemspec
-%{gem_dir}/specifications/default/pp-0.2.1.gemspec
+%{gem_dir}/specifications/default/pp-0.3.0.gemspec
 %{gem_dir}/specifications/default/prettyprint-0.1.1.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.1.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
@@ -1249,9 +1240,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/un-0.2.0.gemspec
 %{gem_dir}/specifications/default/uri-0.11.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.1.gemspec
-# This is very likely installed by mistake.
-# https://bugs.ruby-lang.org/issues/18414
-%exclude %{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
+#%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
 %{gem_dir}/specifications/default/yaml-0.2.0.gemspec
 %{gem_dir}/specifications/default/zlib-2.1.1.gemspec
 
@@ -1470,7 +1459,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (74b58dd690).
+- Upgrade to Ruby 3.1.0 (cdb7d699d0).
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
