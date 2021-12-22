@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision cdb7d699d0
+%global revision fdf3996349
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -152,13 +152,12 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
-
-
-# OpenSSL 3.0 compatibility patches
-
 # Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
 # https://github.com/ruby/openssl/pull/399#issuecomment-966239736
-Patch53: ruby-3.1.0-SSL_read-EOF-handling.patch
+Patch20: ruby-3.1.0-SSL_read-EOF-handling.patch
+# Fix several RubyGems test failures due to OpenSSL 3.x.
+# https://github.com/rubygems/rubygems/pull/5196
+Patch21: rubygems-3.3.1-Fix-compatibility-with-OpenSSL-3.0.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -616,7 +615,8 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch19 -p1
-%patch53 -p1
+%patch20 -p1
+%patch21 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1459,7 +1459,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (cdb7d699d0).
+- Upgrade to Ruby 3.1.0 (fdf3996349).
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
