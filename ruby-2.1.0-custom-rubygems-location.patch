@@ -67,7 +67,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index e9110a17ca..76a1f0a315 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -355,6 +355,7 @@ def CONFIG.[](name, mandatory = false)
+@@ -359,6 +359,7 @@ def CONFIG.[](name, mandatory = false)
    vendorlibdir = CONFIG["vendorlibdir"]
    vendorarchlibdir = CONFIG["vendorarchdir"]
  end
@@ -75,7 +75,7 @@ index e9110a17ca..76a1f0a315 100755
  mandir = CONFIG["mandir", true]
  docdir = CONFIG["docdir", true]
  enable_shared = CONFIG["ENABLE_SHARED"] == 'yes'
-@@ -586,7 +587,16 @@ def stub
+@@ -590,7 +591,16 @@ def stub
  install?(:local, :comm, :lib) do
    prepare "library scripts", rubylibdir
    noinst = %w[*.txt *.rdoc *.gemspec]

@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision fdf3996349
+%global revision 40a1af6151
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.3.0
+%global rubygems_version 3.3.1
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.3.0
+%global bundler_version 2.3.1
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
@@ -72,7 +72,7 @@
 # Binary extension in RBS 1.7.1 fails to build.
 # https://bugs.ruby-lang.org/issues/18373
 %global rbs_version 1.8.1
-%global typeprof_version 0.21.0
+%global typeprof_version 0.21.1
 %global debug_version 1.4.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
@@ -155,9 +155,6 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 # Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
 # https://github.com/ruby/openssl/pull/399#issuecomment-966239736
 Patch20: ruby-3.1.0-SSL_read-EOF-handling.patch
-# Fix several RubyGems test failures due to OpenSSL 3.x.
-# https://github.com/rubygems/rubygems/pull/5196
-Patch21: rubygems-3.3.1-Fix-compatibility-with-OpenSSL-3.0.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -616,7 +613,6 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch19 -p1
 %patch20 -p1
-%patch21 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1191,7 +1187,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/drb-2.1.0.gemspec
 %{gem_dir}/specifications/default/english-0.7.1.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
-%{gem_dir}/specifications/default/error_highlight-0.2.0.gemspec
+%{gem_dir}/specifications/default/error_highlight-0.3.0.gemspec
 %{gem_dir}/specifications/default/etc-1.3.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.1.gemspec
 %{gem_dir}/specifications/default/fiddle-1.1.0.gemspec
@@ -1459,7 +1455,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (fdf3996349).
+- Upgrade to Ruby 3.1.0 (40a1af6151).
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
