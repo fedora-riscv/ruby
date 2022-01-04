@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 40a1af6151
+#%%global revision fb4df44d16
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -30,11 +30,11 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.3.1
+%global rubygems_version 3.3.3
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.3.1
+%global bundler_version 2.3.3
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
@@ -45,16 +45,16 @@
 %global bundler_tsort_version 0.1.1
 %global bundler_uri_version 0.10.1
 
-%global bigdecimal_version 3.1.0.dev
-%global did_you_mean_version 1.6.0.pre.alpha
+%global bigdecimal_version 3.1.1
+%global did_you_mean_version 1.6.1
 %global erb_version 2.2.3
-%global io_console_version 0.5.9
-%global irb_version 1.3.8.pre.11
+%global io_console_version 0.5.10
+%global irb_version 1.4.1
 %global json_version 2.6.1
-%global openssl_version 3.0.0.pre
+%global openssl_version 3.0.0
 %global psych_version 4.0.3
 %global racc_version 1.6.0
-%global rdoc_version 6.3.2
+%global rdoc_version 6.4.0
 
 # Bundled gems.
 %global minitest_version 5.15.0
@@ -69,9 +69,7 @@
 %global net_smtp_version 0.3.1
 %global matrix_version 0.4.2
 %global prime_version 0.1.2
-# Binary extension in RBS 1.7.1 fails to build.
-# https://bugs.ruby-lang.org/issues/18373
-%global rbs_version 1.8.1
+%global rbs_version 2.0.0
 %global typeprof_version 0.21.1
 %global debug_version 1.4.0
 
@@ -648,7 +646,7 @@ autoconf
 rm -rf %{buildroot}
 
 # Workaround binary extensions installation issues.
-# https://bugs.ruby-lang.org/issues/18133
+# https://bugs.ruby-lang.org/issues/18373
 find .bundle -name extconf.rb -exec \
   sed -i \
     -e '/create_makefile/i \$arch_hdrdir = "$(hdrdir)/../.ext/include/$(arch)"' \
@@ -907,11 +905,6 @@ MSPECOPTS=""
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
-
-# Some RubyGmes tests are failing upstream due to OpenSSL 3.x compatibility.
-# https://github.com/rubygems/rubygems/issues/5192
-DISABLE_TESTS="$DISABLE_TESTS -n !/TestGemCommandsCertCommand#test_execute_build\(\|_key_algorithm\)_ec_key/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/TestGemSecurity#test_class_get_public_key_ec/"
 
 # https://bugs.ruby-lang.org/issues/18380
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestAddressResolve#test_socket_getnameinfo_domain_blocking/"
@@ -1179,11 +1172,11 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/base64-0.1.1.gemspec
 %{gem_dir}/specifications/default/benchmark-0.2.0.gemspec
 %{gem_dir}/specifications/default/cgi-0.3.1.gemspec
-%{gem_dir}/specifications/default/csv-3.2.1.gemspec
+%{gem_dir}/specifications/default/csv-3.2.2.gemspec
 %{gem_dir}/specifications/default/date-3.2.2.gemspec
 %{gem_dir}/specifications/default/delegate-0.2.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
-%{gem_dir}/specifications/default/digest-3.1.0.pre3.gemspec
+%{gem_dir}/specifications/default/digest-3.1.0.gemspec
 %{gem_dir}/specifications/default/drb-2.1.0.gemspec
 %{gem_dir}/specifications/default/english-0.7.1.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
@@ -1214,9 +1207,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/prettyprint-0.1.1.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.1.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
-%{gem_dir}/specifications/default/readline-0.0.2.gemspec
-%{gem_dir}/specifications/default/readline-ext-0.1.3.gemspec
-%{gem_dir}/specifications/default/reline-0.2.8.pre.11.gemspec
+%{gem_dir}/specifications/default/readline-0.0.3.gemspec
+%{gem_dir}/specifications/default/readline-ext-0.1.4.gemspec
+%{gem_dir}/specifications/default/reline-0.3.0.gemspec
 %{gem_dir}/specifications/default/resolv-0.2.1.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
 %{gem_dir}/specifications/default/rinda-0.1.1.gemspec
@@ -1455,7 +1448,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 
 %changelog
 * Wed Dec 01 2021 Vít Ondruch <vondruch@redhat.com> - 3.1.0-1
-- Upgrade to Ruby 3.1.0 (40a1af6151).
+- Upgrade to Ruby 3.1.0.
 
 * Thu Nov 25 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.2-154
 - Upgrade to Ruby 3.0.3.
