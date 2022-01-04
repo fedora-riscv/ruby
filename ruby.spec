@@ -1036,7 +1036,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{ruby_libdir}/yaml*
 
 # Platform specific libraries.
-%{_libdir}/libruby.so.*
+%{_libdir}/libruby.so.{%{major_minor_version},%{ruby_version}}
 %dir %{ruby_libarchdir}
 %dir %{ruby_libarchdir}/cgi
 %{ruby_libarchdir}/cgi/escape.so
