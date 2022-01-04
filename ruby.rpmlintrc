@@ -42,4 +42,4 @@ addFilter(r'^rubygem-test-unit\.noarch: E: non-executable-script /usr/share/gems
 
 # Nothing referred and no dependency information should be no problem.
 # https://bugs.ruby-lang.org/issues/16558#note-2
-addFilter(r'^ruby-libs\.\w+: E: shared-lib-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
+addFilter(r'^ruby-libs\.\w+: E: shared-library-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
