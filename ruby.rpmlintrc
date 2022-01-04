@@ -40,17 +40,6 @@ addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/
 # test-unit
 addFilter(r'^rubygem-test-unit\.noarch: E: non-executable-script /usr/share/gems/gems/test-unit-[\d\.]+/test/run-test.rb 644 ')
 
-# The function `chroot` without using `chdir` is detected by rpmlint with the
-# following message. However it looks a false positive as the `chroot` in the
-# `dir.c` is just used as a Ruby binding `Dir.chroot` for the function.
-#
-# ruby-libs.x86_64: E: missing-call-to-chdir-with-chroot /usr/lib64/libruby.so.3.0.1
-# This executable appears to call chroot without using chdir to change the
-# current directory. This is likely an error and permits an attacker to break
-# out of the chroot by using fchdir. While that's not always a security issue,
-# this has to be checked.
-addFilter(r'^ruby-libs\.\w+: E: missing-call-to-chdir-with-chroot /usr/lib(64)?/libruby.so.[\d/.]+$')
-
 # Nothing referred and no dependency information should be no problem.
 # https://bugs.ruby-lang.org/issues/16558#note-2
 addFilter(r'^ruby-libs\.\w+: E: shared-lib-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
