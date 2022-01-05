@@ -15,30 +15,13 @@ addFilter(r'^rubygem-bundler\.noarch: E: non-executable-script /usr/share/gems/g
 
 # The bundled gem files permissions are overridden as 644 by `make install`.
 # https://bugs.ruby-lang.org/issues/17840
-# power_assert
-# https://github.com/ruby/power_assert/issues/35
-addFilter(r'^rubygem-power_assert\.noarch: E: non-executable-script /usr/share/gems/gems/power_assert-[\d\.]+/bin/console 644 ')
-addFilter(r'^rubygem-power_assert\.noarch: E: non-executable-script /usr/share/gems/gems/power_assert-[\d\.]+/bin/setup 644 ')
-# rake
-# https://github.com/ruby/rake/issues/385
-addFilter(r'^rubygem-rake\.noarch: E: non-executable-script /usr/share/gems/gems/rake-[\d\.]+/bin/bundle 644 ')
-addFilter(r'^rubygem-rake\.noarch: E: non-executable-script /usr/share/gems/gems/rake-[\d\.]+/bin/console 644 ')
-addFilter(r'^rubygem-rake\.noarch: E: non-executable-script /usr/share/gems/gems/rake-[\d\.]+/bin/rake 644 ')
-addFilter(r'^rubygem-rake\.noarch: E: non-executable-script /usr/share/gems/gems/rake-[\d\.]+/bin/rdoc 644 ')
-addFilter(r'^rubygem-rake\.noarch: E: non-executable-script /usr/share/gems/gems/rake-[\d\.]+/bin/rubocop 644 ')
-addFilter(r'^rubygem-rake\.noarch: E: non-executable-script /usr/share/gems/gems/rake-[\d\.]+/bin/setup 644 ')
-# rbs
-# https://github.com/ruby/rbs/issues/673
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/annotate-with-rdoc 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/console 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/query-rdoc 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/rbs-prof 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/setup 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/sort 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/steep 644 ')
-addFilter(r'^rubygem-rbs\.noarch: E: non-executable-script /usr/share/gems/gems/rbs-[\d\.]+/bin/test_runner.rb 644 ')
-# test-unit
-addFilter(r'^rubygem-test-unit\.noarch: E: non-executable-script /usr/share/gems/gems/test-unit-[\d\.]+/test/run-test.rb 644 ')
+# https://github.com/rubygems/rubygems/issues/5255
+# https://github.com/ruby/debug/pull/481
+# https://github.com/ruby/net-ftp/pull/12
+# https://github.com/ruby/net-imap/pull/53
+# https://github.com/ruby/net-pop/pull/7
+# https://github.com/ruby/prime/pull/16
+addFilter(r'^.*: E: non-executable-script /usr/share/gems/gems/(debug|net-(ftp|imap|pop)|prime)-[\d\.]+/bin/\w+ 644 ')
 
 # Nothing referred and no dependency information should be no problem.
 # https://bugs.ruby-lang.org/issues/16558#note-2
