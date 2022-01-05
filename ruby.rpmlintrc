@@ -29,3 +29,6 @@ addFilter(r'^ruby-libs\.\w+: E: shared-library-without-dependency-information /u
 
 # These are Ruby plugins, where Ruby always load glibc prior the library.
 addFilter(r'^ruby-libs\.\w+: W: library-not-linked-against-libc /usr/lib(64)?/ruby/.*.so$')
+
+# Rake ships some examples.
+addFilter(r'^rubygem-rake.noarch: W: devel-file-in-non-devel-package /usr/share/gems/gems/rake-[\d\.]+/doc/example/\w+.c$')
