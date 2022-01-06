@@ -985,7 +985,6 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{ruby_libdir}/find.rb
 %{ruby_libdir}/forwardable*
 %{ruby_libdir}/getoptlong*
-%{ruby_libdir}/io
 %{ruby_libdir}/ipaddr.rb
 %{ruby_libdir}/kconv.rb
 %{ruby_libdir}/logger*
