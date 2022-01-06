@@ -23,6 +23,9 @@ addFilter(r'^rubygem-bundler\.noarch: E: non-executable-script /usr/share/gems/g
 # https://github.com/ruby/prime/pull/16
 addFilter(r'^.*: E: non-executable-script /usr/share/gems/gems/(debug|net-(ftp|imap|pop)|prime)-[\d\.]+/bin/\w+ 644 ')
 
+# Ruby provides API to set the cipher list.
+addFilter(r'^ruby-libs\.\w+: W: crypto-policy-non-compliance-openssl /usr/lib(64)?/ruby/openssl.so SSL_CTX_set_cipher_list$')
+
 # Nothing referred and no dependency information should be no problem.
 # https://bugs.ruby-lang.org/issues/16558#note-2
 addFilter(r'^ruby-libs\.\w+: E: shared-library-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
