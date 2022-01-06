@@ -52,3 +52,6 @@ addFilter(r'^rubygem-rake.noarch: W: devel-file-in-non-devel-package /usr/share/
 # Unfortunately, this filter triggers another error:
 # https://github.com/rpm-software-management/rpmlint/issues/782
 addFilter(r'^ruby-devel\.\w+: E: no-library-dependency-(for|on ruby-libs) /usr/lib(64)?/libruby.so.\d.\d.0$')
+
+# Some executables don't have their manual pages. Is it worth of use help2man?
+addFilter(r'^.+: W: no-manual-page-for-binary (bundler|gem|rbs|rdbg|rdoc|ruby-mri|typeprof)$')
