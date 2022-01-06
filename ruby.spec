@@ -448,7 +448,8 @@ Provides:   rubygem(prime) = %{prime_version}
 Provides:   rubygem(debug) = %{debug_version}
 
 %description bundled-gems
-Gems bundled with Ruby.
+Bundled gems which are part of Ruby StdLib. While being part of Ruby, these
+needs to be listed in Gemfile to be used by Bundler.
 
 
 %package -n rubygem-minitest
