@@ -1406,8 +1406,16 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/rbs-%{rbs_version}.gemspec
 
 %files -n rubygem-test-unit
-%{gem_dir}/gems/test-unit-%{test_unit_version}
+%dir %{gem_dir}/gems/test-unit-%{test_unit_version}
+%license %{gem_dir}/gems/test-unit-%{test_unit_version}/BSDL
+%license %{gem_dir}/gems/test-unit-%{test_unit_version}/COPYING
+%license %{gem_dir}/gems/test-unit-%{test_unit_version}/PSFL
+%{gem_dir}/gems/test-unit-%{test_unit_version}/lib
+%{gem_dir}/gems/test-unit-%{test_unit_version}/sample
 %{gem_dir}/specifications/test-unit-%{test_unit_version}.gemspec
+%doc %{gem_dir}/gems/test-unit-%{test_unit_version}/README.md
+%{gem_dir}/gems/test-unit-%{test_unit_version}/Rakefile
+%doc %{gem_dir}/gems/test-unit-%{test_unit_version}/doc
 
 %files -n rubygem-rexml
 %dir %{gem_dir}/gems/rexml-%{rexml_version}
