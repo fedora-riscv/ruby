@@ -55,3 +55,6 @@ addFilter(r'^ruby-devel\.\w+: E: no-library-dependency-(for|on ruby-libs) /usr/l
 
 # Some executables don't have their manual pages. Is it worth of use help2man?
 addFilter(r'^.+: W: no-manual-page-for-binary (bundler|gem|rbs|rdbg|rdoc|ruby-mri|typeprof)$')
+
+# Default gems does not come with any documentation.
+addFilter(r'^rubygem-(bigdecimal|io-console|json|psych)\.\w+: W: no-documentation$')
