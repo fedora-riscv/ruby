@@ -1365,9 +1365,16 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/prime-%{prime_version}.gemspec
 
 %files -n rubygem-minitest
-%{gem_dir}/gems/minitest-%{minitest_version}
+%dir %{gem_dir}/gems/minitest-%{minitest_version}
 %exclude %{gem_dir}/gems/minitest-%{minitest_version}/.*
+%{gem_dir}/gems/minitest-%{minitest_version}/Manifest.txt
+%{gem_dir}/gems/minitest-%{minitest_version}/design_rationale.rb
+%{gem_dir}/gems/minitest-%{minitest_version}/lib
 %{gem_dir}/specifications/minitest-%{minitest_version}.gemspec
+%doc %{gem_dir}/gems/minitest-%{minitest_version}/History.rdoc
+%doc %{gem_dir}/gems/minitest-%{minitest_version}/README.rdoc
+%{gem_dir}/gems/minitest-%{minitest_version}/Rakefile
+%{gem_dir}/gems/minitest-%{minitest_version}/test
 
 %files -n rubygem-power_assert
 %{gem_dir}/gems/power_assert-%{power_assert_version}
