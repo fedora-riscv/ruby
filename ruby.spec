@@ -1287,7 +1287,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{ruby_libdir}/psych.rb
 %{ruby_libarchdir}/psych.so
 %{_libdir}/gems/%{name}/psych-%{psych_version}
-%{gem_dir}/gems/psych-%{psych_version}
+%dir %{gem_dir}/gems/psych-%{psych_version}
+%{gem_dir}/gems/psych-%{psych_version}/lib
 %{gem_dir}/specifications/psych-%{psych_version}.gemspec
 
 %files -n rubygem-bundler
