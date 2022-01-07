@@ -58,3 +58,7 @@ addFilter(r'^.+: W: no-manual-page-for-binary (bundler|gem|rbs|rdbg|rdoc|ruby-mr
 
 # Default gems does not come with any documentation.
 addFilter(r'^rubygem-(bigdecimal|io-console|json|psych)\.\w+: W: no-documentation$')
+
+# rubygems-devel ships only RPM macros and generators. Their placement is given
+# by RPM and can't be modified.
+addFilter(r'rubygems-devel.noarch: W: only-non-binary-in-usr-lib$')
