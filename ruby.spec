@@ -1378,9 +1378,16 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/gems/minitest-%{minitest_version}/test
 
 %files -n rubygem-power_assert
-%{gem_dir}/gems/power_assert-%{power_assert_version}
+%dir %{gem_dir}/gems/power_assert-%{power_assert_version}
 %exclude %{gem_dir}/gems/power_assert-%{power_assert_version}/.*
+%license %{gem_dir}/gems/power_assert-%{power_assert_version}/BSDL
+%license %{gem_dir}/gems/power_assert-%{power_assert_version}/COPYING
+%license %{gem_dir}/gems/power_assert-%{power_assert_version}/LEGAL
+%{gem_dir}/gems/power_assert-%{power_assert_version}/lib
 %{gem_dir}/specifications/power_assert-%{power_assert_version}.gemspec
+%{gem_dir}/gems/power_assert-%{power_assert_version}/Gemfile
+%doc %{gem_dir}/gems/power_assert-%{power_assert_version}/README.md
+%{gem_dir}/gems/power_assert-%{power_assert_version}/Rakefile
 
 %files -n rubygem-rake
 %{_bindir}/rake
