@@ -1321,7 +1321,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %dir %{gem_dir}/gems/net-ftp-%{net_ftp_version}
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/Gemfile
 %license %{gem_dir}/gems/net-ftp-%{net_ftp_version}/LICENSE.txt
-%{gem_dir}/gems/net-ftp-%{net_ftp_version}/README.md
+%doc %{gem_dir}/gems/net-ftp-%{net_ftp_version}/README.md
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/Rakefile
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/bin
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/lib
@@ -1330,7 +1330,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %dir %{gem_dir}/gems/net-imap-%{net_imap_version}
 %{gem_dir}/gems/net-imap-%{net_imap_version}/Gemfile
 %license %{gem_dir}/gems/net-imap-%{net_imap_version}/LICENSE.txt
-%{gem_dir}/gems/net-imap-%{net_imap_version}/README.md
+%doc %{gem_dir}/gems/net-imap-%{net_imap_version}/README.md
 %{gem_dir}/gems/net-imap-%{net_imap_version}/Rakefile
 %{gem_dir}/gems/net-imap-%{net_imap_version}/bin
 %{gem_dir}/gems/net-imap-%{net_imap_version}/lib
@@ -1339,7 +1339,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %dir %{gem_dir}/gems/net-pop-%{net_pop_version}
 %{gem_dir}/gems/net-pop-%{net_pop_version}/Gemfile
 %license %{gem_dir}/gems/net-pop-%{net_pop_version}/LICENSE.txt
-%{gem_dir}/gems/net-pop-%{net_pop_version}/README.md
+%doc %{gem_dir}/gems/net-pop-%{net_pop_version}/README.md
 %{gem_dir}/gems/net-pop-%{net_pop_version}/Rakefile
 %{gem_dir}/gems/net-pop-%{net_pop_version}/bin
 %{gem_dir}/gems/net-pop-%{net_pop_version}/lib
@@ -1358,7 +1358,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %dir %{gem_dir}/gems/prime-%{prime_version}
 %{gem_dir}/gems/prime-%{prime_version}/Gemfile
 %license %{gem_dir}/gems/prime-%{prime_version}/LICENSE.txt
-%{gem_dir}/gems/prime-%{prime_version}/README.md
+%doc %{gem_dir}/gems/prime-%{prime_version}/README.md
 %{gem_dir}/gems/prime-%{prime_version}/Rakefile
 %{gem_dir}/gems/prime-%{prime_version}/bin
 %{gem_dir}/gems/prime-%{prime_version}/lib
