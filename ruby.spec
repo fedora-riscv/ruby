@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 155
+%global release 156
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1461,6 +1461,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 
 %changelog
+* Mon Jan 10 2022 Miro Hrončok <mhroncok@redhat.com> - 3.0.3-156
+- Rebuilt for https://fedoraproject.org/wiki/Changes/LIBFFI34
+
 * Thu Dec 09 2021 Vít Ondruch <vondruch@redhat.com> - 3.0.3-155
 - Fix loading of default gems.
   Resolves: rhbz#2027099
