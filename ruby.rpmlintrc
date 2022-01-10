@@ -41,18 +41,6 @@ addFilter(r'^ruby-libs\.\w+: W: library-not-linked-against-libc /usr/lib(64)?/ru
 # Rake ships some examples.
 addFilter(r'^rubygem-rake.noarch: W: devel-file-in-non-devel-package /usr/share/gems/gems/rake-[\d\.]+/doc/example/\w+.c$')
 
-# The -devel package depends on package containing libruby.so.x.y. That should
-# be enough:
-# ~~~
-# $ rpm -qpR /var/lib/mock/ruby/result/ruby-devel-3.1.0-1.fc36.x86_64.rpm | grep libruby
-# libruby.so.3.1()(64bit)
-# ~~~
-# https://github.com/rpm-software-management/rpmlint/issues/781
-#
-# Unfortunately, this filter triggers another error:
-# https://github.com/rpm-software-management/rpmlint/issues/782
-addFilter(r'^ruby-devel\.\w+: E: no-library-dependency-(for|on ruby-libs) /usr/lib(64)?/libruby.so.\d.\d.0$')
-
 # Some executables don't have their manual pages. Is it worth of use help2man?
 addFilter(r'^.+: W: no-manual-page-for-binary (bundler|gem|rbs|rdbg|rdoc|ruby-mri|typeprof)$')
 
