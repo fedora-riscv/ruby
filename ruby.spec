@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 156
+%global release 157
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -138,10 +138,6 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/LH6L6YJOYQT4Y5ZNOO4SLIPTUWZ5V45Q/
 # For now, load the ABRT hook via this simple patch:
 Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
-# Workaround "an invalid stdio handle" error on PPC, due to recently introduced
-# hardening features of glibc (rhbz#1361037).
-# https://bugs.ruby-lang.org/issues/12666
-Patch9: ruby-2.3.1-Rely-on-ldd-to-detect-glibc.patch
 # Fix DWARF5 support.
 # https://bugzilla.redhat.com/show_bug.cgi?id=1920533
 # https://bugs.ruby-lang.org/issues/17585
@@ -674,7 +670,6 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
-%patch9 -p1
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
@@ -1461,6 +1456,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 
 %changelog
+* Tue Jan 11 2022 Jun Aruga <jaruga@redhat.com> - 3.0.3-157
+- Remove the patch applied to pass the test/fiddle/test_import.rb on PPC.
+
 * Mon Jan 10 2022 Miro Hrončok <mhroncok@redhat.com> - 3.0.3-156
 - Rebuilt for https://fedoraproject.org/wiki/Changes/LIBFFI34
 
