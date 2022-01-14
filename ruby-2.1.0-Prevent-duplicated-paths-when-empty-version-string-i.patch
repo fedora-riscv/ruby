@@ -14,7 +14,7 @@ diff --git a/configure.ac b/configure.ac
 index c42436c23d..d261ea57b5 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3881,7 +3881,8 @@ AS_CASE(["$ruby_version_dir_name"],
+@@ -4026,7 +4026,8 @@ AS_CASE(["$ruby_version_dir_name"],
  ruby_version_dir=/'${ruby_version_dir_name}'
  
  if test -z "${ruby_version_dir_name}"; then
@@ -66,7 +66,7 @@ diff --git a/tool/mkconfig.rb b/tool/mkconfig.rb
 index 07076d4..35e6c3c 100755
 --- a/tool/mkconfig.rb
 +++ b/tool/mkconfig.rb
-@@ -114,7 +114,7 @@
+@@ -115,7 +115,7 @@
      val = val.gsub(/\$(?:\$|\{?(\w+)\}?)/) {$1 ? "$(#{$1})" : $&}.dump
      case name
      when /^prefix$/
