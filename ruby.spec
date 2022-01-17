@@ -979,6 +979,11 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_derive_key/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_key_exchange/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
+# Several test broken by libffi-3.4.2. There should be fix in libffi, once
+# other components are fixed.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2040380
+mv test/fiddle/test_import.rb{,.disable}
+
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
