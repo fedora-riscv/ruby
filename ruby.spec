@@ -55,6 +55,7 @@
 %global psych_version 4.0.3
 %global racc_version 1.6.0
 %global rdoc_version 6.4.0
+%global stringio_version 3.0.1
 
 # Bundled gems.
 %global minitest_version 5.15.0
@@ -287,6 +288,7 @@ Obsoletes: rubygem-racc < 1.4.16-130
 # Obsoleted by Ruby 3.0 in F34 timeframe.
 Obsoletes: rubygem-openssl < 2.2.0-145
 Provides: rubygem(openssl) = %{openssl_version}-%{release}
+Provides: rubygem(stringio) = %{stringio_version}
 BuildArch:  noarch
 
 %description default-gems
@@ -399,6 +401,7 @@ Version:    %{psych_version}
 License:    MIT
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
+Requires:   rubygem(stringio) >= %{stringio_version}
 Provides:   rubygem(psych) = %{version}-%{release}
 
 %description -n rubygem-psych
@@ -1218,7 +1221,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %{gem_dir}/specifications/default/set-1.0.2.gemspec
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.1.gemspec
-%{gem_dir}/specifications/default/stringio-3.0.1.gemspec
+%{gem_dir}/specifications/default/stringio-%{stringio_version}.gemspec
 %{gem_dir}/specifications/default/strscan-3.0.1.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.2.gemspec
