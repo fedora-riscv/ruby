@@ -326,6 +326,7 @@ Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   rubygem(io-console) >= %{io_console_version}
 Requires:   rubygem(json) >= %{json_version}
+Requires:   rubygem(psych) >= %{psych_version}
 Provides:   rdoc = %{version}-%{release}
 Provides:   ri = %{version}-%{release}
 Provides:   rubygem(rdoc) = %{version}-%{release}
