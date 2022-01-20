@@ -1,0 +1,70 @@
+From cc44179cb8419b0e48ef9baa6f1722603643c1a0 Mon Sep 17 00:00:00 2001
+From: Nobuyoshi Nakada <nobu@ruby-lang.org>
+Date: Tue, 17 Aug 2021 22:01:57 +0900
+Subject: [PATCH] Fix stack buffer overflow
+
+https://hackerone.com/reports/1306859
+---
+ include/ruby/internal/memory.h | 6 +++---
+ random.c                       | 7 ++-----
+ 2 files changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/include/ruby/internal/memory.h b/include/ruby/internal/memory.h
+index 7d24df4945..64f3101fc2 100644
+--- a/include/ruby/internal/memory.h
++++ b/include/ruby/internal/memory.h
+@@ -110,18 +110,18 @@ extern void *alloca();
+     ((var) = RBIMPL_CAST((type *)ruby_xrealloc2((void *)(var), (n), sizeof(type))))
+ 
+ #define ALLOCA_N(type,n) \
+-    RBIMPL_CAST((type *)alloca(rbimpl_size_mul_or_raise(sizeof(type), (n))))
++    RBIMPL_CAST((type *)(!(n) ? NULL : alloca(rbimpl_size_mul_or_raise(sizeof(type), (n)))))
+ 
+ /* allocates _n_ bytes temporary buffer and stores VALUE including it
+  * in _v_.  _n_ may be evaluated twice. */
+ #define RB_ALLOCV(v, n)        \
+     ((n) < RUBY_ALLOCV_LIMIT ? \
+-     ((v) = 0, alloca(n)) :    \
++     ((v) = 0, !(n) ? NULL : alloca(n)) : \
+      rb_alloc_tmp_buffer(&(v), (n)))
+ #define RB_ALLOCV_N(type, v, n)                             \
+     RBIMPL_CAST((type *)                                     \
+         (((size_t)(n) < RUBY_ALLOCV_LIMIT / sizeof(type)) ? \
+-         ((v) = 0, alloca((n) * sizeof(type))) :            \
++         ((v) = 0, !(n) ? NULL : alloca((n) * sizeof(type))) : \
+          rb_alloc_tmp_buffer2(&(v), (n), sizeof(type))))
+ #define RB_ALLOCV_END(v) rb_free_tmp_buffer(&(v))
+ 
+diff --git a/random.c b/random.c
+index 7567d13dd7..4d70c17116 100644
+--- a/random.c
++++ b/random.c
+@@ -369,15 +369,12 @@ rand_init(const rb_random_interface_t *rng, rb_random_t *rnd, VALUE seed)
+     int sign;
+ 
+     len = rb_absint_numwords(seed, 32, NULL);
++    if (len == 0) len = 1;
+     buf = ALLOCV_N(uint32_t, buf0, len);
+     sign = rb_integer_pack(seed, buf, len, sizeof(uint32_t), 0,
+         INTEGER_PACK_LSWORD_FIRST|INTEGER_PACK_NATIVE_BYTE_ORDER);
+     if (sign < 0)
+         sign = -sign;
+-    if (len == 0) {
+-        buf[0] = 0;
+-        len = 1;
+-    }
+     if (len > 1) {
+         if (sign != 2 && buf[len-1] == 1) /* remove leading-zero-guard */
+             len--;
+@@ -814,7 +811,7 @@ rand_mt_init(rb_random_t *rnd, const uint32_t *buf, size_t len)
+ {
+     struct MT *mt = &((rb_random_mt_t *)rnd)->mt;
+     if (len <= 1) {
+-        init_genrand(mt, buf[0]);
++        init_genrand(mt, len ? buf[0] : 0);
+     }
+     else {
+         init_by_array(mt, buf, (int)len);
+-- 
+2.34.1
+

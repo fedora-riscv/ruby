@@ -227,6 +227,9 @@ Patch52: ruby-3.1.0-Support-OpenSSL-3.0.patch
 # Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
 # https://github.com/ruby/openssl/pull/399#issuecomment-966239736
 Patch53: ruby-3.1.0-SSL_read-EOF-handling.patch
+# Fix segfault in `TestArray#test_sample` on s390x.
+# https://github.com/ruby/ruby/pull/5239
+Patch54: ruby-3.1.0-Fix-stack-buffer-overflow.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -694,6 +697,7 @@ rm -rf ext/fiddle/libffi*
 %patch51 -p1
 %patch52 -p1
 %patch53 -p1
+%patch54 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1461,6 +1465,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Thu Jan 20 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.3-157
+- Fix segfault in `TestArray#test_sample` on s390x.
+
 * Tue Jan 11 2022 Jun Aruga <jaruga@redhat.com> - 3.0.3-157
 - Remove the patch applied to pass the test/fiddle/test_import.rb on PPC.
 
