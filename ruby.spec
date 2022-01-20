@@ -151,9 +151,6 @@ Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
-# Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
-# https://github.com/ruby/openssl/pull/399#issuecomment-966239736
-Patch20: ruby-3.1.0-SSL_read-EOF-handling.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -615,7 +612,6 @@ rm -rf ext/fiddle/libffi*
 %patch5 -p1
 %patch6 -p1
 %patch19 -p1
-%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
