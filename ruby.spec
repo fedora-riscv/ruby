@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 157
+%global release 158
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -79,6 +79,10 @@
 %if 0%{?fedora}
 %bcond_without hardening_test
 %endif
+
+# The additional linker flags break binary rubygem- packages.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2043092
+%undefine _package_note_flags
 
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
@@ -1465,6 +1469,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Thu Jan 20 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.3-158
+- Disable package notes to prevent rubygem- build breakage.
+
 * Thu Jan 20 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.3-157
 - Fix segfault in `TestArray#test_sample` on s390x.
 
