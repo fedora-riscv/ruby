@@ -974,7 +974,7 @@ index 693e55cd97..b3c6647faf 100644
 -have_func("BN_GENCB_get_arg")
  have_func("EVP_MD_CTX_new")
  have_func("EVP_MD_CTX_free")
- have_func("HMAC_CTX_new")
+ have_func("EVP_MD_CTX_pkey_ctx")
 diff --git a/ext/openssl/openssl_missing.h b/ext/openssl/openssl_missing.h
 index 7d218f86f5..e575415f49 100644
 --- a/ext/openssl/openssl_missing.h

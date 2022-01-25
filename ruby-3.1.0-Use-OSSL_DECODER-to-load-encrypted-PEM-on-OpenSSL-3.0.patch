@@ -1,0 +1,114 @@
+From 8c185e0ae5e42bf5f3d76a1a0898946671116fa3 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Wed, 3 Nov 2021 23:31:29 +0900
+Subject: [PATCH 1/2] pkey: test parsing concatenated PEM string
+
+PEM-encoded private keys are sometimes stored together with irrelevant
+PEM blocks, such as the corresponding X.509 certificate.
+
+PEM_read_bio_*() family automatically skips unknown PEM blocks, but on
+OpenSSL 3.0 we will be using the new OSSL_DECODER API instead due to
+some breaking changes around the password callback.
+
+Let's add a test case so that we won't break the current behavior.
+---
+ test/openssl/test_pkey_rsa.rb | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/test/openssl/test_pkey_rsa.rb b/test/openssl/test_pkey_rsa.rb
+index dbe87ba4..7510658d 100644
+--- a/test/openssl/test_pkey_rsa.rb
++++ b/test/openssl/test_pkey_rsa.rb
+@@ -306,6 +306,12 @@ def test_RSAPrivateKey
+ 
+     assert_equal asn1.to_der, rsa1024.to_der
+     assert_equal pem, rsa1024.export
++
++    # Unknown PEM prepended
++    cert = issue_cert(OpenSSL::X509::Name.new([["CN", "nobody"]]), rsa1024, 1, [], nil, nil)
++    str = cert.to_text + cert.to_pem + rsa1024.to_pem
++    key = OpenSSL::PKey::RSA.new(str)
++    assert_same_rsa rsa1024, key
+   end
+ 
+   def test_RSAPrivateKey_encrypted
+
+From a84ea531bbd080c3f58fe8d3dc9ffb1af2251f35 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sat, 20 Mar 2021 23:16:16 +0900
+Subject: [PATCH 2/2] pkey: use OSSL_DECODER to load encrypted PEM on OpenSSL
+ 3.0
+
+OpenSSL 3.0 has rewritten routines to load pkeys (PEM_read_bio_* and
+d2i_* functions) around the newly introduced OSSL_DECODER API.
+
+This comes with a slight behavior change. They now decrypt and parse
+each encountered PEM block, then check the kind of the block. This used
+to be the reverse: they checked the PEM header to see the kind, and then
+decrypted the content. This means that the password callback may now be
+called repeatedly.
+
+Let's use the OSSL_DECODER API directly on OpenSSL 3.0 so that the
+return value from the password callback will be reused automatically.
+---
+ ext/openssl/ossl_pkey.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+diff --git a/ext/openssl/ossl_pkey.c b/ext/openssl/ossl_pkey.c
+index f9f5162e..b08168a5 100644
+--- a/ext/openssl/ossl_pkey.c
++++ b/ext/openssl/ossl_pkey.c
+@@ -78,6 +78,45 @@ ossl_pkey_new(EVP_PKEY *pkey)
+     return obj;
+ }
+ 
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++# include <openssl/decoder.h>
++
++EVP_PKEY *
++ossl_pkey_read_generic(BIO *bio, VALUE pass)
++{
++    void *ppass = (void *)pass;
++    OSSL_DECODER_CTX *dctx;
++    EVP_PKEY *pkey = NULL;
++    int pos = 0, pos2;
++
++    dctx = OSSL_DECODER_CTX_new_for_pkey(&pkey, "DER", NULL, NULL, 0, NULL, NULL);
++    if (!dctx)
++        goto out;
++    if (OSSL_DECODER_CTX_set_pem_password_cb(dctx, ossl_pem_passwd_cb, ppass) != 1)
++        goto out;
++
++    /* First check DER */
++    if (OSSL_DECODER_from_bio(dctx, bio) == 1)
++        goto out;
++
++    /* Then check PEM; multiple OSSL_DECODER_from_bio() calls may be needed */
++    OSSL_BIO_reset(bio);
++    if (OSSL_DECODER_CTX_set_input_type(dctx, "PEM") != 1)
++        goto out;
++    while (OSSL_DECODER_from_bio(dctx, bio) != 1) {
++        if (BIO_eof(bio))
++            goto out;
++        pos2 = BIO_tell(bio);
++        if (pos2 < 0 || pos2 <= pos)
++            goto out;
++        pos = pos2;
++    }
++
++  out:
++    OSSL_DECODER_CTX_free(dctx);
++    return pkey;
++}
++#else
+ EVP_PKEY *
+ ossl_pkey_read_generic(BIO *bio, VALUE pass)
+ {
+@@ -106,6 +145,7 @@ ossl_pkey_read_generic(BIO *bio, VALUE pass)
+   out:
+     return pkey;
+ }
++#endif
+ 
+ /*
+  *  call-seq:

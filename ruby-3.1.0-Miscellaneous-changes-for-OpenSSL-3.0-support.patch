@@ -1,7 +1,7 @@
 From 8f948ed68a4ed6c05ff66d822711e3b70ae4bb3f Mon Sep 17 00:00:00 2001
 From: Kazuki Yamaguchi <k@rhe.jp>
 Date: Mon, 27 Sep 2021 13:32:03 +0900
-Subject: [PATCH 1/3] ext/openssl/ossl.h: add helper macros for
+Subject: [PATCH 1/5] ext/openssl/ossl.h: add helper macros for
  OpenSSL/LibreSSL versions
 
 Add following convenient macros:
@@ -17,7 +17,7 @@ diff --git a/ext/openssl/ossl.h b/ext/openssl/ossl.h
 index c20f506bda..a0cef29d74 100644
 --- a/ext/openssl/ossl.h
 +++ b/ext/openssl/ossl.h
-@@ -43,6 +43,18 @@
+@@ -42,6 +42,18 @@
  #include <openssl/evp.h>
  #include <openssl/dh.h>
  
@@ -43,7 +43,7 @@ index c20f506bda..a0cef29d74 100644
 From bbf235091e49807ece8f3a3df95bbfcc9d3ab43d Mon Sep 17 00:00:00 2001
 From: Kazuki Yamaguchi <k@rhe.jp>
 Date: Sat, 22 Feb 2020 05:37:01 +0900
-Subject: [PATCH 2/3] ts: use TS_VERIFY_CTX_set_certs instead of
+Subject: [PATCH 2/5] ts: use TS_VERIFY_CTX_set_certs instead of
  TS_VERIFY_CTS_set_certs
 
 OpenSSL 3.0 fixed the typo in the function name and replaced the
@@ -58,7 +58,7 @@ diff --git a/ext/openssl/extconf.rb b/ext/openssl/extconf.rb
 index 17d93443fc..09cae05b72 100644
 --- a/ext/openssl/extconf.rb
 +++ b/ext/openssl/extconf.rb
-@@ -166,7 +166,7 @@ def find_openssl_library
+@@ -165,7 +165,7 @@ def find_openssl_library
  have_func("TS_STATUS_INFO_get0_status")
  have_func("TS_STATUS_INFO_get0_text")
  have_func("TS_STATUS_INFO_get0_failure_info")
@@ -67,7 +67,7 @@ index 17d93443fc..09cae05b72 100644
  have_func("TS_VERIFY_CTX_set_store")
  have_func("TS_VERIFY_CTX_add_flags")
  have_func("TS_RESP_CTX_set_time_cb")
-@@ -175,6 +175,9 @@ def find_openssl_library
+@@ -174,6 +174,9 @@ def find_openssl_library
  
  # added in 1.1.1
  have_func("EVP_PKEY_check")
@@ -81,7 +81,7 @@ diff --git a/ext/openssl/openssl_missing.h b/ext/openssl/openssl_missing.h
 index e575415f49..fe486bcfcf 100644
 --- a/ext/openssl/openssl_missing.h
 +++ b/ext/openssl/openssl_missing.h
-@@ -242,4 +242,9 @@ IMPL_PKEY_GETTER(EC_KEY, ec)
+@@ -236,4 +236,9 @@ IMPL_PKEY_GETTER(EC_KEY, ec)
      } while (0)
  #endif
  
@@ -111,7 +111,7 @@ index 692c0d620f..f1da7c1947 100644
 From 5fba3bc1df93ab6abc3ea53be3393480f36ea259 Mon Sep 17 00:00:00 2001
 From: Kazuki Yamaguchi <k@rhe.jp>
 Date: Fri, 19 Mar 2021 19:18:25 +0900
-Subject: [PATCH 3/3] ssl: use SSL_get_rbio() to check if SSL is started or not
+Subject: [PATCH 3/5] ssl: use SSL_get_rbio() to check if SSL is started or not
 
 Use SSL_get_rbio() instead of SSL_get_fd(). SSL_get_fd() internally
 calls SSL_get_rbio() and it's enough for our purpose.
@@ -140,3 +140,165 @@ index 4b7efa39f5..ec430bfb0c 100644
 -- 
 2.32.0
 
+From 0a253027e6be47c0b7fd8b664f1048f24d7ca657 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Thu, 22 Apr 2021 13:57:47 +0900
+Subject: [PATCH 4/5] digest: use EVP_MD_CTX_get0_md() instead of
+ EVP_MD_CTX_md() if exists
+
+The function was renamed in OpenSSL 3.0 due to the change of the
+lifetime of EVP_MD objects. They are no longer necessarily statically
+allocated and can be reference-counted -- when an EVP_MD_CTX is free'd,
+the associated EVP_MD can also become inaccessible.
+
+Currently Ruby/OpenSSL only handles builtin algorithms, so no special
+handling is needed except for adapting to the rename.
+---
+ ext/openssl/extconf.rb        | 1 +
+ ext/openssl/openssl_missing.h | 4 ++++
+ ext/openssl/ossl_digest.c     | 6 +++---
+ ext/openssl/ossl_hmac.c       | 2 +-
+ 4 files changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/ext/openssl/extconf.rb b/ext/openssl/extconf.rb
+index 98f96afe..842b7f5b 100644
+--- a/ext/openssl/extconf.rb
++++ b/ext/openssl/extconf.rb
+@@ -177,6 +177,7 @@ def find_openssl_library
+  
+ # added in 3.0.0
+ have_func("TS_VERIFY_CTX_set_certs(NULL, NULL)", "openssl/ts.h")
++have_func("EVP_MD_CTX_get0_md")
+ 
+ Logging::message "=== Checking done. ===\n"
+ 
+diff --git a/ext/openssl/openssl_missing.h b/ext/openssl/openssl_missing.h
+index 1b1a54a8..64212349 100644
+--- a/ext/openssl/openssl_missing.h
++++ b/ext/openssl/openssl_missing.h
+@@ -241,4 +241,8 @@ IMPL_PKEY_GETTER(EC_KEY, ec)
+ #  define TS_VERIFY_CTX_set_certs(ctx, crts) TS_VERIFY_CTS_set_certs(ctx, crts)
+ #endif
+ 
++#ifndef HAVE_EVP_MD_CTX_GET0_MD
++#  define EVP_MD_CTX_get0_md(ctx) EVP_MD_CTX_md(ctx)
++#endif
++
+ #endif /* _OSSL_OPENSSL_MISSING_H_ */
+diff --git a/ext/openssl/ossl_digest.c b/ext/openssl/ossl_digest.c
+index b2506de7..fc326ec1 100644
+--- a/ext/openssl/ossl_digest.c
++++ b/ext/openssl/ossl_digest.c
+@@ -63,7 +63,7 @@ ossl_evp_get_digestbyname(VALUE obj)
+ 
+         GetDigest(obj, ctx);
+ 
+-        md = EVP_MD_CTX_md(ctx);
++        md = EVP_MD_CTX_get0_md(ctx);
+     }
+ 
+     return md;
+@@ -176,7 +176,7 @@ ossl_digest_reset(VALUE self)
+     EVP_MD_CTX *ctx;
+ 
+     GetDigest(self, ctx);
+-    if (EVP_DigestInit_ex(ctx, EVP_MD_CTX_md(ctx), NULL) != 1) {
++    if (EVP_DigestInit_ex(ctx, EVP_MD_CTX_get0_md(ctx), NULL) != 1) {
+ 	ossl_raise(eDigestError, "Digest initialization failed.");
+     }
+ 
+@@ -259,7 +259,7 @@ ossl_digest_name(VALUE self)
+ 
+     GetDigest(self, ctx);
+ 
+-    return rb_str_new2(EVP_MD_name(EVP_MD_CTX_md(ctx)));
++    return rb_str_new_cstr(EVP_MD_name(EVP_MD_CTX_get0_md(ctx)));
+ }
+ 
+ /*
+diff --git a/ext/openssl/ossl_hmac.c b/ext/openssl/ossl_hmac.c
+index a21db6c4..2642728b 100644
+--- a/ext/openssl/ossl_hmac.c
++++ b/ext/openssl/ossl_hmac.c
+@@ -239,7 +239,7 @@ ossl_hmac_reset(VALUE self)
+ 
+     GetHMAC(self, ctx);
+     pkey = EVP_PKEY_CTX_get0_pkey(EVP_MD_CTX_pkey_ctx(ctx));
+-    if (EVP_DigestSignInit(ctx, NULL, EVP_MD_CTX_md(ctx), NULL, pkey) != 1)
++    if (EVP_DigestSignInit(ctx, NULL, EVP_MD_CTX_get0_md(ctx), NULL, pkey) != 1)
+         ossl_raise(eHMACError, "EVP_DigestSignInit");
+ 
+     return self;
+
+From c106d888c62e44a11cdbba5e4d2d0cb837ec3e52 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Tue, 22 Jun 2021 18:50:17 +0900
+Subject: [PATCH 5/5] hmac: use EVP_MD_CTX_get_pkey_ctx() instead of
+ EVP_MD_CTX_pkey_ctx()
+
+OpenSSL 3.0 renamed EVP_MD_CTX_pkey_ctx() to include "get" in the
+function name. Adjust compatibility macro so that we can use the new
+function name for all OpenSSL 1.0.2-3.0.
+---
+ ext/openssl/extconf.rb        |  1 +
+ ext/openssl/openssl_missing.h | 16 ++++++++++++----
+ ext/openssl/ossl_hmac.c       |  2 +-
+ 3 files changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/ext/openssl/extconf.rb b/ext/openssl/extconf.rb
+index 842b7f5b..d9d34b7c 100644
+--- a/ext/openssl/extconf.rb
++++ b/ext/openssl/extconf.rb
+@@ -178,6 +178,7 @@ def find_openssl_library
+ # added in 3.0.0
+ have_func("TS_VERIFY_CTX_set_certs(NULL, NULL)", "openssl/ts.h")
+ have_func("EVP_MD_CTX_get0_md")
++have_func("EVP_MD_CTX_get_pkey_ctx")
+ 
+ Logging::message "=== Checking done. ===\n"
+ 
+diff --git a/ext/openssl/openssl_missing.h b/ext/openssl/openssl_missing.h
+index 64212349..55c4f378 100644
+--- a/ext/openssl/openssl_missing.h
++++ b/ext/openssl/openssl_missing.h
+@@ -42,10 +42,6 @@ int ossl_EC_curve_nist2nid(const char *);
+ #  define EVP_MD_CTX_free EVP_MD_CTX_destroy
+ #endif
+ 
+-#if !defined(HAVE_EVP_MD_CTX_PKEY_CTX)
+-#  define EVP_MD_CTX_pkey_ctx(x) (x)->pctx
+-#endif
+-
+ #if !defined(HAVE_X509_STORE_GET_EX_DATA)
+ #  define X509_STORE_get_ex_data(x, idx) \
+ 	CRYPTO_get_ex_data(&(x)->ex_data, (idx))
+@@ -245,4 +241,16 @@ IMPL_PKEY_GETTER(EC_KEY, ec)
+ #  define EVP_MD_CTX_get0_md(ctx) EVP_MD_CTX_md(ctx)
+ #endif
+ 
++/*
++ * OpenSSL 1.1.0 added EVP_MD_CTX_pkey_ctx(), and then it was renamed to
++ * EVP_MD_CTX_get_pkey_ctx(x) in OpenSSL 3.0.
++ */
++#ifndef HAVE_EVP_MD_CTX_GET_PKEY_CTX
++# ifdef HAVE_EVP_MD_CTX_PKEY_CTX
++#  define EVP_MD_CTX_get_pkey_ctx(x) EVP_MD_CTX_pkey_ctx(x)
++# else
++#  define EVP_MD_CTX_get_pkey_ctx(x) (x)->pctx
++# endif
++#endif
++
+ #endif /* _OSSL_OPENSSL_MISSING_H_ */
+diff --git a/ext/openssl/ossl_hmac.c b/ext/openssl/ossl_hmac.c
+index 2642728b..f89ff2f9 100644
+--- a/ext/openssl/ossl_hmac.c
++++ b/ext/openssl/ossl_hmac.c
+@@ -238,7 +238,7 @@ ossl_hmac_reset(VALUE self)
+     EVP_PKEY *pkey;
+ 
+     GetHMAC(self, ctx);
+-    pkey = EVP_PKEY_CTX_get0_pkey(EVP_MD_CTX_pkey_ctx(ctx));
++    pkey = EVP_PKEY_CTX_get0_pkey(EVP_MD_CTX_get_pkey_ctx(ctx));
+     if (EVP_DigestSignInit(ctx, NULL, EVP_MD_CTX_get0_md(ctx), NULL, pkey) != 1)
+         ossl_raise(eHMACError, "EVP_DigestSignInit");
+ 

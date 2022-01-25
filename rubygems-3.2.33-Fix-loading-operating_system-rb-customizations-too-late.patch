@@ -92,10 +92,9 @@ even fully sure it was the right thing to do when I added that, and it
 was not the culprit of the end user issue that led to making that
 change.
 ---
- .github/workflows/install-rubygems.yml |  5 ----
- lib/rubygems.rb                        | 32 +++++++++++++-------------
- test/rubygems/test_rubygems.rb         | 23 ++++++++++++++++++
- 3 files changed, 39 insertions(+), 21 deletions(-)
+ lib/rubygems.rb                | 32 ++++++++++++++++----------------
+ test/rubygems/test_rubygems.rb | 23 +++++++++++++++++++++++
+ 2 files changed, 39 insertions(+), 16 deletions(-)
 
 diff --git a/lib/rubygems.rb b/lib/rubygems.rb
 index b8747409304..11474b6554c 100644
@@ -189,8 +188,8 @@ Otherwise first OS customizations load and activate that fiddle version,
 but then when we change to `Gem.default_dir`, that fiddle version is no
 longer there.
 ---
- bundler/spec/commands/clean_spec.rb          | 2 +-
- bundler/spec/install/gems/standalone_spec.rb | 2 +-
+ spec/bundler/commands/clean_spec.rb          | 2 +-
+ spec/bundler/install/gems/standalone_spec.rb | 2 +-
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/spec/bundler/commands/clean_spec.rb b/spec/bundler/commands/clean_spec.rb

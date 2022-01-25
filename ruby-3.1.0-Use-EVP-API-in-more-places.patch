@@ -698,7 +698,7 @@ diff --git a/ext/openssl/extconf.rb b/ext/openssl/extconf.rb
 index b3c6647faf..17d93443fc 100644
 --- a/ext/openssl/extconf.rb
 +++ b/ext/openssl/extconf.rb
-@@ -173,6 +173,9 @@ def find_openssl_library
+@@ -172,6 +172,9 @@ def find_openssl_library
  have_func("EVP_PBE_scrypt")
  have_func("SSL_CTX_set_post_handshake_auth")
  

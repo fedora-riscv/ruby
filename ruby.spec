@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 158
+%global release 159
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -173,6 +173,9 @@ Patch21: ruby-3.1.0-Properly-exclude-test-cases.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=2027099
 # https://github.com/rubygems/rubygems/pull/5154
 Patch22: rubygems-3.2.33-Fix-loading-operating_system-rb-customizations-too-late.patch
+# Fix segfault in `TestArray#test_sample` on s390x.
+# https://github.com/ruby/ruby/pull/5239
+Patch23: ruby-3.1.0-Fix-stack-buffer-overflow.patch
 
 
 # OpenSSL 3.0 compatibility patches
@@ -193,47 +196,63 @@ Patch40: ruby-3.1.0-Refactor-PEM-DER-serialization-code.patch
 # Implement more 'generic' operations using the EVP API.
 # https://github.com/ruby/openssl/pull/329
 Patch41: ruby-3.1.0-Add-more-support-for-generic-pkey-types.patch
+# Migrate from the low-level HMAC API to the EVP API.
+# https://github.com/ruby/openssl/pull/371
+Patch42: ruby-3.1.0-Migrate-from-the-low-level-HMAC-API-to-the-EVP-API.patch
 # Allow setting algorithm-specific options in #sign and #verify.
 # https://github.com/ruby/openssl/pull/374
-Patch42: ruby-3.1.0-Allow-setting-algorithm-specific-options-in-sign-and-verify.patch
+Patch43: ruby-3.1.0-Allow-setting-algorithm-specific-options-in-sign-and-verify.patch
 # Use high level EVP interface to generate parameters and keys.
 # https://github.com/ruby/openssl/pull/397
-Patch43: ruby-3.1.0-Use-high-level-EVP-interface-to-generate-parameters-and-keys.patch
+Patch44: ruby-3.1.0-Use-high-level-EVP-interface-to-generate-parameters-and-keys.patch
 # Use EVP API in more places.
 # https://github.com/ruby/openssl/pull/436
-Patch44: ruby-3.1.0-Use-EVP-API-in-more-places.patch
+Patch45: ruby-3.1.0-Use-EVP-API-in-more-places.patch
 # Implement PKey#{encrypt,decrypt,sign_raw,verify_{raw,verify_recover}}.
 # https://github.com/ruby/openssl/pull/382
-Patch45: ruby-3.1.0-Implement-PKey-encrypt-decrypt-sign_raw-verify_raw-and-verify_recover.patch
+Patch46: ruby-3.1.0-Implement-PKey-encrypt-decrypt-sign_raw-verify_raw-and-verify_recover.patch
 # Fix `OpenSSL::TestSSL#test_dup` test failure.
 # https://github.com/ruby/openssl/commit/7b66eaa2dbabb6570dbbbdfac24c4dcdcc6793d7
-Patch46: ruby-3.1.0-test-openssl-utils-remove-dup_public-helper-method.patch
+Patch47: ruby-3.1.0-test-openssl-utils-remove-dup_public-helper-method.patch
 # Fix `OpenSSL::TestDigest#test_digest_constants` test case.
 # https://github.com/ruby/openssl/commit/a3e59f4c2e200c76ef1d93945ff8737a05715e17
-Patch47: ruby-3.1.0-test-openssl-test_digest-do-not-test-constants-for-l.patch
+Patch48: ruby-3.1.0-test-openssl-test_digest-do-not-test-constants-for-l.patch
 # Fix `OpenSSL::TestSSL#test_connect_certificate_verify_failed_exception_message`
 # test case.
 # https://github.com/ruby/openssl/commit/b5a0a198505452c7457b192da2e5cd5dda04f23d
-Patch48: ruby-3.1.0-test-openssl-test_ssl-relax-regex-to-match-OpenSSL-s.patch
+Patch49: ruby-3.1.0-test-openssl-test_ssl-relax-regex-to-match-OpenSSL-s.patch
 # Fix `OpenSSL::TestPKCS12#test_{new_with_no_keys,new_with_one_key_and_one_cert}`
 # test failures.
 # https://github.com/ruby/openssl/commit/998406d18f2acf73090e9fd9d92a7b4227ac593b
-Patch49: ruby-3.1.0-test-openssl-test_pkcs12-fix-test-failures-with-Open.patch
+Patch50: ruby-3.1.0-test-openssl-test_pkcs12-fix-test-failures-with-Open.patch
 # Fix `OpenSSL::TestPKey#test_s_generate_key` test case.
 # https://github.com/ruby/openssl/commit/c732387ee5aaa8c5a9717e8b3ffebb3d7430e99a
-Patch50: ruby-3.1.0-test-openssl-test_pkey-use-EC-keys-for-PKey.generate.patch
+Patch51: ruby-3.1.0-test-openssl-test_pkey-use-EC-keys-for-PKey.generate.patch
 # Miscellaneous changes for OpenSSL 3.0 support.
 # https://github.com/ruby/openssl/pull/468
-Patch51: ruby-3.1.0-Miscellaneous-changes-for-OpenSSL-3.0-support.patch
-# Support OpenSSL 3.0.
-# https://github.com/ruby/openssl/pull/399
-Patch52: ruby-3.1.0-Support-OpenSSL-3.0.patch
+Patch52: ruby-3.1.0-Miscellaneous-changes-for-OpenSSL-3.0-support.patch
+# Use OSSL_DECODER to load encrypted PEM.
+# https://github.com/ruby/openssl/pull/479
+Patch53: ruby-3.1.0-Use-OSSL_DECODER-to-load-encrypted-PEM-on-OpenSSL-3.0.patch
+# Allocate EVP_PKEY on #initialize.
+# https://github.com/ruby/openssl/pull/478
+Patch54: ruby-3.1.0-Allocate-EVP_PKEY-on-initialize.patch
+# Disable `OpenSSL::TestPKeyRSA#test_no_private_exp` test case which is not
+# compatible with OpenSSL 3.0.
+# https://github.com/ruby/ruby/commit/47975ece4096cdab16b3f200f93ea2377dfb41ac
+Patch55: ruby-3.1.0-Disable-test_no_private_exp-on-OpenSSL-3.0.patch
+# Deprecate PKey::*#set_* and PKey::{DH,EC}#generate_key!
+# https://github.com/ruby/openssl/pull/480
+Patch56: ruby-3.1.0-Deprecate-PKey-set_-and-PKey-DH-EC-generate_key.patch
+# Fix `OpenSSL::PKey::PKeyError: pkeys are immutable on OpenSSL 3.0` errors.
+# https://github.com/rubygems/rubygems/pull/5196
+Patch57: rubygems-3.3.1-Fix-compatibility-with-OpenSSL3.0.patch
+# Miscellaneous changes for OpenSSL 3.0 support.
+# https://github.com/ruby/openssl/pull/481
+Patch58: ruby-3.1.0-Miscellaneous-changes-for-OpenSSL-3.0-support-part-2.patch
 # Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
 # https://github.com/ruby/openssl/pull/399#issuecomment-966239736
-Patch53: ruby-3.1.0-SSL_read-EOF-handling.patch
-# Fix segfault in `TestArray#test_sample` on s390x.
-# https://github.com/ruby/ruby/pull/5239
-Patch54: ruby-3.1.0-Fix-stack-buffer-overflow.patch
+Patch59: ruby-3.1.0-SSL_read-EOF-handling.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -685,6 +704,7 @@ rm -rf ext/fiddle/libffi*
 %patch20 -p1
 %patch21 -p1
 %patch22 -p1
+%patch23 -p1
 %patch30 -p1 -R
 %patch31 -p1
 %patch40 -p1
@@ -702,6 +722,11 @@ rm -rf ext/fiddle/libffi*
 %patch52 -p1
 %patch53 -p1
 %patch54 -p1
+%patch55 -p1
+%patch56 -p1
+%patch57 -p1
+%patch58 -p1
+%patch59 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -979,13 +1004,6 @@ MSPECOPTS=""
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
-
-# Some tests are failing upstream due to OpenSSL 3.x compatibility.
-# https://github.com/ruby/openssl/pull/399/checks?check_run_id=3716152870
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestEC#test_check_key/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_derive_key/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestPKeyDH#test_key_exchange/"
-DISABLE_TESTS="$DISABLE_TESTS -n !/OpenSSL::TestCipher#test_ciphers/"
 
 # Several test broken by libffi-3.4.2. There should be fix in libffi, once
 # other components are fixed.
@@ -1469,6 +1487,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Tue Jan 25 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.3-158
+- Update OpenSSL 3 compatibility patches.
+
 * Thu Jan 20 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.3-158
 - Disable package notes to prevent rubygem- build breakage.
 

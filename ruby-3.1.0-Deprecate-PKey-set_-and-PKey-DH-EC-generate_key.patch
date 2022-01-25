@@ -1,0 +1,719 @@
+From 46ca47060ca8ef3419ec36c2326a81b442d9b43b Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Sun, 12 Dec 2021 01:25:20 +0900
+Subject: [PATCH 1/5] pkey/dh: avoid using DH#set_key in DH#compute_key
+
+DH#set_key will not work on OpenSSL 3.0 because keys are immutable.
+For now, let's reimplement DH#compute_key by manually constructing a
+DER-encoded SubjectPublicKeyInfo structure and feeding it to
+OpenSSL::PKey.read.
+
+Eventually, we should implement a new method around EVP_PKEY_fromdata()
+and use it instead.
+---
+ ext/openssl/lib/openssl/pkey.rb | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/ext/openssl/lib/openssl/pkey.rb b/ext/openssl/lib/openssl/pkey.rb
+index f6bf5892..5864faa9 100644
+--- a/ext/openssl/lib/openssl/pkey.rb
++++ b/ext/openssl/lib/openssl/pkey.rb
+@@ -47,9 +47,19 @@ def public_key
+     # * _pub_bn_ is a OpenSSL::BN, *not* the DH instance returned by
+     #   DH#public_key as that contains the DH parameters only.
+     def compute_key(pub_bn)
+-      peer = dup
+-      peer.set_key(pub_bn, nil)
+-      derive(peer)
++      # FIXME: This is constructing an X.509 SubjectPublicKeyInfo and is very
++      # inefficient
++      obj = OpenSSL::ASN1.Sequence([
++        OpenSSL::ASN1.Sequence([
++          OpenSSL::ASN1.ObjectId("dhKeyAgreement"),
++          OpenSSL::ASN1.Sequence([
++            OpenSSL::ASN1.Integer(p),
++            OpenSSL::ASN1.Integer(g),
++          ]),
++        ]),
++        OpenSSL::ASN1.BitString(OpenSSL::ASN1.Integer(pub_bn).to_der),
++      ])
++      derive(OpenSSL::PKey.read(obj.to_der))
+     end
+ 
+     # :call-seq:
+
+From fc9aabc18df3c189cc6a76a1470ca908c4f16480 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 17 Dec 2021 02:22:25 +0900
+Subject: [PATCH 2/5] pkey/ec: avoid using EC#public_key= in EC#dh_compute_key
+
+Similarly to DH#compute_key, work around it by constructing a
+SubjectPublicKeyInfo. This should be considered as a temporary
+implementation.
+---
+ ext/openssl/lib/openssl/pkey.rb | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/ext/openssl/lib/openssl/pkey.rb b/ext/openssl/lib/openssl/pkey.rb
+index 5864faa9..ba04cf4b 100644
+--- a/ext/openssl/lib/openssl/pkey.rb
++++ b/ext/openssl/lib/openssl/pkey.rb
+@@ -259,9 +259,14 @@ def dsa_verify_asn1(data, sig)
+     # This method is provided for backwards compatibility, and calls #derive
+     # internally.
+     def dh_compute_key(pubkey)
+-      peer = OpenSSL::PKey::EC.new(group)
+-      peer.public_key = pubkey
+-      derive(peer)
++      obj = OpenSSL::ASN1.Sequence([
++        OpenSSL::ASN1.Sequence([
++          OpenSSL::ASN1.ObjectId("id-ecPublicKey"),
++          group.to_der,
++        ]),
++        OpenSSL::ASN1.BitString(pubkey.to_octet_string(:uncompressed)),
++      ])
++      derive(OpenSSL::PKey.read(obj.to_der))
+     end
+   end
+ 
+
+From 8ee6a582c7e4614eec4f5ca5ab59898fbcb50d2a Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 22 Oct 2021 16:24:07 +0900
+Subject: [PATCH 3/5] pkey/dh: deprecate OpenSSL::PKey::DH#generate_key!
+
+OpenSSL::PKey::DH#generate_key! will not work on OpenSSL 3.0 because
+keys are made immutable. Users should use OpenSSL::PKey.generate_key
+instead.
+---
+ ext/openssl/lib/openssl/pkey.rb | 23 +++++++++++++++++++----
+ ext/openssl/ossl_pkey_dh.c      |  9 +++++----
+ test/openssl/test_pkey_dh.rb    | 18 ++++++++++--------
+ 3 files changed, 34 insertions(+), 16 deletions(-)
+
+diff --git a/ext/openssl/lib/openssl/pkey.rb b/ext/openssl/lib/openssl/pkey.rb
+index ba04cf4b..c3e06290 100644
+--- a/ext/openssl/lib/openssl/pkey.rb
++++ b/ext/openssl/lib/openssl/pkey.rb
+@@ -71,14 +71,29 @@ def compute_key(pub_bn)
+     # called first in order to generate the per-session keys before performing
+     # the actual key exchange.
+     #
++    # <b>Deprecated in version 3.0</b>. This method is incompatible with
++    # OpenSSL 3.0.0 or later.
++    #
+     # See also OpenSSL::PKey.generate_key.
+     #
+     # Example:
+-    #   dh = OpenSSL::PKey::DH.new(2048)
+-    #   public_key = dh.public_key #contains no private/public key yet
+-    #   public_key.generate_key!
+-    #   puts public_key.private? # => true
++    #   # DEPRECATED USAGE: This will not work on OpenSSL 3.0 or later
++    #   dh0 = OpenSSL::PKey::DH.new(2048)
++    #   dh = dh0.public_key # #public_key only copies the DH parameters (contrary to the name)
++    #   dh.generate_key!
++    #   puts dh.private? # => true
++    #   puts dh0.pub_key == dh.pub_key #=> false
++    #
++    #   # With OpenSSL::PKey.generate_key
++    #   dh0 = OpenSSL::PKey::DH.new(2048)
++    #   dh = OpenSSL::PKey.generate_key(dh0)
++    #   puts dh0.pub_key == dh.pub_key #=> false
+     def generate_key!
++      if OpenSSL::OPENSSL_VERSION_NUMBER >= 0x30000000
++        raise DHError, "OpenSSL::PKey::DH is immutable on OpenSSL 3.0; " \
++        "use OpenSSL::PKey.generate_key instead"
++      end
++
+       unless priv_key
+         tmp = OpenSSL::PKey.generate_key(self)
+         set_key(tmp.pub_key, tmp.priv_key)
+diff --git a/ext/openssl/ossl_pkey_dh.c b/ext/openssl/ossl_pkey_dh.c
+index 04c11b2157..e70d60ed19 100644
+--- a/ext/openssl/ossl_pkey_dh.c
++++ b/ext/openssl/ossl_pkey_dh.c
+@@ -58,15 +58,16 @@ VALUE eDHError;
+  *
+  * Examples:
+  *   # Creating an instance from scratch
+- *   dh = DH.new
++ *   # Note that this is deprecated and will not work on OpenSSL 3.0 or later.
++ *   dh = OpenSSL::PKey::DH.new
+  *   dh.set_pqg(bn_p, nil, bn_g)
+  *
+  *   # Generating a parameters and a key pair
+- *   dh = DH.new(2048) # An alias of DH.generate(2048)
++ *   dh = OpenSSL::PKey::DH.new(2048) # An alias of OpenSSL::PKey::DH.generate(2048)
+  *
+  *   # Reading DH parameters
+- *   dh = DH.new(File.read('parameters.pem')) # -> dh, but no public/private key yet
+- *   dh.generate_key! # -> dh with public and private key
++ *   dh_params = OpenSSL::PKey::DH.new(File.read('parameters.pem')) # loads parameters only
++ *   dh = OpenSSL::PKey.generate_key(dh_params) # generates a key pair
+  */
+ static VALUE
+ ossl_dh_initialize(int argc, VALUE *argv, VALUE self)
+diff --git a/test/openssl/test_pkey_dh.rb b/test/openssl/test_pkey_dh.rb
+index 757704ca..ac11af38 100644
+--- a/test/openssl/test_pkey_dh.rb
++++ b/test/openssl/test_pkey_dh.rb
+@@ -26,14 +26,19 @@ def test_new_break
+   end
+ 
+   def test_derive_key
+-    dh1 = Fixtures.pkey("dh1024").generate_key!
+-    dh2 = Fixtures.pkey("dh1024").generate_key!
++    params = Fixtures.pkey("dh1024")
++    dh1 = OpenSSL::PKey.generate_key(params)
++    dh2 = OpenSSL::PKey.generate_key(params)
+     dh1_pub = OpenSSL::PKey.read(dh1.public_to_der)
+     dh2_pub = OpenSSL::PKey.read(dh2.public_to_der)
++
+     z = dh1.g.mod_exp(dh1.priv_key, dh1.p).mod_exp(dh2.priv_key, dh1.p).to_s(2)
+     assert_equal z, dh1.derive(dh2_pub)
+     assert_equal z, dh2.derive(dh1_pub)
+ 
++    assert_raise(OpenSSL::PKey::PKeyError) { params.derive(dh1_pub) }
++    assert_raise(OpenSSL::PKey::PKeyError) { dh1_pub.derive(params) }
++
+     assert_equal z, dh1.compute_key(dh2.pub_key)
+     assert_equal z, dh2.compute_key(dh1.pub_key)
+   end
+@@ -74,19 +79,16 @@ def test_public_key
+   end
+ 
+   def test_generate_key
+-    dh = Fixtures.pkey("dh1024").public_key # creates a copy
++    # Deprecated in v3.0.0; incompatible with OpenSSL 3.0
++    dh = Fixtures.pkey("dh1024").public_key # creates a copy with params only
+     assert_no_key(dh)
+     dh.generate_key!
+     assert_key(dh)
+-  end
+ 
+-  def test_key_exchange
+-    dh = Fixtures.pkey("dh1024")
+     dh2 = dh.public_key
+-    dh.generate_key!
+     dh2.generate_key!
+     assert_equal(dh.compute_key(dh2.pub_key), dh2.compute_key(dh.pub_key))
+-  end
++  end if !openssl?(3, 0, 0)
+ 
+   def test_params_ok?
+     dh0 = Fixtures.pkey("dh1024")
+
+From 5e2e66cce870ea86001dbb0eaa3092badfd37994 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Fri, 17 Dec 2021 02:21:42 +0900
+Subject: [PATCH 4/5] pkey/ec: deprecate OpenSSL::PKey::EC#generate_key!
+
+OpenSSL::PKey::EC#generate_key! will not work on OpenSSL 3.0 because
+keys are made immutable. Users should use OpenSSL::PKey.generate_key
+instead.
+---
+ ext/openssl/ossl_pkey_ec.c   |  4 ++++
+ test/openssl/test_pkey_ec.rb | 21 +++++++++++++--------
+ 2 files changed, 17 insertions(+), 8 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey_ec.c b/ext/openssl/ossl_pkey_ec.c
+index db80d112..398a550a 100644
+--- a/ext/openssl/ossl_pkey_ec.c
++++ b/ext/openssl/ossl_pkey_ec.c
+@@ -442,6 +442,9 @@ ossl_ec_key_to_der(VALUE self)
+  */
+ static VALUE ossl_ec_key_generate_key(VALUE self)
+ {
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++    rb_raise(ePKeyError, "pkeys are immutable on OpenSSL 3.0");
++#else
+     EC_KEY *ec;
+ 
+     GetEC(self, ec);
+@@ -449,6 +452,7 @@ static VALUE ossl_ec_key_generate_key(VALUE self)
+ 	ossl_raise(eECError, "EC_KEY_generate_key");
+ 
+     return self;
++#endif
+ }
+ 
+ /*
+diff --git a/test/openssl/test_pkey_ec.rb b/test/openssl/test_pkey_ec.rb
+index 3f5958af..33f78a4c 100644
+--- a/test/openssl/test_pkey_ec.rb
++++ b/test/openssl/test_pkey_ec.rb
+@@ -13,15 +13,13 @@ def test_ec_key
+       # FIPS-selftest failure on some environment, so skip for now.
+       next if ["Oakley", "X25519"].any? { |n| curve_name.start_with?(n) }
+ 
+-      key = OpenSSL::PKey::EC.new(curve_name)
+-      key.generate_key!
+-
++      key = OpenSSL::PKey::EC.generate(curve_name)
+       assert_predicate key, :private?
+       assert_predicate key, :public?
+       assert_nothing_raised { key.check_key }
+     end
+ 
+-    key1 = OpenSSL::PKey::EC.new("prime256v1").generate_key!
++    key1 = OpenSSL::PKey::EC.generate("prime256v1")
+ 
+     key2 = OpenSSL::PKey::EC.new
+     key2.group = key1.group
+@@ -52,6 +50,13 @@ def test_generate
+     assert_equal(true, ec.private?)
+   end
+ 
++  def test_generate_key
++    ec = OpenSSL::PKey::EC.new("prime256v1")
++    assert_equal false, ec.private?
++    ec.generate_key!
++    assert_equal true, ec.private?
++  end if !openssl?(3, 0, 0)
++
+   def test_marshal
+     key = Fixtures.pkey("p256")
+     deserialized = Marshal.load(Marshal.dump(key))
+@@ -136,7 +141,7 @@ def test_sign_verify_raw
+   end
+ 
+   def test_dsa_sign_asn1_FIPS186_3
+-    key = OpenSSL::PKey::EC.new("prime256v1").generate_key!
++    key = OpenSSL::PKey::EC.generate("prime256v1")
+     size = key.group.order.num_bits / 8 + 1
+     dgst = (1..size).to_a.pack('C*')
+     sig = key.dsa_sign_asn1(dgst)
+@@ -145,8 +150,8 @@ def test_dsa_sign_asn1_FIPS186_3
+   end
+ 
+   def test_dh_compute_key
+-    key_a = OpenSSL::PKey::EC.new("prime256v1").generate_key!
+-    key_b = OpenSSL::PKey::EC.new(key_a.group).generate_key!
++    key_a = OpenSSL::PKey::EC.generate("prime256v1")
++    key_b = OpenSSL::PKey::EC.generate(key_a.group)
+ 
+     pub_a = key_a.public_key
+     pub_b = key_b.public_key
+@@ -276,7 +281,7 @@ def test_ec_group
+ 
+   def test_ec_point
+     group = OpenSSL::PKey::EC::Group.new("prime256v1")
+-    key = OpenSSL::PKey::EC.new(group).generate_key!
++    key = OpenSSL::PKey::EC.generate(group)
+     point = key.public_key
+ 
+     point2 = OpenSSL::PKey::EC::Point.new(group, point.to_bn)
+
+From 6848d2d969d90e6a400d89848ecec21076b87888 Mon Sep 17 00:00:00 2001
+From: Kazuki Yamaguchi <k@rhe.jp>
+Date: Tue, 21 Sep 2021 18:29:59 +0900
+Subject: [PATCH 5/5] pkey: deprecate PKey#set_* methods
+
+OpenSSL 3.0 made EVP_PKEY immutable. This means we can only have a const
+pointer of the low level struct and the following methods can no longer
+be provided when linked against OpenSSL 3.0:
+
+ - OpenSSL::PKey::RSA#set_key
+ - OpenSSL::PKey::RSA#set_factors
+ - OpenSSL::PKey::RSA#set_crt_params
+ - OpenSSL::PKey::DSA#set_pqg
+ - OpenSSL::PKey::DSA#set_key
+ - OpenSSL::PKey::DH#set_pqg
+ - OpenSSL::PKey::DH#set_key
+ - OpenSSL::PKey::EC#group=
+ - OpenSSL::PKey::EC#private_key=
+ - OpenSSL::PKey::EC#public_key=
+
+There is no direct replacement for this functionality at the moment.
+I plan to introduce a wrapper around EVP_PKEY_fromdata(), which takes
+all key components at once to construct an EVP_PKEY.
+---
+ ext/openssl/ossl_pkey.h       | 16 +++++++
+ ext/openssl/ossl_pkey_ec.c    | 12 +++++
+ test/openssl/test_pkey_dh.rb  | 38 +++++++++++-----
+ test/openssl/test_pkey_dsa.rb |  8 +++-
+ test/openssl/test_pkey_ec.rb  | 58 ++++++++++++++----------
+ test/openssl/test_pkey_rsa.rb | 85 ++++++++++++++++++++++-------------
+ 6 files changed, 149 insertions(+), 68 deletions(-)
+
+diff --git a/ext/openssl/ossl_pkey.h b/ext/openssl/ossl_pkey.h
+index 4beede22..4536e58e 100644
+--- a/ext/openssl/ossl_pkey.h
++++ b/ext/openssl/ossl_pkey.h
+@@ -116,6 +116,7 @@ static VALUE ossl_##_keytype##_get_##_name(VALUE self)			\
+ 	OSSL_PKEY_BN_DEF_GETTER0(_keytype, _type, a2,			\
+ 		_type##_get0_##_group(obj, NULL, &bn))
+ 
++#if !OSSL_OPENSSL_PREREQ(3, 0, 0)
+ #define OSSL_PKEY_BN_DEF_SETTER3(_keytype, _type, _group, a1, a2, a3)	\
+ /*									\
+  *  call-seq:								\
+@@ -173,6 +174,21 @@ static VALUE ossl_##_keytype##_set_##_group(VALUE self, VALUE v1, VALUE v2) \
+ 	}								\
+ 	return self;							\
+ }
++#else
++#define OSSL_PKEY_BN_DEF_SETTER3(_keytype, _type, _group, a1, a2, a3)	\
++static VALUE ossl_##_keytype##_set_##_group(VALUE self, VALUE v1, VALUE v2, VALUE v3) \
++{									\
++        rb_raise(ePKeyError,						\
++                 #_keytype"#set_"#_group"= is incompatible with OpenSSL 3.0"); \
++}
++
++#define OSSL_PKEY_BN_DEF_SETTER2(_keytype, _type, _group, a1, a2)	\
++static VALUE ossl_##_keytype##_set_##_group(VALUE self, VALUE v1, VALUE v2) \
++{									\
++        rb_raise(ePKeyError,						\
++                 #_keytype"#set_"#_group"= is incompatible with OpenSSL 3.0"); \
++}
++#endif
+ 
+ #define OSSL_PKEY_BN_DEF_SETTER_OLD(_keytype, _type, _group, _name)	\
+ /*									\
+diff --git a/ext/openssl/ossl_pkey_ec.c b/ext/openssl/ossl_pkey_ec.c
+index 398a550a..7a6ed1c9 100644
+--- a/ext/openssl/ossl_pkey_ec.c
++++ b/ext/openssl/ossl_pkey_ec.c
+@@ -251,6 +251,9 @@ ossl_ec_key_get_group(VALUE self)
+ static VALUE
+ ossl_ec_key_set_group(VALUE self, VALUE group_v)
+ {
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++    rb_raise(ePKeyError, "pkeys are immutable on OpenSSL 3.0");
++#else
+     EC_KEY *ec;
+     EC_GROUP *group;
+ 
+@@ -261,6 +264,7 @@ ossl_ec_key_set_group(VALUE self, VALUE group_v)
+         ossl_raise(eECError, "EC_KEY_set_group");
+ 
+     return group_v;
++#endif
+ }
+ 
+ /*
+@@ -289,6 +293,9 @@ static VALUE ossl_ec_key_get_private_key(VALUE self)
+  */
+ static VALUE ossl_ec_key_set_private_key(VALUE self, VALUE private_key)
+ {
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++    rb_raise(ePKeyError, "pkeys are immutable on OpenSSL 3.0");
++#else
+     EC_KEY *ec;
+     BIGNUM *bn = NULL;
+ 
+@@ -307,6 +314,7 @@ static VALUE ossl_ec_key_set_private_key(VALUE self, VALUE private_key)
+     }
+ 
+     return private_key;
++#endif
+ }
+ 
+ /*
+@@ -335,6 +343,9 @@ static VALUE ossl_ec_key_get_public_key(VALUE self)
+  */
+ static VALUE ossl_ec_key_set_public_key(VALUE self, VALUE public_key)
+ {
++#if OSSL_OPENSSL_PREREQ(3, 0, 0)
++    rb_raise(ePKeyError, "pkeys are immutable on OpenSSL 3.0");
++#else
+     EC_KEY *ec;
+     EC_POINT *point = NULL;
+ 
+@@ -353,6 +364,7 @@ static VALUE ossl_ec_key_set_public_key(VALUE self, VALUE public_key)
+     }
+ 
+     return public_key;
++#endif
+ }
+ 
+ /*
+diff --git a/test/openssl/test_pkey_dh.rb b/test/openssl/test_pkey_dh.rb
+index ac11af38..161af189 100644
+--- a/test/openssl/test_pkey_dh.rb
++++ b/test/openssl/test_pkey_dh.rb
+@@ -107,13 +107,32 @@ def test_params_ok?
+   end
+ 
+   def test_dup
+-    dh = Fixtures.pkey("dh1024")
+-    dh2 = dh.dup
+-    assert_equal dh.to_der, dh2.to_der # params
+-    assert_equal_params dh, dh2 # keys
+-    dh2.set_pqg(dh2.p + 1, nil, dh2.g)
+-    assert_not_equal dh2.p, dh.p
+-    assert_equal dh2.g, dh.g
++    # Parameters only
++    dh1 = Fixtures.pkey("dh1024")
++    dh2 = dh1.dup
++    assert_equal dh1.to_der, dh2.to_der
++    assert_not_equal nil, dh1.p
++    assert_not_equal nil, dh1.g
++    assert_equal [dh1.p, dh1.g], [dh2.p, dh2.g]
++    assert_equal nil, dh1.pub_key
++    assert_equal nil, dh1.priv_key
++    assert_equal [dh1.pub_key, dh1.priv_key], [dh2.pub_key, dh2.priv_key]
++
++    # PKey is immutable in OpenSSL >= 3.0
++    if !openssl?(3, 0, 0)
++      dh2.set_pqg(dh2.p + 1, nil, dh2.g)
++      assert_not_equal dh2.p, dh1.p
++    end
++
++    # With a key pair
++    dh3 = OpenSSL::PKey.generate_key(Fixtures.pkey("dh1024"))
++    dh4 = dh3.dup
++    assert_equal dh3.to_der, dh4.to_der
++    assert_equal dh1.to_der, dh4.to_der # encodes parameters only
++    assert_equal [dh1.p, dh1.g], [dh4.p, dh4.g]
++    assert_not_equal nil, dh3.pub_key
++    assert_not_equal nil, dh3.priv_key
++    assert_equal [dh3.pub_key, dh3.priv_key], [dh4.pub_key, dh4.priv_key]
+   end
+ 
+   def test_marshal
+@@ -125,11 +144,6 @@ def test_marshal
+ 
+   private
+ 
+-  def assert_equal_params(dh1, dh2)
+-    assert_equal(dh1.g, dh2.g)
+-    assert_equal(dh1.p, dh2.p)
+-  end
+-
+   def assert_no_key(dh)
+     assert_equal(false, dh.public?)
+     assert_equal(false, dh.private?)
+diff --git a/test/openssl/test_pkey_dsa.rb b/test/openssl/test_pkey_dsa.rb
+index 0994607f..726b7dbf 100644
+--- a/test/openssl/test_pkey_dsa.rb
++++ b/test/openssl/test_pkey_dsa.rb
+@@ -208,8 +208,12 @@ def test_dup
+     key = Fixtures.pkey("dsa1024")
+     key2 = key.dup
+     assert_equal key.params, key2.params
+-    key2.set_pqg(key2.p + 1, key2.q, key2.g)
+-    assert_not_equal key.params, key2.params
++
++    # PKey is immutable in OpenSSL >= 3.0
++    if !openssl?(3, 0, 0)
++      key2.set_pqg(key2.p + 1, key2.q, key2.g)
++      assert_not_equal key.params, key2.params
++    end
+   end
+ 
+   def test_marshal
+diff --git a/test/openssl/test_pkey_ec.rb b/test/openssl/test_pkey_ec.rb
+index 33f78a4c..ffe5a94e 100644
+--- a/test/openssl/test_pkey_ec.rb
++++ b/test/openssl/test_pkey_ec.rb
+@@ -21,11 +21,15 @@ def test_ec_key
+ 
+     key1 = OpenSSL::PKey::EC.generate("prime256v1")
+ 
+-    key2 = OpenSSL::PKey::EC.new
+-    key2.group = key1.group
+-    key2.private_key = key1.private_key
+-    key2.public_key = key1.public_key
+-    assert_equal key1.to_der, key2.to_der
++    # PKey is immutable in OpenSSL >= 3.0; constructing an empty EC object is
++    # deprecated
++    if !openssl?(3, 0, 0)
++      key2 = OpenSSL::PKey::EC.new
++      key2.group = key1.group
++      key2.private_key = key1.private_key
++      key2.public_key = key1.public_key
++      assert_equal key1.to_der, key2.to_der
++    end
+ 
+     key3 = OpenSSL::PKey::EC.new(key1)
+     assert_equal key1.to_der, key3.to_der
+@@ -35,10 +39,14 @@ def test_ec_key
+ 
+     key5 = key1.dup
+     assert_equal key1.to_der, key5.to_der
+-    key_tmp = OpenSSL::PKey::EC.new("prime256v1").generate_key!
+-    key5.private_key = key_tmp.private_key
+-    key5.public_key = key_tmp.public_key
+-    assert_not_equal key1.to_der, key5.to_der
++
++    # PKey is immutable in OpenSSL >= 3.0; EC object should not be modified
++    if !openssl?(3, 0, 0)
++      key_tmp = OpenSSL::PKey::EC.generate("prime256v1")
++      key5.private_key = key_tmp.private_key
++      key5.public_key = key_tmp.public_key
++      assert_not_equal key1.to_der, key5.to_der
++    end
+   end
+ 
+   def test_generate
+@@ -65,22 +73,26 @@ def test_marshal
+   end
+ 
+   def test_check_key
+-    key = OpenSSL::PKey::EC.new("prime256v1").generate_key!
+-    assert_equal(true, key.check_key)
+-    assert_equal(true, key.private?)
+-    assert_equal(true, key.public?)
+-    key2 = OpenSSL::PKey::EC.new(key.group)
+-    assert_equal(false, key2.private?)
+-    assert_equal(false, key2.public?)
+-    key2.public_key = key.public_key
+-    assert_equal(false, key2.private?)
+-    assert_equal(true, key2.public?)
+-    key2.private_key = key.private_key
++    key0 = Fixtures.pkey("p256")
++    assert_equal(true, key0.check_key)
++    assert_equal(true, key0.private?)
++    assert_equal(true, key0.public?)
++
++    key1 = OpenSSL::PKey.read(key0.public_to_der)
++    assert_equal(true, key1.check_key)
++    assert_equal(false, key1.private?)
++    assert_equal(true, key1.public?)
++
++    key2 = OpenSSL::PKey.read(key0.private_to_der)
+     assert_equal(true, key2.private?)
+     assert_equal(true, key2.public?)
+     assert_equal(true, key2.check_key)
+-    key2.private_key += 1
+-    assert_raise(OpenSSL::PKey::ECError) { key2.check_key }
++
++    # EC#private_key= is deprecated in 3.0 and won't work on OpenSSL 3.0
++    if !openssl?(3, 0, 0)
++      key2.private_key += 1
++      assert_raise(OpenSSL::PKey::ECError) { key2.check_key }
++    end
+   end
+ 
+   def test_sign_verify
+@@ -112,7 +124,7 @@ def test_derive_key
+     assert_equal [zIUT].pack("H*"), a.derive(b)
+ 
+     assert_equal a.derive(b), a.dh_compute_key(b.public_key)
+-  end
++  end if !openssl?(3, 0, 0) # TODO: Test it without using #private_key=
+ 
+   def test_sign_verify_raw
+     key = Fixtures.pkey("p256")
+diff --git a/test/openssl/test_pkey_rsa.rb b/test/openssl/test_pkey_rsa.rb
+index dbe87ba4..1c7f9ccf 100644
+--- a/test/openssl/test_pkey_rsa.rb
++++ b/test/openssl/test_pkey_rsa.rb
+@@ -31,15 +31,18 @@ def test_private
+     assert(!key4.private?)
+     rsa1024 = Fixtures.pkey("rsa1024")
+ 
+-    # Generated by RSA#set_key
+-    key5 = OpenSSL::PKey::RSA.new
+-    key5.set_key(rsa1024.n, rsa1024.e, rsa1024.d)
+-    assert(key5.private?)
+-
+-    # Generated by RSA#set_key, without d
+-    key6 = OpenSSL::PKey::RSA.new
+-    key6.set_key(rsa1024.n, rsa1024.e, nil)
+-    assert(!key6.private?)
++    if !openssl?(3, 0, 0)
++      key = OpenSSL::PKey::RSA.new
++      # Generated by RSA#set_key
++      key5 = OpenSSL::PKey::RSA.new
++      key5.set_key(rsa1024.n, rsa1024.e, rsa1024.d)
++      assert(key5.private?)
++
++      # Generated by RSA#set_key, without d
++      key6 = OpenSSL::PKey::RSA.new
++      key6.set_key(rsa1024.n, rsa1024.e, nil)
++      assert(!key6.private?)
++    end
+   end
+ 
+   def test_new
+@@ -235,36 +238,52 @@ def test_encrypt_decrypt_legacy
+ 
+   def test_export
+     rsa1024 = Fixtures.pkey("rsa1024")
+-    key = OpenSSL::PKey::RSA.new
+ 
+-    # key has only n, e and d
+-    key.set_key(rsa1024.n, rsa1024.e, rsa1024.d)
+-    assert_equal rsa1024.public_key.export, key.export
++    pub = OpenSSL::PKey.read(rsa1024.public_to_der)
++    assert_not_equal rsa1024.export, pub.export
++    assert_equal rsa1024.public_to_pem, pub.export
++
++    # PKey is immutable in OpenSSL >= 3.0
++    if !openssl?(3, 0, 0)
++      key = OpenSSL::PKey::RSA.new
+ 
+-    # key has only n, e, d, p and q
+-    key.set_factors(rsa1024.p, rsa1024.q)
+-    assert_equal rsa1024.public_key.export, key.export
++      # key has only n, e and d
++      key.set_key(rsa1024.n, rsa1024.e, rsa1024.d)
++      assert_equal rsa1024.public_key.export, key.export
+ 
+-    # key has n, e, d, p, q, dmp1, dmq1 and iqmp
+-    key.set_crt_params(rsa1024.dmp1, rsa1024.dmq1, rsa1024.iqmp)
+-    assert_equal rsa1024.export, key.export
++      # key has only n, e, d, p and q
++      key.set_factors(rsa1024.p, rsa1024.q)
++      assert_equal rsa1024.public_key.export, key.export
++
++      # key has n, e, d, p, q, dmp1, dmq1 and iqmp
++      key.set_crt_params(rsa1024.dmp1, rsa1024.dmq1, rsa1024.iqmp)
++      assert_equal rsa1024.export, key.export
++    end
+   end
+ 
+   def test_to_der
+     rsa1024 = Fixtures.pkey("rsa1024")
+-    key = OpenSSL::PKey::RSA.new
+ 
+-    # key has only n, e and d
+-    key.set_key(rsa1024.n, rsa1024.e, rsa1024.d)
+-    assert_equal rsa1024.public_key.to_der, key.to_der
++    pub = OpenSSL::PKey.read(rsa1024.public_to_der)
++    assert_not_equal rsa1024.to_der, pub.to_der
++    assert_equal rsa1024.public_to_der, pub.to_der
+ 
+-    # key has only n, e, d, p and q
+-    key.set_factors(rsa1024.p, rsa1024.q)
+-    assert_equal rsa1024.public_key.to_der, key.to_der
++    # PKey is immutable in OpenSSL >= 3.0
++    if !openssl?(3, 0, 0)
++      key = OpenSSL::PKey::RSA.new
+ 
+-    # key has n, e, d, p, q, dmp1, dmq1 and iqmp
+-    key.set_crt_params(rsa1024.dmp1, rsa1024.dmq1, rsa1024.iqmp)
+-    assert_equal rsa1024.to_der, key.to_der
++      # key has only n, e and d
++      key.set_key(rsa1024.n, rsa1024.e, rsa1024.d)
++      assert_equal rsa1024.public_key.to_der, key.to_der
++
++      # key has only n, e, d, p and q
++      key.set_factors(rsa1024.p, rsa1024.q)
++      assert_equal rsa1024.public_key.to_der, key.to_der
++
++      # key has n, e, d, p, q, dmp1, dmq1 and iqmp
++      key.set_crt_params(rsa1024.dmp1, rsa1024.dmq1, rsa1024.iqmp)
++      assert_equal rsa1024.to_der, key.to_der
++    end
+   end
+ 
+   def test_RSAPrivateKey
+@@ -501,8 +520,12 @@ def test_dup
+     key = Fixtures.pkey("rsa1024")
+     key2 = key.dup
+     assert_equal key.params, key2.params
+-    key2.set_key(key2.n, 3, key2.d)
+-    assert_not_equal key.params, key2.params
++
++    # PKey is immutable in OpenSSL >= 3.0
++    if !openssl?(3, 0, 0)
++      key2.set_key(key2.n, 3, key2.d)
++      assert_not_equal key.params, key2.params
++    end
+   end
+ 
+   def test_marshal
