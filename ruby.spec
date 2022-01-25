@@ -250,9 +250,6 @@ Patch57: rubygems-3.3.1-Fix-compatibility-with-OpenSSL3.0.patch
 # Miscellaneous changes for OpenSSL 3.0 support.
 # https://github.com/ruby/openssl/pull/481
 Patch58: ruby-3.1.0-Miscellaneous-changes-for-OpenSSL-3.0-support-part-2.patch
-# Fix `TestPumaControlCli#test_control_ssl` testcase in Puma.
-# https://github.com/ruby/openssl/pull/399#issuecomment-966239736
-Patch59: ruby-3.1.0-SSL_read-EOF-handling.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -726,7 +723,6 @@ rm -rf ext/fiddle/libffi*
 %patch56 -p1
 %patch57 -p1
 %patch58 -p1
-%patch59 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
