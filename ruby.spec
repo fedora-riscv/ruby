@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 160
+%global release 161
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -152,6 +152,12 @@ Patch5: ruby-1.9.3-mkmf-verbose.patch
 # https://lists.fedoraproject.org/archives/list/ruby-sig@lists.fedoraproject.org/message/LH6L6YJOYQT4Y5ZNOO4SLIPTUWZ5V45Q/
 # For now, load the ABRT hook via this simple patch:
 Patch6: ruby-2.7.0-Initialize-ABRT-hook.patch
+# Prevent segfaults running with SystemTap due to `RubyVM::FrozenCore` being
+# corrupted by GC.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2015441
+# https://bugzilla.redhat.com/show_bug.cgi?id=1986206
+# https://bugs.ruby-lang.org/issues/18257
+Patch7: ruby-3.1.0-Don-t-query-RubyVM-FrozenCore-for-class-path.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
@@ -615,6 +621,7 @@ rm -rf ext/fiddle/libffi*
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 %patch19 -p1
 
 # Provide an example of usage of the tapset:
@@ -1479,6 +1486,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Thu Feb 10 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.0-161
+- Prevent segfaults running with SystemTap.
+
 * Wed Jan 26 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.0-160
 - Upgrade to Ruby 3.1.0.
 
