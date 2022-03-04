@@ -85,6 +85,8 @@
 %bcond_without gmp
 %bcond_without hostname
 %bcond_without systemtap
+# Enable test when building on local.
+%bcond_with bundler_tests
 
 %if 0%{?fedora}
 %bcond_without hardening_test
@@ -161,6 +163,10 @@ Patch7: ruby-3.1.0-Don-t-query-RubyVM-FrozenCore-for-class-path.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
+# Fix a test for `bin/bundle update --bundler` in `make test-bundler`.
+# https://bugs.ruby-lang.org/issues/18643
+# https://github.com/rubygems/rubygems/commit/bfa2f72cfa3bfde34049d26dcb24976316074ad7
+Patch20: ruby-bundler-2.4.0-bundle-update-bundler-test-in-ruby.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -186,6 +192,8 @@ BuildRequires: multilib-rpm-config
 BuildRequires: gcc
 BuildRequires: make
 BuildRequires: zlib-devel
+# The bundler/spec/runtime/setup_spec.rb requires the command `man`.
+%{?with_bundler_tests:BuildRequires: %{_bindir}/man}
 
 # This package provides %%{_bindir}/ruby-mri therefore it is marked by this
 # virtual provide. It can be installed as dependency of rubypick.
@@ -623,6 +631,7 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch19 -p1
+%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -937,6 +946,8 @@ mv test/fiddle/test_import.rb{,.disable}
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
   make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
+
+%{?with_bundler_tests:make test-bundler-parallel}
 
 %files
 %license BSDL
