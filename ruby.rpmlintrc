@@ -38,6 +38,17 @@ addFilter(r'^ruby-libs\.\w+: E: shared-library-without-dependency-information /u
 # These are Ruby plugins, where Ruby always load glibc prior the library.
 addFilter(r'^ruby-libs\.\w+: W: library-not-linked-against-libc /usr/lib(64)?/ruby/.*.so$')
 
+# The function `chroot` without using `chdir` is detected by rpmlint with the
+# following message. However it looks a false positive as the `chroot` in the
+# `dir.c` is just used as a Ruby binding `Dir.chroot` for the function.
+#
+# ruby-libs.x86_64: E: missing-call-to-chdir-with-chroot /usr/lib64/libruby.so.N.N.N
+# This executable appears to call chroot without using chdir to change the
+# current directory. This is likely an error and permits an attacker to break
+# out of the chroot by using fchdir. While that's not always a security issue,
+# this has to be checked.
+addFilter(r'^ruby-libs\.\w+: E: missing-call-to-chdir-with-chroot /usr/lib(64)?/libruby.so.[\d/.]+$')
+
 # Rake ships some examples.
 addFilter(r'^rubygem-rake.noarch: W: devel-file-in-non-devel-package /usr/share/gems/gems/rake-[\d\.]+/doc/example/\w+.c$')
 
