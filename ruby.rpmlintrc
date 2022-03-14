@@ -34,6 +34,8 @@ addFilter(r'^ruby-libs\.\w+: W: binary-or-shlib-calls-gethostbyname /usr/lib(64)
 # Nothing referred and no dependency information should be no problem.
 # https://bugs.ruby-lang.org/issues/16558#note-2
 addFilter(r'^ruby-libs\.\w+: E: shared-library-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
+# Compatibility for rpmlint 1.11.
+addFilter(r'^ruby-libs\.\w+: E: shared-lib-without-dependency-information /usr/lib(64)?/ruby/enc/gb2312.so$')
 
 # These are Ruby plugins, where Ruby always load glibc prior the library.
 addFilter(r'^ruby-libs\.\w+: W: library-not-linked-against-libc /usr/lib(64)?/ruby/.*.so$')
