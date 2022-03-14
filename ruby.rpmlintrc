@@ -50,3 +50,7 @@ addFilter(r'^rubygem-(bigdecimal|io-console|json|psych)\.\w+: W: no-documentatio
 # rubygems-devel ships only RPM macros and generators. Their placement is given
 # by RPM and can't be modified.
 addFilter(r'rubygems-devel.noarch: W: only-non-binary-in-usr-lib$')
+
+# The empty gem.build_complete file is false positive. This error is gone in rpmlint 2.0+.
+# https://github.com/rpm-software-management/rpmlint/commit/e34ce874f27d733628f51c9884ac951af072bed2
+addFilter(r'^ruby(gem)?-(bigdecimal|bundled-gems|io-console|json|psych|rbs)\.\w+: E: zero-length /usr/lib(64)?/gems/ruby/.*/gem.build_complete')
