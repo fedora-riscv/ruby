@@ -1,6 +1,6 @@
 %global major_version 3
 %global minor_version 1
-%global teeny_version 0
+%global teeny_version 1
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 161
+%global release 162
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,16 +30,16 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.3.3
+%global rubygems_version 3.3.7
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.3.3
+%global bundler_version 2.3.7
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
 %global bundler_net_http_persistent_version 4.0.0
-%global bundler_thor_version 1.1.0
+%global bundler_thor_version 1.2.1
 %global bundler_tmpdir_version 0.1.0
 # TODO: Check the version if/when available in library.
 %global bundler_tsort_version 0.1.1
@@ -48,7 +48,7 @@
 %global bigdecimal_version 3.1.1
 %global did_you_mean_version 1.6.1
 %global erb_version 2.2.3
-%global io_console_version 0.5.10
+%global io_console_version 0.5.11
 %global irb_version 1.4.1
 %global json_version 2.6.1
 %global openssl_version 3.0.0
@@ -65,13 +65,13 @@
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
 %global net_ftp_version 0.1.3
-%global net_imap_version 0.2.2
+%global net_imap_version 0.2.3
 %global net_pop_version 0.1.1
 %global net_smtp_version 0.3.1
 %global matrix_version 0.4.2
 %global prime_version 0.1.2
-%global rbs_version 2.0.0
-%global typeprof_version 0.21.1
+%global rbs_version 2.1.0
+%global typeprof_version 0.21.2
 %global debug_version 1.4.0
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
@@ -787,7 +787,7 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 # Move the binary extensions into proper place (if no gem has binary extension,
 # the extensions directory might be empty).
 # TODO: Get information about extension form .gemspec files.
-find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{ruby_version}/* -maxdepth 0 \
+find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{major_minor_version}.*/* -maxdepth 0 \
   -exec rm '{}/gem_make.out' \; \
   -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \; \
   || echo "No gem binary extensions to move."
@@ -1206,7 +1206,7 @@ mv test/fiddle/test_import.rb{,.disable}
 %{gem_dir}/specifications/default/getoptlong-0.1.1.gemspec
 %{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
 %{gem_dir}/specifications/default/io-wait-0.2.1.gemspec
-%{gem_dir}/specifications/default/ipaddr-1.2.3.gemspec
+%{gem_dir}/specifications/default/ipaddr-1.2.4.gemspec
 %{gem_dir}/specifications/default/logger-1.5.0.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-http-0.2.0.gemspec
@@ -1349,7 +1349,6 @@ mv test/fiddle/test_import.rb{,.disable}
 %license %{gem_dir}/gems/net-imap-%{net_imap_version}/LICENSE.txt
 %doc %{gem_dir}/gems/net-imap-%{net_imap_version}/README.md
 %{gem_dir}/gems/net-imap-%{net_imap_version}/Rakefile
-%{gem_dir}/gems/net-imap-%{net_imap_version}/bin
 %{gem_dir}/gems/net-imap-%{net_imap_version}/lib
 %{gem_dir}/specifications/net-imap-%{net_imap_version}.gemspec
 
@@ -1486,6 +1485,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Mon Mar 14 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.1-162
+- Upgrade to Ruby 3.1.1.
+
 * Thu Feb 10 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.0-161
 - Prevent segfaults running with SystemTap.
 
