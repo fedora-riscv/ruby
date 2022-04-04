@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 162
+%global release 163
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -167,6 +167,10 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 # https://bugs.ruby-lang.org/issues/18643
 # https://github.com/rubygems/rubygems/commit/bfa2f72cfa3bfde34049d26dcb24976316074ad7
 Patch20: ruby-bundler-2.4.0-bundle-update-bundler-test-in-ruby.patch
+# Workaround gem binary extensions build and installation issues.
+# https://bugs.ruby-lang.org/issues/18373
+# https://github.com/ruby/ruby/pull/5743
+Patch21: ruby-3.1.1-Properly-build-binary-gem-extensions.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -632,6 +636,7 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -665,13 +670,6 @@ autoconf
 
 %install
 rm -rf %{buildroot}
-
-# Workaround binary extensions installation issues.
-# https://bugs.ruby-lang.org/issues/18373
-find .bundle -name extconf.rb -exec \
-  sed -i \
-    -e '/create_makefile/i \$arch_hdrdir = "$(hdrdir)/../.ext/include/$(arch)"' \
-    -e '/create_makefile/i \$DLDFLAGS << " -L#{$top_srcdir}"' {} \;
 
 %make_install
 
@@ -797,7 +795,6 @@ ln -s %{_libdir}/gems/%{name}/psych-%{psych_version}/psych.so %{buildroot}%{ruby
 # the extensions directory might be empty).
 # TODO: Get information about extension form .gemspec files.
 find %{buildroot}%{gem_dir}/extensions/*-%{_target_os}/%{major_minor_version}.*/* -maxdepth 0 \
-  -exec rm '{}/gem_make.out' \; \
   -exec mv '{}' %{buildroot}%{_libdir}/gems/%{name}/ \; \
   || echo "No gem binary extensions to move."
 
@@ -1496,6 +1493,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Mon Apr 04 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.1-163
+- Properly build binary gem extensions.
+
 * Mon Mar 14 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.1-162
 - Upgrade to Ruby 3.1.1.
 
