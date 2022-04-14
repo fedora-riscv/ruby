@@ -1,6 +1,6 @@
 %global major_version 3
 %global minor_version 1
-%global teeny_version 1
+%global teeny_version 2
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 163
+%global release 164
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1493,6 +1493,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Thu Apr 14 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-164
+- Upgrade to Ruby 3.1.2.
+
 * Mon Apr 04 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.1-163
 - Properly build binary gem extensions.
 
