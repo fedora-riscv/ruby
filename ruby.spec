@@ -169,8 +169,8 @@ Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
 Patch20: ruby-bundler-2.4.0-bundle-update-bundler-test-in-ruby.patch
 # Workaround gem binary extensions build and installation issues.
 # https://bugs.ruby-lang.org/issues/18373
-# https://github.com/ruby/ruby/pull/5743
-Patch21: ruby-3.1.1-Properly-build-binary-gem-extensions.patch
+# https://github.com/ruby/ruby/pull/5774
+Patch21: ruby-3.2.0-Build-extension-libraries-in-bundled-gems.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -636,6 +636,12 @@ rm -rf ext/fiddle/libffi*
 %patch7 -p1
 %patch19 -p1
 %patch20 -p1
+
+# Once the upstream tarball contains the files on the right place, this code
+# won't be necessary. This should happen at the same moment when the patch21
+# is not needed anymore.
+mkdir .bundle/specifications
+find .bundle/gems -name '*-[0-9]*.gemspec' -exec cp -t .bundle/specifications/ {} +
 %patch21 -p1
 
 # Provide an example of usage of the tapset:
@@ -1495,6 +1501,7 @@ mv test/fiddle/test_import.rb{,.disable}
 %changelog
 * Thu Apr 14 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-164
 - Upgrade to Ruby 3.1.2.
+- Use upstream patch for correct build of gem extensions.
 
 * Mon Apr 04 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.1-163
 - Properly build binary gem extensions.
