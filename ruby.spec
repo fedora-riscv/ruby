@@ -1,6 +1,6 @@
 %global major_version 3
 %global minor_version 0
-%global teeny_version 2
+%global teeny_version 4
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 151
+%global release 152
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -30,12 +30,12 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.2.22
+%global rubygems_version 3.2.33
 %global rubygems_molinillo_version 0.7.0
 
 # Default gems.
-%global bundler_version 2.2.22
-%global bundler_connection_pool_version 2.2.2
+%global bundler_version 2.2.33
+%global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
 %global bundler_molinillo_version 0.7.0
 %global bundler_net_http_persistent_version 4.0.0
@@ -49,20 +49,20 @@
 %global io_console_version 0.5.7
 %global irb_version 1.3.5
 %global json_version 2.5.1
-%global openssl_version 2.2.0
-%global psych_version 3.3.0
-%global racc_version 1.5.1
-%global rdoc_version 6.3.1
+%global openssl_version 2.2.1
+%global psych_version 3.3.2
+%global racc_version 1.5.2
+%global rdoc_version 6.3.3
 
 # Bundled gems.
 %global minitest_version 5.14.2
 %global power_assert_version 1.2.0
 %global rake_version 13.0.3
-%global rbs_version 1.0.4
+%global rbs_version 1.4.0
 %global test_unit_version 3.3.7
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
-%global typeprof_version 0.12.0
+%global typeprof_version 0.15.2
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -874,6 +874,12 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 DISABLE_TESTS=""
 MSPECOPTS=""
 
+%ifarch ppc64le
+# `Couldn't unprotect page` error.
+# https://bugs.ruby-lang.org/issues/18746
+DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(ast_compacts\|compact_count\|complex_hash_keys\|gc_compact_stats\)/"
+%endif
+
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
 
@@ -1138,26 +1144,26 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
 %{gem_dir}/specifications/default/base64-0.1.0.gemspec
 %{gem_dir}/specifications/default/benchmark-0.1.1.gemspec
-%{gem_dir}/specifications/default/cgi-0.2.0.gemspec
+%{gem_dir}/specifications/default/cgi-0.2.1.gemspec
 %{gem_dir}/specifications/default/csv-3.1.9.gemspec
-%{gem_dir}/specifications/default/date-3.1.0.gemspec
+%{gem_dir}/specifications/default/date-3.1.3.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
-%{gem_dir}/specifications/default/debug-0.1.0.gemspec
+%{gem_dir}/specifications/default/debug-0.2.1.gemspec
 %{gem_dir}/specifications/default/delegate-0.2.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
 %{gem_dir}/specifications/default/digest-3.0.0.gemspec
-%{gem_dir}/specifications/default/drb-2.0.4.gemspec
+%{gem_dir}/specifications/default/drb-2.0.5.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
-%{gem_dir}/specifications/default/etc-1.2.0.gemspec
-%{gem_dir}/specifications/default/fcntl-1.0.0.gemspec
-%{gem_dir}/specifications/default/fiddle-1.0.6.gemspec
+%{gem_dir}/specifications/default/etc-1.3.0.gemspec
+%{gem_dir}/specifications/default/fcntl-1.0.1.gemspec
+%{gem_dir}/specifications/default/fiddle-1.0.8.gemspec
 %{gem_dir}/specifications/default/fileutils-1.5.0.gemspec
 %{gem_dir}/specifications/default/find-0.1.0.gemspec
 %{gem_dir}/specifications/default/forwardable-1.3.2.gemspec
 %{gem_dir}/specifications/default/gdbm-2.1.0.gemspec
 %{gem_dir}/specifications/default/getoptlong-0.1.1.gemspec
 %{gem_dir}/specifications/default/io-nonblock-0.1.0.gemspec
-%{gem_dir}/specifications/default/io-wait-0.1.0.gemspec
+%{gem_dir}/specifications/default/io-wait-0.2.0.gemspec
 %{gem_dir}/specifications/default/ipaddr-1.2.2.gemspec
 %{gem_dir}/specifications/default/logger-1.4.3.gemspec
 %{gem_dir}/specifications/default/matrix-0.3.1.gemspec
@@ -1166,33 +1172,33 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/net-http-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-imap-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-pop-0.1.1.gemspec
-%{gem_dir}/specifications/default/net-protocol-0.1.0.gemspec
+%{gem_dir}/specifications/default/net-protocol-0.1.1.gemspec
 %{gem_dir}/specifications/default/net-smtp-0.2.1.gemspec
 %{gem_dir}/specifications/default/nkf-0.1.0.gemspec
 %{gem_dir}/specifications/default/observer-0.1.1.gemspec
 %{gem_dir}/specifications/default/open3-0.1.1.gemspec
 %{gem_dir}/specifications/default/open-uri-0.1.0.gemspec
-%{gem_dir}/specifications/default/optparse-0.1.0.gemspec
+%{gem_dir}/specifications/default/optparse-0.1.1.gemspec
 %{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
 %{gem_dir}/specifications/default/ostruct-0.3.1.gemspec
 %{gem_dir}/specifications/default/pathname-0.1.0.gemspec
-%{gem_dir}/specifications/default/pp-0.1.0.gemspec
-%{gem_dir}/specifications/default/prettyprint-0.1.0.gemspec
+%{gem_dir}/specifications/default/pp-0.2.1.gemspec
+%{gem_dir}/specifications/default/prettyprint-0.1.1.gemspec
 %{gem_dir}/specifications/default/prime-0.1.2.gemspec
 %{gem_dir}/specifications/default/pstore-0.1.1.gemspec
 %{gem_dir}/specifications/default/racc-%{racc_version}.gemspec
 %{gem_dir}/specifications/default/readline-0.0.2.gemspec
 %{gem_dir}/specifications/default/readline-ext-0.1.1.gemspec
 %{gem_dir}/specifications/default/reline-0.2.5.gemspec
-%{gem_dir}/specifications/default/resolv-0.2.0.gemspec
+%{gem_dir}/specifications/default/resolv-0.2.1.gemspec
 %{gem_dir}/specifications/default/resolv-replace-0.1.0.gemspec
-%{gem_dir}/specifications/default/rinda-0.1.0.gemspec
+%{gem_dir}/specifications/default/rinda-0.1.1.gemspec
 %{gem_dir}/specifications/default/securerandom-0.1.0.gemspec
 %{gem_dir}/specifications/default/set-1.0.1.gemspec
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.1.gemspec
-%{gem_dir}/specifications/default/stringio-3.0.0.gemspec
-%{gem_dir}/specifications/default/strscan-3.0.0.gemspec
+%{gem_dir}/specifications/default/stringio-3.0.1.gemspec
+%{gem_dir}/specifications/default/strscan-3.0.1.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.1.gemspec
 %{gem_dir}/specifications/default/time-0.1.0.gemspec
@@ -1205,7 +1211,7 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/weakref-0.1.1.gemspec
 #%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
 %{gem_dir}/specifications/default/yaml-0.1.1.gemspec
-%{gem_dir}/specifications/default/zlib-1.1.0.gemspec
+%{gem_dir}/specifications/default/zlib-2.0.0.gemspec
 
 %{gem_dir}/gems/erb-%{erb_version}
 # Use standalone rubygem-racc if Racc binary is required. Shipping this
@@ -1299,7 +1305,6 @@ MSPECOPTS=""
 %doc %{gem_dir}/gems/rbs-%{rbs_version}/README.md
 %{gem_dir}/gems/rbs-%{rbs_version}/Rakefile
 %{gem_dir}/gems/rbs-%{rbs_version}/Steepfile
-%{gem_dir}/gems/rbs-%{rbs_version}/bin
 %{gem_dir}/gems/rbs-%{rbs_version}/core
 %doc %{gem_dir}/gems/rbs-%{rbs_version}/docs
 %{gem_dir}/gems/rbs-%{rbs_version}/exe
@@ -1355,6 +1360,9 @@ MSPECOPTS=""
 
 
 %changelog
+* Tue Apr 19 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.2-152
+- Upgrade to Ruby 3.0.4.
+
 * Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org>
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
 

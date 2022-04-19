@@ -31,7 +31,7 @@
  	    addr += a;
  	    break;
  	case DW_LNS_advance_line: {
-@@ -450,7 +452,7 @@
+@@ -451,7 +453,7 @@
  	    /* isa = (unsigned int)*/(void)uleb128((char **)&p);
  	    break;
  	case 0:
@@ -40,7 +40,7 @@
  	    op = *p++;
  	    switch (op) {
  	    case DW_LNE_end_sequence:
-@@ -807,6 +809,18 @@
+@@ -808,6 +810,18 @@
      DW_FORM_addrx4 = 0x2c
  };
  
@@ -59,7 +59,7 @@
  enum {
      VAL_none = 0,
      VAL_cstr = 1,
-@@ -961,6 +975,23 @@
+@@ -962,6 +976,23 @@
  }
  
  static void
@@ -83,7 +83,7 @@
  di_read_debug_abbrev_cu(DebugInfoReader *reader)
  {
      uint64_t prev = 0;
-@@ -974,12 +1005,7 @@
+@@ -975,12 +1006,7 @@
          prev = abbrev_number;
          uleb128(&p); /* tag */
          p++; /* has_children */
@@ -97,7 +97,7 @@
      }
  }
  
-@@ -1243,12 +1269,7 @@
+@@ -1244,12 +1270,7 @@
      /* skip 255th record */
      uleb128(&p); /* tag */
      p++; /* has_children */
@@ -111,7 +111,7 @@
      for (uint64_t n = uleb128(&p); abbrev_number != n; n = uleb128(&p)) {
          if (n == 0) {
              fprintf(stderr,"%d: Abbrev Number %"PRId64" not found\n",__LINE__, abbrev_number);
-@@ -1256,12 +1277,7 @@
+@@ -1257,12 +1278,7 @@
          }
          uleb128(&p); /* tag */
          p++; /* has_children */
@@ -125,7 +125,7 @@
      }
      return p;
  }
-@@ -1389,6 +1405,21 @@
+@@ -1390,6 +1406,21 @@
      }
  }
  
@@ -147,7 +147,7 @@
  static uintptr_t
  ranges_include(DebugInfoReader *reader, ranges_t *ptr, uint64_t addr)
  {
-@@ -1402,8 +1433,50 @@
+@@ -1403,8 +1434,50 @@
      }
      else if (ptr->ranges_set) {
          /* TODO: support base address selection entry */
@@ -199,7 +199,7 @@
          for (;;) {
              uintptr_t from = read_uintptr(&p);
              uintptr_t to = read_uintptr(&p);
-@@ -1747,6 +1820,7 @@
+@@ -1750,6 +1823,7 @@
                      ".debug_info",
                      ".debug_line",
                      ".debug_ranges",
@@ -207,7 +207,7 @@
                      ".debug_str"
                  };
  
-@@ -2003,6 +2077,7 @@
+@@ -2006,6 +2080,7 @@
                      "__debug_info",
                      "__debug_line",
                      "__debug_ranges",
