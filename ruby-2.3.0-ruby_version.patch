@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 80b137e380..63cd3b4f8b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3832,9 +3832,6 @@ AS_CASE(["$target_os"],
+@@ -3837,9 +3837,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 80b137e380..63cd3b4f8b 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -3857,56 +3857,62 @@ AC_ARG_WITH(ridir,
+@@ -3862,56 +3859,62 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -120,7 +120,7 @@ index 80b137e380..63cd3b4f8b 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -3923,6 +3923,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -3928,6 +3931,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -237,7 +237,7 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index b25068405d..e9fef4a311 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1452,7 +1452,8 @@ def test_self_use_paths
+@@ -1440,7 +1440,8 @@ def test_self_use_paths
  
    def test_self_user_dir
      parts = [@userhome, '.gem', Gem.ruby_engine]
@@ -247,7 +247,7 @@ index b25068405d..e9fef4a311 100644
  
      FileUtils.mkdir_p File.join(parts)
  
-@@ -1530,7 +1531,7 @@ def test_self_vendor_dir
+@@ -1516,7 +1517,7 @@ def test_self_vendor_dir
      vendordir(File.join(@tempdir, 'vendor')) do
        expected =
          File.join RbConfig::CONFIG['vendordir'], 'gems',
