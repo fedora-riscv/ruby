@@ -672,7 +672,7 @@ autoconf
 
 # Q= makes the build output more verbose and allows to check Fedora
 # compiler options.
-%make_build COPY="cp -p" Q=
+%make_build COPY="cp -p"
 
 %install
 rm -rf %{buildroot}
