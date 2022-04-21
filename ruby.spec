@@ -153,6 +153,11 @@ Patch15: ruby-dwarf5-avoid_crash-r1.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch19: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
+# Fix /test_\(ast_compacts\|compact_count\|complex_hash_keys\|gc_compact_stats\)/
+# test failures on ppc64le.
+# https://bugs.ruby-lang.org/issues/18746
+# https://bugs.ruby-lang.org/issues/18394
+Patch20: ruby-3.1.0-Use-mmap-for-allocating-heap-pages-in-the-GC.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -599,6 +604,7 @@ rm -rf ext/fiddle/libffi*
 %patch9 -p1
 %patch15 -p1
 %patch19 -p1
+%patch20 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -873,12 +879,6 @@ make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 
 DISABLE_TESTS=""
 MSPECOPTS=""
-
-%ifarch ppc64le
-# `Couldn't unprotect page` error.
-# https://bugs.ruby-lang.org/issues/18746
-DISABLE_TESTS="$DISABLE_TESTS -n !/test_\(ast_compacts\|compact_count\|complex_hash_keys\|gc_compact_stats\)/"
-%endif
 
 # Avoid `hostname' dependency.
 %{!?with_hostname:MSPECOPTS="-P 'Socket.gethostname returns the host name'"}
