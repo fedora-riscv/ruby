@@ -631,6 +631,11 @@ cp -a %{SOURCE3} .
 %build
 autoconf
 
+%global _configure %{_builddir}/%{buildsubdir}/configure
+
+mkdir -p %{_vpath_builddir}
+pushd %{_vpath_builddir}
+
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
@@ -652,14 +657,16 @@ autoconf
         --with-ruby-version='' \
         --enable-multiarch \
 
+popd
+
 # V=1 in %%make_build outputs the compiler options more verbosely.
 # https://bugs.ruby-lang.org/issues/18756
-%make_build COPY="cp -p"
+%make_build COPY="cp -p" -C %{_vpath_builddir}
 
 %install
 rm -rf %{buildroot}
 
-%make_install
+%make_install -C %{_vpath_builddir}
 
 # TODO: Regenerate RBS parser in lib/rbs/parser.rb
 
@@ -825,24 +832,24 @@ rm -rf %{buildroot}%{gem_dir}/gems/rake-%{rake_version}/.github
 %check
 %if 0%{?with_hardening_test}
 # Check Ruby hardening.
-checksec --file=libruby.so.%{ruby_version} | \
+checksec --file=%{_vpath_builddir}/libruby.so.%{ruby_version} | \
   grep "Full RELRO.*Canary found.*NX enabled.*DSO.*No RPATH.*No RUNPATH.*Yes.*\d*.*\d*.*libruby.so.%{ruby_version}"
 %endif
 
 # Check RubyGems version.
-[ "`make runruby TESTRUN_SCRIPT='bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT='%{_builddir}/%{buildsubdir}/bin/gem -v' | tail -1`" == '%{rubygems_version}' ]
 
 # Check Rubygems bundled dependencies versions.
 
 # Molinillo.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Gem; module Resolver; end; end; \
   require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; \
   puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
   == '%{rubygems_molinillo_version}' ]
 
 # OptParse.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Gem; end; \
   require 'rubygems/optparse/lib/optparse'; \
   puts Gem::OptionParser::Version\\\"\" | tail -1`" \
@@ -850,28 +857,28 @@ checksec --file=libruby.so.%{ruby_version} | \
 
 # tsort
 # TODO: Provide some real version test if version is available.
-make runruby TESTRUN_SCRIPT="-e \" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Gem; end;\
   require 'rubygems/tsort/lib/tsort'\""
 
 # Check Bundler bundled dependencies versions.
 
 # connection_pool.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
   require 'bundler/vendor/connection_pool/lib/connection_pool/version'; \
   puts Bundler::ConnectionPool::VERSION\\\"\" | tail -1`" \
   == '%{bundler_connection_pool_version}' ]
 
 # FileUtils.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
   require 'bundler/vendor/fileutils/lib/fileutils'; \
   puts Bundler::FileUtils::VERSION\\\"\" | tail -1`" \
   == '%{bundler_fileutils_version}' ]
 
 # Molinillo.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
   require 'bundler/vendor/molinillo/lib/molinillo/gem_metadata'; \
   puts Bundler::Molinillo::VERSION\\\"\" | tail -1`" \
@@ -881,7 +888,7 @@ make runruby TESTRUN_SCRIPT="-e \" \
 # Require `rubygems` to workaround the `<class:Wrapper>': uninitialized
 # constant Gem (NameError) issue.
 # https://github.com/rubygems/rubygems/issues/5119
-[ "`make runruby TESTRUN_SCRIPT=\"-rrubygems -e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-rrubygems -e \\\" \
   module Bundler; module Persistent; module Net; module HTTP; \
   end; end; end; end; \
   require 'bundler/vendor/net-http-persistent/lib/net/http/persistent'; \
@@ -889,7 +896,7 @@ make runruby TESTRUN_SCRIPT="-e \" \
   == '%{bundler_net_http_persistent_version}' ]
 
 # Thor.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
   require 'bundler/vendor/thor/lib/thor/version'; \
   puts Bundler::Thor::VERSION\\\"\" | tail -1`" \
@@ -898,19 +905,19 @@ make runruby TESTRUN_SCRIPT="-e \" \
 # tmpdir.
 # TODO: There is no version in bundled tmpdir yet.
 #%%{global bundler_tmpdir_version}
-make runruby TESTRUN_SCRIPT="-e \" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/tmpdir/lib/tmpdir' \""
 
 # tsort
 # TODO: Provide some real version test if version is available.
 #%%{global bundler_tsort_version}
-make runruby TESTRUN_SCRIPT="-e \" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/tsort/lib/tsort' \""
 
 # URI.
-[ "`make runruby TESTRUN_SCRIPT=\"-e \\\" \
+[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
   module Bundler; end; \
   require 'bundler/vendor/uri/lib/uri/version'; \
   puts Bundler::URI::VERSION\\\"\" | tail -1`" \
@@ -920,14 +927,17 @@ make runruby TESTRUN_SCRIPT="-e \" \
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
 # when abrt.rb cannot be required (seems to be easier way then customizing
 # the test suite).
-touch abrt.rb
+touch %{_vpath_builddir}/abrt.rb
 
 # Check if abrt hook is required (RubyGems are disabled by default when using
 # runruby, so re-enable them).
-make runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
+make -C %{_vpath_builddir} runruby TESTRUN_SCRIPT="--enable-gems %{SOURCE13}"
 
 # Check if systemtap is supported.
-%{?with_systemtap:make runruby TESTRUN_SCRIPT=%{SOURCE14}}
+%if %{with systemtap}
+ln -sfr probes.d %{_vpath_builddir}/
+make -C %{_vpath_builddir} runruby TESTRUN_SCRIPT=%{SOURCE14}
+%endif
 
 DISABLE_TESTS=""
 MSPECOPTS=""
@@ -953,9 +963,9 @@ mv test/fiddle/test_import.rb{,.disable}
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
-  make check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
+  make -C %{_vpath_builddir} check TESTS="-v $DISABLE_TESTS" MSPECOPT="-fs $MSPECOPTS"
 
-%{?with_bundler_tests:make test-bundler-parallel}
+%{?with_bundler_tests:make -C %{_vpath_builddir} test-bundler-parallel}
 
 %files
 %license BSDL
