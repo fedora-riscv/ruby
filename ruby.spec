@@ -670,8 +670,8 @@ autoconf
         --with-ruby-version='' \
         --enable-multiarch \
 
-# Q= makes the build output more verbose and allows to check Fedora
-# compiler options.
+# V=1 in %%make_build outputs the compiler options more verbosely.
+# https://bugs.ruby-lang.org/issues/18756
 %make_build COPY="cp -p"
 
 %install
