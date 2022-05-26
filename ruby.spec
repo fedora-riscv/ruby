@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 164
+%global release 165
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -171,6 +171,22 @@ Patch20: ruby-bundler-2.4.0-bundle-update-bundler-test-in-ruby.patch
 # https://bugs.ruby-lang.org/issues/18373
 # https://github.com/ruby/ruby/pull/5774
 Patch21: ruby-3.2.0-Build-extension-libraries-in-bundled-gems.patch
+# If GC compaction is not supported on platform, define the
+# corresponding GC methods as not implemented.
+# https://bugs.ruby-lang.org/issues/18779
+# https://github.com/ruby/ruby/pull/5934
+Patch22: ruby-3.2.0-define-unsupported-gc-compaction-methods-as-rb_f_notimplement.patch
+# To regenerate the patch you need to have ruby, autoconf, xz, tar and make installed:
+# tar -Jxvf ./ruby-3.1.2.tar.xz
+# git clone https://github.com/ruby/ruby.git
+# cd ruby && git checkout v3_1_2
+# patch -p1 < ../ruby-3.2.0-define-unsupported-gc-compaction-methods-as-rb_f_notimplement.patch
+# ./autogen.sh && ./configure
+# make gc.rbinc miniprelude.c
+# cd ..
+# diff -u {ruby-3.1.2,ruby}/gc.rbinc > ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.patch
+# diff -u {ruby-3.1.2,ruby}/miniprelude.c >> ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.patch
+Patch23: ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -643,6 +659,8 @@ rm -rf ext/fiddle/libffi*
 mkdir .bundle/specifications
 find .bundle/gems -name '*-[0-9]*.gemspec' -exec cp -t .bundle/specifications/ {} +
 %patch21 -p1
+%patch22 -p1
+%patch23 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -650,6 +668,12 @@ cp -a %{SOURCE3} .
 %build
 autoconf
 
+# Some platforms do not support compaction and upstream does not seem to provide the
+# right mechanism for the enablement of the preprocessor macros.
+# https://bugs.ruby-lang.org/issues/18829
+%ifnarch ppc64le
+CFLAGS="%{build_cflags} -DGC_COMPACTION_SUPPORTED"
+%endif
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
@@ -1499,6 +1523,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Tue Jun 07 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-165
+- Define GC compaction methods as rb_f_notimplement on unsupported platforms.
+
 * Thu Apr 14 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-164
 - Upgrade to Ruby 3.1.2.
 - Use upstream patch for correct build of gem extensions.
