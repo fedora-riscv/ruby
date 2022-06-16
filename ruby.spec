@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 165
+%global release 166
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -187,6 +187,11 @@ Patch22: ruby-3.2.0-define-unsupported-gc-compaction-methods-as-rb_f_notimplemen
 # diff -u {ruby-3.1.2,ruby}/gc.rbinc > ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.patch
 # diff -u {ruby-3.1.2,ruby}/miniprelude.c >> ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.patch
 Patch23: ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.patch
+# Define the GC compaction support macro at run time.
+# https://bugs.ruby-lang.org/issues/18829
+# https://github.com/ruby/ruby/pull/6019
+# https://github.com/ruby/ruby/commit/2c190863239bee3f54cfb74b16bb6ea4cae6ed20
+Patch24: ruby-3.2.0-Detect-compaction-support-during-runtime.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -661,6 +666,7 @@ find .bundle/gems -name '*-[0-9]*.gemspec' -exec cp -t .bundle/specifications/ {
 %patch21 -p1
 %patch22 -p1
 %patch23 -p1
+%patch24 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -668,12 +674,6 @@ cp -a %{SOURCE3} .
 %build
 autoconf
 
-# Some platforms do not support compaction and upstream does not seem to provide the
-# right mechanism for the enablement of the preprocessor macros.
-# https://bugs.ruby-lang.org/issues/18829
-%ifnarch ppc64le
-CFLAGS="%{build_cflags} -DGC_COMPACTION_SUPPORTED"
-%endif
 %configure \
         --with-rubylibprefix='%{ruby_libdir}' \
         --with-archlibdir='%{_libdir}' \
@@ -1523,6 +1523,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Thu Jun 16 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-166
+- Detect compaction support during run time.
+
 * Tue Jun 07 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-165
 - Define GC compaction methods as rb_f_notimplement on unsupported platforms.
 
