@@ -192,6 +192,13 @@ Patch23: ruby-3.2.0-define-unsupported-gc-compaction-methods_generated-files.pat
 # https://github.com/ruby/ruby/pull/6019
 # https://github.com/ruby/ruby/commit/2c190863239bee3f54cfb74b16bb6ea4cae6ed20
 Patch24: ruby-3.2.0-Detect-compaction-support-during-runtime.patch
+# RPM 4.18.0-beta1 or later versions remove the build directory automatically
+# on successful build, the build then fails on removing temporary directories
+# that are missing the 'w' bit.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2105393
+# https://github.com/rpm-software-management/rpm/pull/2080
+# https://github.com/rubygems/rubygems/pull/5372
+Patch25: ruby-rubygems-3.3.8-Resolve-cleaned-up-error-with-temporary-gemhome.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -667,6 +674,7 @@ find .bundle/gems -name '*-[0-9]*.gemspec' -exec cp -t .bundle/specifications/ {
 %patch22 -p1
 %patch23 -p1
 %patch24 -p1
+%patch25 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1523,6 +1531,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Mon Jul 25 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-167
+- Fix directory permissions in one of the rubygems tests.
+
 * Sat Jul 23 2022 Fedora Release Engineering <releng@fedoraproject.org>
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
 
