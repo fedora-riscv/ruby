@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 166
+%global release 167
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -1523,6 +1523,9 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Sat Jul 23 2022 Fedora Release Engineering <releng@fedoraproject.org>
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
+
 * Thu Jun 16 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-166
 - Detect compaction support during run time.
 
