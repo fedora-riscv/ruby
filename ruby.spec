@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 167
+%global release 168
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -199,6 +199,9 @@ Patch24: ruby-3.2.0-Detect-compaction-support-during-runtime.patch
 # https://github.com/rpm-software-management/rpm/pull/2080
 # https://github.com/rubygems/rubygems/pull/5372
 Patch25: ruby-rubygems-3.3.8-Resolve-cleaned-up-error-with-temporary-gemhome.patch
+# Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
+# https://github.com/ruby/spec/pull/939
+Patch26: ruby-spec-Fix-tests-on-tzdata-2022b.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -675,6 +678,7 @@ find .bundle/gems -name '*-[0-9]*.gemspec' -exec cp -t .bundle/specifications/ {
 %patch23 -p1
 %patch24 -p1
 %patch25 -p1
+%patch26 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1531,6 +1535,10 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Wed Aug 24 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
+- Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
+  Resolves: rhbz#2120354
+
 * Mon Jul 25 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-167
 - Fix directory permissions in one of the rubygems tests.
 
