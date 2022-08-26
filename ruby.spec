@@ -202,6 +202,12 @@ Patch25: ruby-rubygems-3.3.8-Resolve-cleaned-up-error-with-temporary-gemhome.pat
 # Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
 # https://github.com/ruby/spec/pull/939
 Patch26: ruby-spec-Fix-tests-on-tzdata-2022b.patch
+# Drop hard dependency on RDoc in IRB.
+# https://github.com/ruby/irb/pull/393
+Patch27: ruby-irb-1.4.1-drop-rdoc-hard-dep.patch
+# Set soft dependency on RDoc in input-method.rb in IRB.
+# https://github.com/ruby/irb/pull/395
+Patch28: ruby-irb-1.4.1-set-rdoc-soft-dep.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -354,6 +360,7 @@ Requires:   ruby(rubygems) >= %{rubygems_version}
 # ruby-default-gems is required to run irb.
 # https://bugs.ruby-lang.org/issues/16951
 Requires:   ruby-default-gems >= %{ruby_version}
+Recommends: rubygem(rdoc) >= %{rdoc_version}
 Provides:   irb = %{version}-%{release}
 Provides:   rubygem(irb) = %{version}-%{release}
 # Obsoleted by Ruby 2.6 in F30 timeframe.
@@ -679,6 +686,8 @@ find .bundle/gems -name '*-[0-9]*.gemspec' -exec cp -t .bundle/specifications/ {
 %patch24 -p1
 %patch25 -p1
 %patch26 -p1
+%patch27 -p1
+%patch28 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1535,6 +1544,10 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
+* Mon Aug 29 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
+- Make RDoc soft dependnecy in IRB.
+  Resolves: rhbz#2119964
+
 * Wed Aug 24 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
 - Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
   Resolves: rhbz#2120354
