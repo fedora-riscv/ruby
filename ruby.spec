@@ -500,6 +500,8 @@ many machines, systematically and repeatably.
 %package bundled-gems
 Summary:    Bundled gems which are part of Ruby StdLib
 Requires:   ruby(rubygems) >= %{rubygems_version}
+# Runtime dependency of rubygem(debug).
+Recommends: rubygem(irb) >= %{irb_version}
 Provides:   rubygem(net-ftp) = %{net_ftp_version}
 Provides:   rubygem(net-imap) = %{net_imap_version}
 Provides:   rubygem(net-pop) = %{net_pop_version}
@@ -1547,6 +1549,8 @@ mv test/fiddle/test_import.rb{,.disable}
 * Mon Aug 29 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
 - Make RDoc soft dependnecy in IRB.
   Resolves: rhbz#2119964
+- Add IRB to ruby-bundled-gems recommends.
+  Resolves: rhbz#2120562
 
 * Wed Aug 24 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
 - Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
