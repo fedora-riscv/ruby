@@ -987,6 +987,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestDir#test_home/"
 # other components are fixed.
 # https://bugzilla.redhat.com/show_bug.cgi?id=2040380
 mv test/fiddle/test_import.rb{,.disable}
+mv test/fiddle/test_closure.rb{,.disable}
+DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunc#test_qsort1/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
@@ -1544,6 +1547,10 @@ mv test/fiddle/test_import.rb{,.disable}
 %changelog
 * Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
 - Upgrade to Ruby 3.2.0 (66e5200ba4).
+
+* Fri Sep 02 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-169
+- Disable fiddle tests that use FFI closures.
+  Related: rhbz#2040380
 
 * Mon Aug 29 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
 - Make RDoc soft dependnecy in IRB.
