@@ -145,8 +145,6 @@ Patch3: ruby-2.1.0-always-use-i386.patch
 # Allows to install RubyGems into custom directory, outside of Ruby's tree.
 # http://bugs.ruby-lang.org/issues/5617
 Patch4: ruby-2.1.0-custom-rubygems-location.patch
-# Make mkmf verbose by default
-Patch5: ruby-1.9.3-mkmf-verbose.patch
 # The ABRT hook used to be initialized by preludes via following patches:
 # https://bugs.ruby-lang.org/issues/8566
 # https://bugs.ruby-lang.org/issues/15306
@@ -655,7 +653,6 @@ rm -rf ext/fiddle/libffi*
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
 %patch6 -p1
 %patch7 -p1
 %patch19 -p1
@@ -687,6 +684,7 @@ autoconf
         --with-ruby-pc='%{name}.pc' \
         --with-compress-debug-sections=no \
         --disable-rpath \
+        --enable-mkmf-verbose \
         --enable-shared \
         --with-ruby-version='' \
         --enable-multiarch \
