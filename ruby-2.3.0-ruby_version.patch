@@ -12,15 +12,15 @@ ruby_version_dir_name now specifies custom version string for versioned
 directories, e.g. instead of default X.Y.Z, you can specify whatever
 string.
 ---
- configure.ac        | 64 ++++++++++++++++++++++++---------------------
+ configure.ac        | 66 ++++++++++++++++++++++++---------------------
  template/ruby.pc.in |  1 +
- 2 files changed, 35 insertions(+), 30 deletions(-)
+ 2 files changed, 36 insertions(+), 31 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
 index 80b137e380..63cd3b4f8b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -3977,9 +3977,6 @@ AS_CASE(["$target_os"],
+@@ -4055,9 +4055,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 80b137e380..63cd3b4f8b 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4002,56 +3999,62 @@ AC_ARG_WITH(ridir,
+@@ -4080,57 +4077,63 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -46,6 +46,7 @@ index 80b137e380..63cd3b4f8b 100644
 -AS_IF([test ${RUBY_LIB_VERSION_STYLE+set}], [
 -    {
 -    echo "#define RUBY_LIB_VERSION_STYLE $RUBY_LIB_VERSION_STYLE"
+-    echo '@%:@include "confdefs.h"'
 -    echo '#define STRINGIZE(x) x'
 -    test -f revision.h -o -f "${srcdir}/revision.h" || echo '#define RUBY_REVISION 0'
 -    echo '#include "version.h"'
@@ -61,6 +62,7 @@ index 80b137e380..63cd3b4f8b 100644
 +RUBY_LIB_VERSION_STYLE='3	/* full */'
 +{
 +echo "#define RUBY_LIB_VERSION_STYLE $RUBY_LIB_VERSION_STYLE"
++echo '@%:@include "confdefs.h"'
 +echo '#define STRINGIZE(x) x'
 +test -f revision.h -o -f "${srcdir}/revision.h" || echo '#define RUBY_REVISION 0'
 +echo '#include "version.h"'
@@ -120,7 +122,7 @@ index 80b137e380..63cd3b4f8b 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4068,6 +4071,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4147,6 +4150,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -171,7 +173,7 @@ diff --git a/tool/rbinstall.rb b/tool/rbinstall.rb
 index d4c110e..d39c9a6 100755
 --- a/tool/rbinstall.rb
 +++ b/tool/rbinstall.rb
-@@ -448,7 +448,7 @@ def CONFIG.[](name, mandatory = false)
+@@ -453,7 +453,7 @@ def CONFIG.[](name, mandatory = false)
  
  install?(:doc, :rdoc) do
    if $rdocdir
@@ -202,8 +204,8 @@ index d4ff4a262c..3f9a5bf590 100644
    # specified in the environment
  
    def self.default_dir
--    @default_dir ||= File.join(RbConfig::CONFIG['rubylibprefix'], 'gems', RbConfig::CONFIG['ruby_version'])
-+    @default_dir ||= File.join(RbConfig::CONFIG['rubylibprefix'], 'gems', RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version'])
+-    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems", RbConfig::CONFIG["ruby_version"])
++    @default_dir ||= File.join(RbConfig::CONFIG["rubylibprefix"], "gems", RbConfig::CONFIG["ruby_version_dir_name"] || RbConfig::CONFIG["ruby_version"])
    end
  
    ##
@@ -211,18 +213,18 @@ index d4ff4a262c..3f9a5bf590 100644
      gem_dir = File.join(Gem.user_home, ".gem")
      gem_dir = File.join(Gem.data_home, "gem") unless File.exist?(gem_dir)
      parts = [gem_dir, ruby_engine]
--    parts << RbConfig::CONFIG['ruby_version'] unless RbConfig::CONFIG['ruby_version'].empty?
-+    ruby_version_dir_name = RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+-    parts << RbConfig::CONFIG["ruby_version"] unless RbConfig::CONFIG["ruby_version"].empty?
++    ruby_version_dir_name = RbConfig::CONFIG["ruby_version_dir_name"] || RbConfig::CONFIG["ruby_version"]
 +    parts << ruby_version_dir_name unless ruby_version_dir_name.empty?
      File.join parts
    end
  
 @@ -234,7 +235,7 @@ def self.vendor_dir # :nodoc:
-     return nil unless RbConfig::CONFIG.key? 'vendordir'
+     return nil unless RbConfig::CONFIG.key? "vendordir"
  
-     File.join RbConfig::CONFIG['vendordir'], 'gems',
--              RbConfig::CONFIG['ruby_version']
-+              RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+     File.join RbConfig::CONFIG["vendordir"], "gems",
+-              RbConfig::CONFIG["ruby_version"]
++              RbConfig::CONFIG["ruby_version_dir_name"] || RbConfig::CONFIG["ruby_version"]
    end
  
    ##
@@ -230,22 +232,22 @@ diff --git a/test/rubygems/test_gem.rb b/test/rubygems/test_gem.rb
 index b25068405d..e9fef4a311 100644
 --- a/test/rubygems/test_gem.rb
 +++ b/test/rubygems/test_gem.rb
-@@ -1410,7 +1410,8 @@ def test_self_use_paths
+@@ -1394,7 +1394,8 @@ def test_self_use_paths
  
    def test_self_user_dir
-     parts = [@userhome, '.gem', Gem.ruby_engine]
--    parts << RbConfig::CONFIG['ruby_version'] unless RbConfig::CONFIG['ruby_version'].empty?
-+    ruby_version_dir_name = RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+     parts = [@userhome, ".gem", Gem.ruby_engine]
+-    parts << RbConfig::CONFIG["ruby_version"] unless RbConfig::CONFIG["ruby_version"].empty?
++    ruby_version_dir_name = RbConfig::CONFIG["ruby_version_dir_name"] || RbConfig::CONFIG["ruby_version"]
 +    parts << ruby_version_dir_name unless ruby_version_dir_name.empty?
  
      FileUtils.mkdir_p File.join(parts)
  
-@@ -1486,7 +1487,7 @@ def test_self_vendor_dir
-     vendordir(File.join(@tempdir, 'vendor')) do
+@@ -1470,7 +1471,7 @@ def test_self_vendor_dir
+     vendordir(File.join(@tempdir, "vendor")) do
        expected =
-         File.join RbConfig::CONFIG['vendordir'], 'gems',
--                  RbConfig::CONFIG['ruby_version']
-+                  RbConfig::CONFIG['ruby_version_dir_name'] || RbConfig::CONFIG['ruby_version']
+         File.join RbConfig::CONFIG["vendordir"], "gems",
+-                  RbConfig::CONFIG["ruby_version"]
++                  RbConfig::CONFIG["ruby_version_dir_name"] || RbConfig::CONFIG["ruby_version"]
  
        assert_equal expected, Gem.vendor_dir
      end
@@ -267,7 +269,7 @@ diff --git a/configure.ac b/configure.ac
 index a00f2b6776..999e2d6d5d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -108,7 +108,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -123,7 +123,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)

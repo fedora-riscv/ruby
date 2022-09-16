@@ -11,11 +11,11 @@ diff --git a/lib/mkmf.rb b/lib/mkmf.rb
 index 682eb46..e6b1445 100644
 --- a/lib/mkmf.rb
 +++ b/lib/mkmf.rb
-@@ -1974,7 +1974,7 @@ def configuration(srcdir)
+@@ -1971,7 +1971,7 @@ def configuration(srcdir)
  SHELL = /bin/sh
  
  # V=0 quiet, V=1 verbose.  other values don't work.
--V = 0
+-V = #{CONFIG['MKMF_VERBOSE']}
 +V = 1
  V0 = $(V:0=)
  Q1 = $(V:1=)
