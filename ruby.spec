@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 6ad6994457
+%global revision 70bc8cc6c2
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -50,7 +50,7 @@
 %global did_you_mean_version 1.6.1
 %global erb_version 2.2.3
 %global io_console_version 0.5.11
-%global irb_version 1.4.1
+%global irb_version 1.4.2
 %global json_version 2.6.2
 %global openssl_version 3.0.0
 %global psych_version 5.0.0.dev
@@ -62,16 +62,16 @@
 %global minitest_version 5.16.3
 %global power_assert_version 2.0.1
 %global rake_version 13.0.6
-%global test_unit_version 3.5.3
+%global test_unit_version 3.5.5
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
-%global net_ftp_version 0.1.3
-%global net_imap_version 0.2.3
-%global net_pop_version 0.1.1
-%global net_smtp_version 0.3.1
+%global net_ftp_version 0.2.0
+%global net_imap_version 0.3.1
+%global net_pop_version 0.1.2
+%global net_smtp_version 0.3.2
 %global matrix_version 0.4.2
 %global prime_version 0.1.2
-%global rbs_version 2.6.0
+%global rbs_version 2.7.0
 %global typeprof_version 0.21.3
 %global debug_version 1.6.2
 
@@ -1208,7 +1208,7 @@ mv test/fiddle/test_import.rb{,.disable}
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
 %{gem_dir}/specifications/default/base64-0.1.1.gemspec
 %{gem_dir}/specifications/default/benchmark-0.2.0.gemspec
-%{gem_dir}/specifications/default/cgi-0.3.2.gemspec
+%{gem_dir}/specifications/default/cgi-0.3.3.gemspec
 %{gem_dir}/specifications/default/csv-3.2.2.gemspec
 %{gem_dir}/specifications/default/date-3.2.3.gemspec
 %{gem_dir}/specifications/default/delegate-0.2.0.gemspec
@@ -1361,7 +1361,6 @@ mv test/fiddle/test_import.rb{,.disable}
 %license %{gem_dir}/gems/net-ftp-%{net_ftp_version}/LICENSE.txt
 %doc %{gem_dir}/gems/net-ftp-%{net_ftp_version}/README.md
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/Rakefile
-%{gem_dir}/gems/net-ftp-%{net_ftp_version}/bin
 %{gem_dir}/gems/net-ftp-%{net_ftp_version}/lib
 %{gem_dir}/specifications/net-ftp-%{net_ftp_version}.gemspec
 
@@ -1378,7 +1377,6 @@ mv test/fiddle/test_import.rb{,.disable}
 %license %{gem_dir}/gems/net-pop-%{net_pop_version}/LICENSE.txt
 %doc %{gem_dir}/gems/net-pop-%{net_pop_version}/README.md
 %{gem_dir}/gems/net-pop-%{net_pop_version}/Rakefile
-%{gem_dir}/gems/net-pop-%{net_pop_version}/bin
 %{gem_dir}/gems/net-pop-%{net_pop_version}/lib
 %{gem_dir}/specifications/net-pop-%{net_pop_version}.gemspec
 
@@ -1505,8 +1503,8 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
-* Fri Sep 16 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
-- Upgrade to Ruby 3.2.0 (6ad6994457).
+* Wed Oct 12 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
+- Upgrade to Ruby 3.2.0 (70bc8cc6c2).
 
 * Thu Sep 29 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-170
 - Re-enable package notes.
