@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 70bc8cc6c2
+%global revision 4b1504ae0a
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -1514,7 +1514,7 @@ mv test/fiddle/test_import.rb{,.disable}
 
 %changelog
 * Wed Oct 12 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
-- Upgrade to Ruby 3.2.0 (70bc8cc6c2).
+- Upgrade to Ruby 3.2.0 (4b1504ae0a).
 
 * Thu Sep 29 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-170
 - Re-enable package notes.
