@@ -842,18 +842,22 @@ checksec --file=%{_vpath_builddir}/libruby.so.%{ruby_version} | \
 # Check Rubygems bundled dependencies versions.
 
 # Molinillo.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Gem; module Resolver; end; end; \
   require 'rubygems/resolver/molinillo/lib/molinillo/gem_metadata'; \
-  puts Gem::Resolver::Molinillo::VERSION\\\"\" | tail -1`" \
-  == '%{rubygems_molinillo_version}' ]
+  puts '%%{rubygems_molinillo_version}: %{rubygems_molinillo_version}'; \
+  puts %Q[Gem::Resolver::Molinillo::VERSION: #{Gem::Resolver::Molinillo::VERSION}]; \
+  exit 1 if Gem::Resolver::Molinillo::VERSION != '%{rubygems_molinillo_version}'; \
+\""
 
 # OptParse.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Gem; end; \
   require 'rubygems/optparse/lib/optparse'; \
-  puts Gem::OptionParser::Version\\\"\" | tail -1`" \
-  == '%{rubygems_optparse_version}' ]
+  puts '%%{rubygems_optparse_version}: %{rubygems_optparse_version}'; \
+  puts %Q[Gem::OptionParser::Version: #{Gem::OptionParser::Version}]; \
+  exit 1 if Gem::OptionParser::Version != '%{rubygems_optparse_version}'; \
+\""
 
 # tsort
 # TODO: Provide some real version test if version is available.
@@ -864,43 +868,53 @@ make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
 # Check Bundler bundled dependencies versions.
 
 # connection_pool.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/connection_pool/lib/connection_pool/version'; \
-  puts Bundler::ConnectionPool::VERSION\\\"\" | tail -1`" \
-  == '%{bundler_connection_pool_version}' ]
+  puts '%%{bundler_connection_pool_version}; %{bundler_connection_pool_version}'; \
+  puts %Q[Bundler::ConnectionPool::VERSION: #{Bundler::ConnectionPool::VERSION}]; \
+  exit 1 if Bundler::ConnectionPool::VERSION != '%{bundler_connection_pool_version}'; \
+\""
 
 # FileUtils.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/fileutils/lib/fileutils'; \
-  puts Bundler::FileUtils::VERSION\\\"\" | tail -1`" \
-  == '%{bundler_fileutils_version}' ]
+  puts '%%{bundler_fileutils_version}: %{bundler_fileutils_version}'; \
+  puts %Q[Bundler::FileUtils::VERSION: #{Bundler::FileUtils::VERSION}]; \
+  exit 1 if Bundler::FileUtils::VERSION != '%{bundler_fileutils_version}'; \
+\""
 
 # Molinillo.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/molinillo/lib/molinillo/gem_metadata'; \
-  puts Bundler::Molinillo::VERSION\\\"\" | tail -1`" \
-  == '%{bundler_molinillo_version}' ]
+  puts '%%{bundler_molinillo_version}: %{bundler_molinillo_version}'; \
+  puts %Q[Bundler::Molinillo::VERSION: #{Bundler::Molinillo::VERSION}]; \
+  exit 1 if Bundler::Molinillo::VERSION != '%{bundler_molinillo_version}'; \
+\""
 
 # Net::HTTP::Persistent.
 # Require `rubygems` to workaround the `<class:Wrapper>': uninitialized
 # constant Gem (NameError) issue.
 # https://github.com/rubygems/rubygems/issues/5119
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-rrubygems -e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; module Persistent; module Net; module HTTP; \
   end; end; end; end; \
   require 'bundler/vendor/net-http-persistent/lib/net/http/persistent'; \
-  puts Bundler::Persistent::Net::HTTP::Persistent::VERSION\\\"\" | tail -1`" \
-  == '%{bundler_net_http_persistent_version}' ]
+  puts '%%{bundler_net_http_persistent_version}: %{bundler_net_http_persistent_version}'; \
+  puts %Q[Bundler::Persistent::Net::HTTP::Persistent::VERSION: #{Bundler::Persistent::Net::HTTP::Persistent::VERSION}]; \
+  exit 1 if Bundler::Persistent::Net::HTTP::Persistent::VERSION != '%{bundler_net_http_persistent_version}'; \
+\""
 
 # Thor.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/thor/lib/thor/version'; \
-  puts Bundler::Thor::VERSION\\\"\" | tail -1`" \
-  == '%{bundler_thor_version}' ]
+  puts '%%{bundler_thor_version}: %{bundler_thor_version}'; \
+  puts %Q[Bundler::Thor::VERSION: #{Bundler::Thor::VERSION}]; \
+  exit 1 if Bundler::Thor::VERSION != '%{bundler_thor_version}'; \
+\""
 
 # tmpdir.
 # TODO: There is no version in bundled tmpdir yet.
@@ -917,11 +931,13 @@ make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   require 'bundler/vendor/tsort/lib/tsort' \""
 
 # URI.
-[ "`make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT=\"-e \\\" \
+make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
   require 'bundler/vendor/uri/lib/uri/version'; \
-  puts Bundler::URI::VERSION\\\"\" | tail -1`" \
-  == '%{bundler_uri_version}' ]
+  puts '%%{bundler_uri_version}: %{bundler_uri_version}'; \
+  puts %Q[Bundler::URI::VERSION: #{Bundler::URI::VERSION}]; \
+  exit 1 if Bundler::URI::VERSION != '%{bundler_uri_version}'; \
+\""
 
 
 # test_debug(TestRubyOptions) fails due to LoadError reported in debug mode,
