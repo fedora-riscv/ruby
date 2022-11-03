@@ -165,6 +165,9 @@ Patch22: rubygems-3.2.33-Fix-loading-operating_system-rb-customizations-too-late
 # Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
 # https://github.com/ruby/spec/pull/939
 Patch26: ruby-spec-Fix-tests-on-tzdata-2022b.patch
+# Bypass git submodule test failure on Git >= 2.38.1.
+# https://github.com/ruby/ruby/pull/6587
+Patch29: ruby-3.2.0-git-2.38.1-fix-rubygems-test.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -614,6 +617,7 @@ rm -rf ext/fiddle/libffi*
 %patch20 -p1
 %patch22 -p1
 %patch26 -p1
+%patch29 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1372,6 +1376,7 @@ MSPECOPTS=""
 * Fri Nov 04 2022 Jun Aruga <jaruga@redhat.com> - 3.0.4-154
 - Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
   Resolves: rhbz#2120354
+- Bypass git submodule test failure on Git >= 2.38.1.
 
 * Wed Apr 27 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.4-153
 - Fix loading of default gems.
