@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 153
+%global release 154
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -162,6 +162,9 @@ Patch20: ruby-3.1.0-Use-mmap-for-allocating-heap-pages-in-the-GC.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=2027099
 # https://github.com/rubygems/rubygems/pull/5154
 Patch22: rubygems-3.2.33-Fix-loading-operating_system-rb-customizations-too-late.patch
+# Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
+# https://github.com/ruby/spec/pull/939
+Patch26: ruby-spec-Fix-tests-on-tzdata-2022b.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -610,6 +613,7 @@ rm -rf ext/fiddle/libffi*
 %patch19 -p1
 %patch20 -p1
 %patch22 -p1
+%patch26 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1365,6 +1369,10 @@ MSPECOPTS=""
 
 
 %changelog
+* Fri Nov 04 2022 Jun Aruga <jaruga@redhat.com> - 3.0.4-154
+- Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
+  Resolves: rhbz#2120354
+
 * Wed Apr 27 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.4-153
 - Fix loading of default gems.
   Resolves: rhbz#2027099
