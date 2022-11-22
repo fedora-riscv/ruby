@@ -93,6 +93,10 @@
 %bcond_without hardening_test
 %endif
 
+# The additional linker flags break binary rubygem- packages.
+# https://bugzilla.redhat.com/show_bug.cgi?id=2043092
+%undefine _package_note_flags
+
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}
@@ -1528,9 +1532,6 @@ mv test/fiddle/test_import.rb{,.disable}
 %changelog
 * Wed Oct 12 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
 - Upgrade to Ruby 3.2.0 (6bf458eefd).
-
-* Thu Sep 29 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-170
-- Re-enable package notes.
 
 * Mon Aug 29 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
 - Make RDoc soft dependnecy in IRB.
