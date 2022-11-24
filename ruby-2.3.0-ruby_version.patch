@@ -20,7 +20,7 @@ diff --git a/configure.ac b/configure.ac
 index 80b137e380..63cd3b4f8b 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4080,9 +4080,6 @@ AS_CASE(["$target_os"],
+@@ -4128,9 +4128,6 @@ AS_CASE(["$target_os"],
      rubyw_install_name='$(RUBYW_INSTALL_NAME)'
      ])
  
@@ -30,7 +30,7 @@ index 80b137e380..63cd3b4f8b 100644
  rubyarchprefix=${multiarch+'${archlibdir}/${RUBY_BASE_NAME}'}${multiarch-'${rubylibprefix}/${arch}'}
  AC_ARG_WITH(rubyarchprefix,
  	    AS_HELP_STRING([--with-rubyarchprefix=DIR],
-@@ -4105,57 +4102,63 @@ AC_ARG_WITH(ridir,
+@@ -4153,57 +4150,63 @@ AC_ARG_WITH(ridir,
  AC_SUBST(ridir)
  AC_SUBST(RI_BASE_NAME)
  
@@ -122,7 +122,7 @@ index 80b137e380..63cd3b4f8b 100644
  
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
-@@ -4172,6 +4175,7 @@ AC_SUBST(sitearchincludedir)dnl
+@@ -4220,6 +4223,7 @@ AC_SUBST(sitearchincludedir)dnl
  AC_SUBST(arch)dnl
  AC_SUBST(sitearch)dnl
  AC_SUBST(ruby_version)dnl
@@ -219,7 +219,7 @@ index d4ff4a262c..3f9a5bf590 100644
      File.join parts
    end
  
-@@ -234,7 +235,7 @@ def self.vendor_dir # :nodoc:
+@@ -248,7 +249,7 @@ def self.vendor_dir # :nodoc:
      return nil unless RbConfig::CONFIG.key? "vendordir"
  
      File.join RbConfig::CONFIG["vendordir"], "gems",
@@ -269,7 +269,7 @@ diff --git a/configure.ac b/configure.ac
 index a00f2b6776..999e2d6d5d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -123,7 +123,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
+@@ -124,7 +124,7 @@ RUBY_BASE_NAME=`echo ruby | sed "$program_transform_name"`
  RUBYW_BASE_NAME=`echo rubyw | sed "$program_transform_name"`
  AC_SUBST(RUBY_BASE_NAME)
  AC_SUBST(RUBYW_BASE_NAME)

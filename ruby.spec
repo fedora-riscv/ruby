@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 6bf458eefd
+%global revision 66e5200ba4
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -39,7 +39,7 @@
 %global bundler_version 2.4.0.dev
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.4.1
-%global bundler_molinillo_version 0.8.0
+%global bundler_pub_grub_version 0.5.0
 %global bundler_net_http_persistent_version 4.0.1
 %global bundler_thor_version 1.2.1
 %global bundler_tmpdir_version 0.1.0
@@ -50,7 +50,7 @@
 %global did_you_mean_version 1.6.1
 %global erb_version 3.0.0
 %global io_console_version 0.5.11
-%global irb_version 1.4.2
+%global irb_version 1.5.0
 %global json_version 2.6.2
 %global openssl_version 3.1.0.pre
 %global psych_version 5.0.0.dev
@@ -434,7 +434,7 @@ Provides:   rubygem(bundler) = %{version}-%{release}
 # https://github.com/bundler/bundler/issues/3647
 Provides:   bundled(rubygem-connection_pool) = %{bundler_connection_pool_version}
 Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
-Provides:   bundled(rubygem-molinillo) = %{bundler_molinillo_version}
+Provides:   bundled(rubygem-pub_grub) = %{bundler_pub_grub_version}
 Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
 Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
 Provides:   bundled(rubygem-tmpdir) = %{bundler_tmpdir_version}
@@ -889,13 +889,13 @@ make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   exit 1 if Bundler::FileUtils::VERSION != '%{bundler_fileutils_version}'; \
 \""
 
-# Molinillo.
+# PubGrub
 make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   module Bundler; end; \
-  require 'bundler/vendor/molinillo/lib/molinillo/gem_metadata'; \
-  puts '%%{bundler_molinillo_version}: %{bundler_molinillo_version}'; \
-  puts %Q[Bundler::Molinillo::VERSION: #{Bundler::Molinillo::VERSION}]; \
-  exit 1 if Bundler::Molinillo::VERSION != '%{bundler_molinillo_version}'; \
+  require 'bundler/vendor/pub_grub/lib/pub_grub/version'; \
+  puts '%%{bundler_pub_grub_version}: %{bundler_pub_grub_version}'; \
+  puts %Q[Bundler::PubGrub::VERSION: #{Bundler::PubGrub::VERSION}]; \
+  exit 1 if Bundler::PubGrub::VERSION != '%{bundler_pub_grub_version}'; \
 \""
 
 # Net::HTTP::Persistent.
@@ -970,6 +970,17 @@ MSPECOPTS=""
 # to upstream, but the test is disabled just on Travis, not in test suite.
 # https://bugs.ruby-lang.org/issues/18393
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
+%endif
+
+# Test timeouts for some reason.
+# https://bugs.ruby-lang.org/issues/19145
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestException#test_exception_in_message/"
+
+%ifarch i686
+# i686 specific failures.
+# https://bugs.ruby-lang.org/issues/19147
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestFileExhaustive#test_expand_path_for_existent_username/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestDir#test_home/"
 %endif
 
 # Several test broken by libffi-3.4.2. There should be fix in libffi, once
@@ -1170,6 +1181,7 @@ mv test/fiddle/test_import.rb{,.disable}
 %{ruby_libarchdir}/enc/windows_1254.so
 %{ruby_libarchdir}/enc/windows_1257.so
 %{ruby_libarchdir}/enc/windows_31j.so
+%{ruby_libarchdir}/erb.so
 %{ruby_libarchdir}/etc.so
 %{ruby_libarchdir}/fcntl.so
 %{ruby_libarchdir}/fiddle.so
@@ -1235,7 +1247,7 @@ mv test/fiddle/test_import.rb{,.disable}
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
 %{gem_dir}/specifications/default/base64-0.1.1.gemspec
 %{gem_dir}/specifications/default/benchmark-0.2.0.gemspec
-%{gem_dir}/specifications/default/cgi-0.3.3.gemspec
+%{gem_dir}/specifications/default/cgi-0.3.5.gemspec
 %{gem_dir}/specifications/default/csv-3.2.2.gemspec
 %{gem_dir}/specifications/default/date-3.2.3.gemspec
 %{gem_dir}/specifications/default/delegate-0.2.0.gemspec
@@ -1244,7 +1256,7 @@ mv test/fiddle/test_import.rb{,.disable}
 %{gem_dir}/specifications/default/drb-2.1.0.gemspec
 %{gem_dir}/specifications/default/english-0.7.1.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
-%{gem_dir}/specifications/default/error_highlight-0.4.0.gemspec
+%{gem_dir}/specifications/default/error_highlight-0.5.1.gemspec
 %{gem_dir}/specifications/default/etc-1.4.0.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.1.gemspec
 %{gem_dir}/specifications/default/fiddle-1.1.1.gemspec
@@ -1530,8 +1542,8 @@ mv test/fiddle/test_import.rb{,.disable}
 
 
 %changelog
-* Wed Oct 12 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
-- Upgrade to Ruby 3.2.0 (6bf458eefd).
+* Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
+- Upgrade to Ruby 3.2.0 (66e5200ba4).
 
 * Mon Aug 29 2022 Jun Aruga <jaruga@redhat.com> - 3.1.2-168
 - Make RDoc soft dependnecy in IRB.

@@ -21,7 +21,7 @@ diff --git a/vm.c b/vm.c
 index 8ce8b279d4..3d189fa63a 100644
 --- a/vm.c
 +++ b/vm.c
-@@ -574,7 +574,15 @@ rb_dtrace_setup(rb_execution_context_t *ec, VALUE klass, ID id,
+@@ -547,7 +547,15 @@ rb_dtrace_setup(rb_execution_context_t *ec, VALUE klass, ID id,
      }
      type = BUILTIN_TYPE(klass);
      if (type == T_CLASS || type == T_ICLASS || type == T_MODULE) {
