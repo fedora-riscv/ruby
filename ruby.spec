@@ -1548,6 +1548,13 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 * Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
 - Upgrade to Ruby 3.2.0 (66e5200ba4).
 
+* Tue Nov 22 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-171
+- Re-disable package notes. It causes additional issues with installing binary
+  gems.
+
+* Thu Sep 29 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-170
+- Re-enable package notes.
+
 * Fri Sep 02 2022 Jarek Prokop <jprokop@redhat.com> - 3.1.2-169
 - Disable fiddle tests that use FFI closures.
   Related: rhbz#2040380
