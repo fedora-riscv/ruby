@@ -75,7 +75,6 @@ the line above. Because while the Ruby on the master branch replaced the
 USE_MMAP_ALIGNED_ALLOC with HEAP_PAGE_ALLOC_USE_MMAP, Ruby 3.1.2 doesn't.
 See <https://github.com/ruby/ruby/commit/fe21b7794af0cdb7ebd502e2c0da38c68fd89839>.
 
-
 ```
 +        rb_define_singleton_method(rb_mGC, "verify_compaction_references", gc_verify_compaction_references, -1);
 ```
@@ -86,7 +85,6 @@ GC.verify_compaction_references in the gc.rb in
 the case that GC_COMPACTION_SUPPORTED is true, Ruby 3.1.2
 doesn't define it in the gc.rb.
 See <https://github.com/ruby/ruby/commit/b96a3a6fd2093e1dbea5491c002da515652dd347>.
-
 
 ```
 +	OPT(GC_COMPACTION_SUPPORTED);
@@ -141,7 +139,7 @@ diff --git a/gc.c b/gc.c
 index 1c35856c44..bff0666a17 100644
 --- a/gc.c
 +++ b/gc.c
-@@ -4980,6 +4980,23 @@ gc_unprotect_pages(rb_objspace_t *objspace, rb_heap_t *heap)
+@@ -4984,6 +4984,23 @@ gc_unprotect_pages(rb_objspace_t *objspace, rb_heap_t *heap)
  static void gc_update_references(rb_objspace_t * objspace);
  static void invalidate_moved_page(rb_objspace_t *objspace, struct heap_page *page);
  
@@ -165,7 +163,7 @@ index 1c35856c44..bff0666a17 100644
  static void
  read_barrier_handler(uintptr_t address)
  {
-@@ -5000,6 +5017,7 @@ read_barrier_handler(uintptr_t address)
+@@ -5004,6 +5021,7 @@ read_barrier_handler(uintptr_t address)
      }
      RB_VM_LOCK_LEAVE();
  }
@@ -173,7 +171,7 @@ index 1c35856c44..bff0666a17 100644
  
  #if defined(_WIN32)
  static LPTOP_LEVEL_EXCEPTION_FILTER old_handler;
-@@ -9250,13 +9268,7 @@ gc_start_internal(rb_execution_context_t *ec, VALUE self, VALUE full_mark, VALUE
+@@ -9267,13 +9285,7 @@ gc_start_internal(rb_execution_context_t *ec, VALUE self, VALUE full_mark, VALUE
  
      /* For now, compact implies full mark / sweep, so ignore other flags */
      if (RTEST(compact)) {
@@ -188,7 +186,7 @@ index 1c35856c44..bff0666a17 100644
  
          reason |= GPR_FLAG_COMPACT;
      }
-@@ -9421,7 +9433,7 @@ gc_move(rb_objspace_t *objspace, VALUE scan, VALUE free, size_t slot_size)
+@@ -9438,7 +9450,7 @@ gc_move(rb_objspace_t *objspace, VALUE scan, VALUE free, size_t slot_size)
      return (VALUE)src;
  }
  
@@ -197,7 +195,7 @@ index 1c35856c44..bff0666a17 100644
  static int
  compare_free_slots(const void *left, const void *right, void *dummy)
  {
-@@ -10149,7 +10161,7 @@ gc_update_references(rb_objspace_t *objspace)
+@@ -10166,7 +10178,7 @@ gc_update_references(rb_objspace_t *objspace)
      gc_update_table_refs(objspace, finalizer_table);
  }
  
@@ -206,7 +204,7 @@ index 1c35856c44..bff0666a17 100644
  /*
   *  call-seq:
   *     GC.latest_compact_info -> {:considered=>{:T_CLASS=>11}, :moved=>{:T_CLASS=>11}}
-@@ -10190,7 +10202,7 @@ gc_compact_stats(VALUE self)
+@@ -10207,7 +10219,7 @@ gc_compact_stats(VALUE self)
  #  define gc_compact_stats rb_f_notimplement
  #endif
  
@@ -215,7 +213,7 @@ index 1c35856c44..bff0666a17 100644
  static void
  root_obj_check_moved_i(const char *category, VALUE obj, void *data)
  {
-@@ -10269,7 +10281,7 @@ gc_compact(VALUE self)
+@@ -10286,7 +10298,7 @@ gc_compact(VALUE self)
  #  define gc_compact rb_f_notimplement
  #endif
  
@@ -224,7 +222,7 @@ index 1c35856c44..bff0666a17 100644
  /*
   * call-seq:
   *    GC.verify_compaction_references(toward: nil, double_heap: false) -> hash
-@@ -10800,7 +10812,7 @@ gc_disable(rb_execution_context_t *ec, VALUE _)
+@@ -10817,7 +10829,7 @@ gc_disable(rb_execution_context_t *ec, VALUE _)
      return rb_gc_disable();
  }
  
@@ -233,7 +231,7 @@ index 1c35856c44..bff0666a17 100644
  /*
   *  call-seq:
   *     GC.auto_compact = flag
-@@ -10814,8 +10826,7 @@ gc_disable(rb_execution_context_t *ec, VALUE _)
+@@ -10831,8 +10843,7 @@ gc_disable(rb_execution_context_t *ec, VALUE _)
  static VALUE
  gc_set_auto_compact(VALUE _, VALUE v)
  {
@@ -243,7 +241,7 @@ index 1c35856c44..bff0666a17 100644
  
      ruby_enable_autocompact = RTEST(v);
      return v;
-@@ -10824,7 +10835,8 @@ gc_set_auto_compact(VALUE _, VALUE v)
+@@ -10841,7 +10852,8 @@ gc_set_auto_compact(VALUE _, VALUE v)
  #  define gc_set_auto_compact rb_f_notimplement
  #endif
  
@@ -253,7 +251,7 @@ index 1c35856c44..bff0666a17 100644
  /*
   *  call-seq:
   *     GC.auto_compact    -> true or false
-@@ -13696,11 +13708,21 @@ Init_GC(void)
+@@ -13714,11 +13726,21 @@ Init_GC(void)
      rb_define_singleton_method(rb_mGC, "malloc_allocated_size", gc_malloc_allocated_size, 0);
      rb_define_singleton_method(rb_mGC, "malloc_allocations", gc_malloc_allocations, 0);
  #endif
@@ -280,7 +278,7 @@ index 1c35856c44..bff0666a17 100644
  
  #if GC_DEBUG_STRESS_TO_CLASS
      rb_define_singleton_method(rb_mGC, "add_stress_to_class", rb_gcdebug_add_stress_to_class, -1);
-@@ -13724,6 +13746,7 @@ Init_GC(void)
+@@ -13742,6 +13764,7 @@ Init_GC(void)
  	OPT(MALLOC_ALLOCATED_SIZE);
  	OPT(MALLOC_ALLOCATED_SIZE_CHECK);
  	OPT(GC_PROFILE_DETAIL_MEMORY);
