@@ -13,12 +13,6 @@ lib/irb/completion.rb
 lib/irb/easter-egg.rb
 lib/irb/input-method.rb
 ```
-
----
-
-Revert "Remove `require` in signal handler to avoid ThreadError"
-
-This reverts commit 5f749c613c895cf1b11b5e4cbd1205363bc58028.
 ---
  lib/irb/input-method.rb | 5 +++++
  1 file changed, 5 insertions(+)
