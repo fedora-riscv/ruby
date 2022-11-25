@@ -1,5 +1,5 @@
---- ruby-3.1.2/gc.rbinc	2022-04-12 13:11:17.000000000 +0200
-+++ ruby/gc.rbinc	2022-06-08 12:49:16.288024971 +0200
+--- ruby-3.1.3/gc.rbinc	2022-11-24 11:20:33.000000000 +0100
++++ ruby/gc.rbinc	2022-11-25 11:50:19.939820992 +0100
 @@ -9,27 +9,27 @@
  #include "builtin.h"                /* for RB_BUILTIN_FUNCTION */
  struct rb_execution_context_struct; /* in vm_core.h */
@@ -218,8 +218,8 @@
  COMPILER_WARNING_POP
  
    // load
---- ruby-3.1.2/miniprelude.c	2022-04-12 13:11:17.000000000 +0200
-+++ ruby/miniprelude.c	2022-06-08 12:49:16.377024871 +0200
+--- ruby-3.1.3/miniprelude.c	2022-11-24 11:20:33.000000000 +0100
++++ ruby/miniprelude.c	2022-11-25 11:50:20.012820803 +0100
 @@ -545,11 +545,10 @@
  
  static const char prelude_name2[] = "<internal:gc>";
@@ -446,57 +446,57 @@
  };
  
  static const char prelude_name11[] = "<internal:ractor>";
-@@ -3305,7 +3234,7 @@
+@@ -3309,7 +3238,7 @@
  "    }\n"
  "  end\n"
  "end\n"
--#line 3309 "miniprelude.c"
-+#line 3238 "miniprelude.c"
+-#line 3313 "miniprelude.c"
++#line 3242 "miniprelude.c"
  };
  
  static const char prelude_name12[] = "<internal:timev>";
-@@ -3628,7 +3557,7 @@
+@@ -3632,7 +3561,7 @@
  "    Primitive.time_init_args(year, mon, mday, hour, min, sec, zone)\n"
  "  end\n"
  "end\n"
--#line 3632 "miniprelude.c"
-+#line 3561 "miniprelude.c"
+-#line 3636 "miniprelude.c"
++#line 3565 "miniprelude.c"
  };
  
  static const char prelude_name13[] = "<internal:nilclass>";
-@@ -3661,7 +3590,7 @@
+@@ -3665,7 +3594,7 @@
  "    return 0.0\n"
  "  end\n"
  "end\n"
--#line 3665 "miniprelude.c"
-+#line 3594 "miniprelude.c"
+-#line 3669 "miniprelude.c"
++#line 3598 "miniprelude.c"
  };
  
  static const char prelude_name14[] = "<internal:prelude>";
-@@ -3691,7 +3620,7 @@
+@@ -3695,7 +3624,7 @@
  "\n"
  "  private :pp\n"
  "end\n"
--#line 3695 "miniprelude.c"
-+#line 3624 "miniprelude.c"
+-#line 3699 "miniprelude.c"
++#line 3628 "miniprelude.c"
  };
  
  static const char prelude_name15[] = "<internal:gem_prelude>";
-@@ -3718,7 +3647,7 @@
+@@ -3722,7 +3651,7 @@
  "rescue LoadError\n"
  "  warn \"`did_you_mean' was not loaded.\"\n"
  "end if defined?(DidYouMean)\n"
--#line 3722 "miniprelude.c"
-+#line 3651 "miniprelude.c"
+-#line 3726 "miniprelude.c"
++#line 3655 "miniprelude.c"
  };
  
  static const char prelude_name16[] = "<internal:yjit>";
-@@ -4059,7 +3988,7 @@
+@@ -4063,7 +3992,7 @@
  "    end\n"
  "  end\n"
  "end\n"
--#line 4063 "miniprelude.c"
-+#line 3992 "miniprelude.c"
+-#line 4067 "miniprelude.c"
++#line 3996 "miniprelude.c"
  };
  
  COMPILER_WARNING_POP
