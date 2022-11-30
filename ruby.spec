@@ -1,6 +1,6 @@
 %global major_version 3
 %global minor_version 0
-%global teeny_version 4
+%global teeny_version 5
 %global major_minor_version %{major_version}.%{minor_version}
 
 %global ruby_version %{major_minor_version}.%{teeny_version}
@@ -22,7 +22,7 @@
 %endif
 
 
-%global release 154
+%global release 155
 %{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
@@ -49,7 +49,7 @@
 %global io_console_version 0.5.7
 %global irb_version 1.3.5
 %global json_version 2.5.1
-%global openssl_version 2.2.1
+%global openssl_version 2.2.2
 %global psych_version 3.3.2
 %global racc_version 1.5.2
 %global rdoc_version 6.3.3
@@ -165,9 +165,6 @@ Patch22: rubygems-3.2.33-Fix-loading-operating_system-rb-customizations-too-late
 # Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
 # https://github.com/ruby/spec/pull/939
 Patch26: ruby-spec-Fix-tests-on-tzdata-2022b.patch
-# Bypass git submodule test failure on Git >= 2.38.1.
-# https://github.com/ruby/ruby/pull/6587
-Patch29: ruby-3.2.0-git-2.38.1-fix-rubygems-test.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -617,7 +614,6 @@ rm -rf ext/fiddle/libffi*
 %patch20 -p1
 %patch22 -p1
 %patch26 -p1
-%patch29 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1157,7 +1153,7 @@ MSPECOPTS=""
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
 %{gem_dir}/specifications/default/base64-0.1.0.gemspec
 %{gem_dir}/specifications/default/benchmark-0.1.1.gemspec
-%{gem_dir}/specifications/default/cgi-0.2.1.gemspec
+%{gem_dir}/specifications/default/cgi-0.2.2.gemspec
 %{gem_dir}/specifications/default/csv-3.1.9.gemspec
 %{gem_dir}/specifications/default/date-3.1.3.gemspec
 %{gem_dir}/specifications/default/dbm-1.1.0.gemspec
@@ -1373,6 +1369,9 @@ MSPECOPTS=""
 
 
 %changelog
+* Wed Nov 30 2022 Vít Ondruch <vondruch@redhat.com> - 3.0.4-155
+- Upgrade to Ruby 3.0.5.
+
 * Fri Nov 04 2022 Jun Aruga <jaruga@redhat.com> - 3.0.4-154
 - Fix tests with Europe/Amsterdam pre-1970 time on tzdata version 2022b.
   Resolves: rhbz#2120354

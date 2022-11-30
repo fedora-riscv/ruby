@@ -57,7 +57,7 @@ diff --git a/ruby.c b/ruby.c
 index 60c57d6259..1eec16f2c8 100644
 --- a/ruby.c
 +++ b/ruby.c
-@@ -1489,10 +1489,14 @@ proc_options(long argc, char **argv, ruby_cmdline_options_t *opt, int envopt)
+@@ -1501,10 +1501,14 @@ proc_options(long argc, char **argv, ruby_cmdline_options_t *opt, int envopt)
  
  void Init_builtin_features(void);
  
