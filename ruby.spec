@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 66e5200ba4
+%global revision 0436f1e15a
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -48,9 +48,9 @@
 
 %global bigdecimal_version 3.1.2
 %global did_you_mean_version 1.6.1
-%global erb_version 3.0.0
+%global erb_version 4.0.2
 %global io_console_version 0.5.11
-%global irb_version 1.5.0
+%global irb_version 1.5.1
 %global json_version 2.6.2
 %global openssl_version 3.1.0.pre
 %global psych_version 5.0.0.dev
@@ -71,7 +71,7 @@
 %global net_smtp_version 0.3.3
 %global matrix_version 0.4.2
 %global prime_version 0.1.2
-%global rbs_version 2.7.0
+%global rbs_version 2.8.1
 %global typeprof_version 0.21.3
 %global debug_version 1.6.3
 
@@ -972,15 +972,12 @@ MSPECOPTS=""
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestReadline#test_interrupt_in_other_thread/"
 %endif
 
-# Test timeouts for some reason.
-# https://bugs.ruby-lang.org/issues/19145
-DISABLE_TESTS="$DISABLE_TESTS -n !/TestException#test_exception_in_message/"
-
 %ifarch i686
 # i686 specific failures.
 # https://bugs.ruby-lang.org/issues/19147
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestFileExhaustive#test_expand_path_for_existent_username/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/TestDir#test_home/"
+MSPECOPTS="$MSPECOPTS -P 'File.expand_path expands ~ENV..USER..* to.* the user.s home directory'"
 %endif
 
 # Several test broken by libffi-3.4.2. There should be fix in libffi, once
@@ -1184,7 +1181,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 %{ruby_libarchdir}/enc/windows_1254.so
 %{ruby_libarchdir}/enc/windows_1257.so
 %{ruby_libarchdir}/enc/windows_31j.so
-%{ruby_libarchdir}/erb.so
+%{ruby_libarchdir}/erb/escape.so
 %{ruby_libarchdir}/etc.so
 %{ruby_libarchdir}/fcntl.so
 %{ruby_libarchdir}/fiddle.so
@@ -1250,7 +1247,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 %{gem_dir}/specifications/default/abbrev-0.1.0.gemspec
 %{gem_dir}/specifications/default/base64-0.1.1.gemspec
 %{gem_dir}/specifications/default/benchmark-0.2.0.gemspec
-%{gem_dir}/specifications/default/cgi-0.3.5.gemspec
+%{gem_dir}/specifications/default/cgi-0.3.6.gemspec
 %{gem_dir}/specifications/default/csv-3.2.2.gemspec
 %{gem_dir}/specifications/default/date-3.2.3.gemspec
 %{gem_dir}/specifications/default/delegate-0.2.0.gemspec
@@ -1299,7 +1296,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 %{gem_dir}/specifications/default/singleton-0.1.1.gemspec
 %{gem_dir}/specifications/default/stringio-%{stringio_version}.gemspec
 %{gem_dir}/specifications/default/strscan-3.0.1.gemspec
-%{gem_dir}/specifications/default/syntax_suggest-0.0.1.gemspec
+%{gem_dir}/specifications/default/syntax_suggest-1.0.1.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.2.gemspec
 %{gem_dir}/specifications/default/time-0.2.0.gemspec
@@ -1546,7 +1543,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 
 %changelog
 * Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
-- Upgrade to Ruby 3.2.0 (66e5200ba4).
+- Upgrade to Ruby 3.2.0 (0436f1e15a).
 
 * Tue Nov 22 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-171
 - Re-disable package notes. It causes additional issues with installing binary
