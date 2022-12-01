@@ -29,6 +29,3 @@ index 628fcd0340..2c677cc8a7 100644
    ensure
      FileUtils.rm_rf(tmpdir) if tmpdir
    end
--- 
-2.27.0
-

@@ -142,8 +142,6 @@ index 8a2c066..c81b211 100644
  RUBY_API_VERSION=@RUBY_API_VERSION@
  RUBY_PROGRAM_VERSION=@RUBY_PROGRAM_VERSION@
  arch=@arch@
--- 
-2.1.0
 
 
 From 518850aba6eee76de7715aae8d37330e34b01983 Mon Sep 17 00:00:00 2001
@@ -182,9 +180,6 @@ index d4c110e..d39c9a6 100755
      prepare "rdoc", ridatadir
      install_recursive($rdocdir, ridatadir, :no_install => rdoc_noinst, :mode => $data_mode)
    end
--- 
-2.23.0
-
 
 From 9f0ec0233f618cbb862629816b22491c3df79578 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
@@ -251,8 +246,6 @@ index b25068405d..e9fef4a311 100644
  
        assert_equal expected, Gem.vendor_dir
      end
--- 
-2.1.0
 
 
 From 88c38a030c22dbf9422ece847bdfbf87d6659313 Mon Sep 17 00:00:00 2001
@@ -278,6 +271,3 @@ index a00f2b6776..999e2d6d5d 100644
  
  dnl checks for alternative programs
  AC_CANONICAL_BUILD
--- 
-2.1.0
-

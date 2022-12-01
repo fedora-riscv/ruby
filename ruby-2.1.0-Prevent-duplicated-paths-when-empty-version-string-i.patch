@@ -75,6 +75,3 @@ index 07076d4..35e6c3c 100755
      when /^ARCH_FLAG$/
        val = "arch_flag || #{val}" if universal
      when /^UNIVERSAL_ARCHNAMES$/
--- 
-1.9.0
-

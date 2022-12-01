@@ -92,6 +92,3 @@ index e9110a17ca..76a1f0a315 100755
  end
  
  install?(:local, :comm, :hdr, :'comm-hdr') do
--- 
-1.8.3.1
-

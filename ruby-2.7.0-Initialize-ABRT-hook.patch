@@ -72,6 +72,3 @@ index 60c57d6259..1eec16f2c8 100644
      rb_const_remove(rb_cObject, rb_intern_const("TMP_RUBY_PREFIX"));
  }
  
--- 
-2.24.1
-
