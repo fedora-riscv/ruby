@@ -82,6 +82,11 @@
 %bcond_without gmp
 %bcond_without hostname
 %bcond_without systemtap
+# YJIT is supported on x86_64 and aarch64.
+# https://github.com/ruby/ruby/blob/master/doc/yjit/yjit.md
+%ifarch x86_64 aarch64
+%bcond_without yjit
+%endif
 # Enable test when building on local.
 %bcond_with bundler_tests
 
@@ -183,6 +188,7 @@ BuildRequires: multilib-rpm-config
 BuildRequires: gcc
 BuildRequires: make
 BuildRequires: zlib-devel
+%{?with_yjit:BuildRequires: %{_bindir}/rustc}
 # The bundler/spec/runtime/setup_spec.rb requires the command `man`.
 %{?with_bundler_tests:BuildRequires: %{_bindir}/man}
 
@@ -655,6 +661,7 @@ pushd %{_vpath_builddir}
         --enable-shared \
         --with-ruby-version='' \
         --enable-multiarch \
+        %{?with_yjit: --enable-yjit} \
 
 popd
 
