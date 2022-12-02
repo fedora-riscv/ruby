@@ -18,12 +18,9 @@
 %if 0%{?milestone:1}%{?revision:1} != 0
 %global ruby_archive %{ruby_archive}-%{?milestone}%{?!milestone:%{?revision}}
 %define ruby_archive_timestamp %(stat --printf='@%Y' %{_sourcedir}/%{ruby_archive}.tar.xz | date -f - +"%Y%m%d")
-%define development_release %{?milestone}%{?!milestone:%{?revision:%{ruby_archive_timestamp}git%{revision}}}
+%define development_release ~%{ruby_archive_timestamp}%{?milestone}%{?!milestone:%{?revision:git%{revision}}}
 %endif
 
-
-%global release 1
-%{!?release_string:%define release_string %{?development_release:0.}%{release}%{?development_release:.%{development_release}}%{?dist}}
 
 # The RubyGems library has to stay out of Ruby directory tree, since the
 # RubyGems should be share by all Ruby implementations.
@@ -99,8 +96,8 @@
 
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
-Version: %{ruby_version}
-Release: %{release_string}
+Version: %{ruby_version}%{?development_release}
+Release: 173
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
 # MIT and CCO: ccan/*
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
@@ -1542,7 +1539,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 
 
 %changelog
-* Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-1
+* Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-173
 - Upgrade to Ruby 3.2.0 (0436f1e15a).
 
 * Tue Nov 22 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-171
