@@ -985,6 +985,13 @@ mv test/fiddle/test_closure.rb{,.disable}
 DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunc#test_qsort1/"
 DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 
+%ifarch i686
+# The MJIT test cases are failing so often, that it is recently impossible
+# to get past the test cases :/
+# https://bugzilla.redhat.com/show_bug.cgi?id=2125026
+mv test/ruby/test_jit.rb{,.disable} || :
+%endif
+
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
@@ -1539,6 +1546,9 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 
 
 %changelog
+* Thu Dec 08 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.3-173
+- Disable MJIT test cases on i686 due to issues with PCH.
+
 * Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-173
 - Upgrade to Ruby 3.2.0-rc1.
 
