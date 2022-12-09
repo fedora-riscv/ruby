@@ -7,10 +7,10 @@
 %global ruby_release %{ruby_version}
 
 # Specify the named version. It has precedense to revision.
-%global milestone rc1
+#%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-#%%global revision 0436f1e15a
+%global revision 11acb7f7bc
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -47,13 +47,13 @@
 %global did_you_mean_version 1.6.2
 %global erb_version 4.0.2
 %global io_console_version 0.5.11
-%global irb_version 1.5.1
-%global json_version 2.6.2
+%global irb_version 1.6.0
+%global json_version 2.6.3
 %global openssl_version 3.1.0.pre
-%global psych_version 5.0.0
+%global psych_version 5.0.1
 %global racc_version 1.6.1
 %global rdoc_version 6.5.0
-%global stringio_version 3.0.3
+%global stringio_version 3.0.4
 
 # Bundled gems.
 %global minitest_version 5.16.3
@@ -97,7 +97,7 @@
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}%{?development_release}
-Release: 173
+Release: 174%{?dist}
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
 # MIT and CCO: ccan/*
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
@@ -1252,8 +1252,8 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %{gem_dir}/specifications/default/base64-0.1.1.gemspec
 %{gem_dir}/specifications/default/benchmark-0.2.1.gemspec
 %{gem_dir}/specifications/default/cgi-0.3.6.gemspec
-%{gem_dir}/specifications/default/csv-3.2.2.gemspec
-%{gem_dir}/specifications/default/date-3.3.0.gemspec
+%{gem_dir}/specifications/default/csv-3.2.6.gemspec
+%{gem_dir}/specifications/default/date-3.3.1.gemspec
 %{gem_dir}/specifications/default/delegate-0.3.0.gemspec
 %{gem_dir}/specifications/default/did_you_mean-%{did_you_mean_version}.gemspec
 %{gem_dir}/specifications/default/digest-3.1.1.gemspec
@@ -1261,7 +1261,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %{gem_dir}/specifications/default/english-0.7.1.gemspec
 %{gem_dir}/specifications/default/erb-%{erb_version}.gemspec
 %{gem_dir}/specifications/default/error_highlight-0.5.1.gemspec
-%{gem_dir}/specifications/default/etc-1.4.1.gemspec
+%{gem_dir}/specifications/default/etc-1.4.2.gemspec
 %{gem_dir}/specifications/default/fcntl-1.0.2.gemspec
 %{gem_dir}/specifications/default/fiddle-1.1.1.gemspec
 %{gem_dir}/specifications/default/fileutils-1.7.0.gemspec
@@ -1274,7 +1274,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %{gem_dir}/specifications/default/logger-1.5.2.gemspec
 %{gem_dir}/specifications/default/mutex_m-0.1.2.gemspec
 %{gem_dir}/specifications/default/net-http-0.3.1.gemspec
-%{gem_dir}/specifications/default/net-protocol-0.2.0.gemspec
+%{gem_dir}/specifications/default/net-protocol-0.2.1.gemspec
 %{gem_dir}/specifications/default/nkf-0.1.2.gemspec
 %{gem_dir}/specifications/default/observer-0.1.1.gemspec
 %{gem_dir}/specifications/default/open3-0.1.1.gemspec
@@ -1299,7 +1299,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %{gem_dir}/specifications/default/shellwords-0.1.0.gemspec
 %{gem_dir}/specifications/default/singleton-0.1.1.gemspec
 %{gem_dir}/specifications/default/stringio-%{stringio_version}.gemspec
-%{gem_dir}/specifications/default/strscan-3.0.1.gemspec
+%{gem_dir}/specifications/default/strscan-3.0.5.gemspec
 %{gem_dir}/specifications/default/syntax_suggest-1.0.1.gemspec
 %{gem_dir}/specifications/default/syslog-0.1.0.gemspec
 %{gem_dir}/specifications/default/tempfile-0.1.2.gemspec
@@ -1310,8 +1310,8 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %{gem_dir}/specifications/default/un-0.2.1.gemspec
 %{gem_dir}/specifications/default/uri-0.12.0.gemspec
 %{gem_dir}/specifications/default/weakref-0.1.1.gemspec
-#%%{gem_dir}/specifications/default/win32ole-1.8.8.gemspec
-%{gem_dir}/specifications/default/yaml-0.2.0.gemspec
+#%%{gem_dir}/specifications/default/win32ole-1.8.9.gemspec
+%{gem_dir}/specifications/default/yaml-0.2.1.gemspec
 %{gem_dir}/specifications/default/zlib-3.0.0.gemspec
 
 %{gem_dir}/gems/erb-%{erb_version}
@@ -1546,11 +1546,11 @@ mv test/ruby/test_jit.rb{,.disable} || :
 
 
 %changelog
+* Fri Dec 09 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-174
+- Upgrade to Ruby 3.2.0 (11acb7f7bc).
+
 * Thu Dec 08 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.3-173
 - Disable MJIT test cases on i686 due to issues with PCH.
-
-* Thu Nov 24 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-173
-- Upgrade to Ruby 3.2.0-rc1.
 
 * Tue Nov 22 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.2-171
 - Re-disable package notes. It causes additional issues with installing binary
