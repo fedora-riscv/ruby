@@ -310,14 +310,14 @@ Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 # ruby-default-gems is required to run irb.
 # https://bugs.ruby-lang.org/issues/16951
-Requires:   ruby-default-gems >= %{ruby_version}
+Requires:   ruby-default-gems >= %{ruby_version}%{?development_release}
 Recommends: rubygem(rdoc) >= %{rdoc_version}
 Provides:   irb = %{version}-%{release}
 Provides:   rubygem(irb) = %{version}-%{release}
 # Obsoleted by Ruby 2.6 in F30 timeframe.
-Provides:   ruby(irb) = %{ruby_version}-%{release}
-Provides:   ruby-irb = %{ruby_version}-%{release}
-Obsoletes:  ruby-irb < %{ruby_version}-%{release}
+Provides:   ruby(irb) = %{ruby_version}%{?development_release}-%{release}
+Provides:   ruby-irb = %{ruby_version}%{?development_release}-%{release}
+Obsoletes:  ruby-irb < %{ruby_version}%{?development_release}-%{release}
 BuildArch:  noarch
 
 %description -n rubygem-irb
