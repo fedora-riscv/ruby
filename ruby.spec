@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 11acb7f7bc
+%global revision ece6246057
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -28,8 +28,8 @@
 
 # Bundled libraries versions
 %global rubygems_version 3.4.0.dev
-%global rubygems_molinillo_version 0.7.0
-%global rubygems_optparse_version 0.2.0
+%global rubygems_molinillo_version 0.8.0
+%global rubygems_optparse_version 0.3.0
 %global rubygems_tsort_version 0.1.0
 
 # Default gems.
@@ -39,7 +39,6 @@
 %global bundler_pub_grub_version 0.5.0
 %global bundler_net_http_persistent_version 4.0.1
 %global bundler_thor_version 1.2.1
-%global bundler_tmpdir_version 0.1.0
 %global bundler_tsort_version 0.1.1
 %global bundler_uri_version 0.10.1
 
@@ -434,7 +433,6 @@ Provides:   bundled(rubygem-fileutils) = %{bundler_fileutils_version}
 Provides:   bundled(rubygem-pub_grub) = %{bundler_pub_grub_version}
 Provides:   bundled(rubygem-net-http-persisntent) = %{bundler_net_http_persistent_version}
 Provides:   bundled(rubygem-thor) = %{bundler_thor_version}
-Provides:   bundled(rubygem-tmpdir) = %{bundler_tmpdir_version}
 Provides:   bundled(rubygem-uri) = %{bundler_uri_version}
 BuildArch:  noarch
 
@@ -916,13 +914,6 @@ make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
   puts %Q[Bundler::Thor::VERSION: #{Bundler::Thor::VERSION}]; \
   exit 1 if Bundler::Thor::VERSION != '%{bundler_thor_version}'; \
 \""
-
-# tmpdir.
-# TODO: There is no version in bundled tmpdir yet.
-#%%{global bundler_tmpdir_version}
-make -C %{_vpath_builddir} -s runruby TESTRUN_SCRIPT="-e \" \
-  module Bundler; end; \
-  require 'bundler/vendor/tmpdir/lib/tmpdir' \""
 
 # tsort
 # TODO: Provide some real version test if version is available.
@@ -1547,7 +1538,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 
 %changelog
 * Fri Dec 09 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-174
-- Upgrade to Ruby 3.2.0 (11acb7f7bc).
+- Upgrade to Ruby 3.2.0 (ece6246057).
 
 * Thu Dec 08 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.3-173
 - Disable MJIT test cases on i686 due to issues with PCH.
