@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision 6af6857ecf
+%global revision d7388f720c
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -56,7 +56,7 @@
 
 # Bundled gems.
 %global minitest_version 5.16.3
-%global power_assert_version 2.0.2
+%global power_assert_version 2.0.3
 %global rake_version 13.0.6
 %global test_unit_version 3.5.7
 %global rexml_version 3.2.5
@@ -101,7 +101,7 @@
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}%{?development_release}
-Release: 174%{?dist}
+Release: 175%{?dist}
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
 # MIT and CCO: ccan/*
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
@@ -1069,7 +1069,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 %{ruby_libdir}/ipaddr.rb
 %{ruby_libdir}/kconv.rb
 %{ruby_libdir}/logger*
-%{ruby_libdir}/mjit
+%dir %{ruby_libdir}/ruby_vm
+%{ruby_libdir}/ruby_vm/mjit
 %{ruby_libdir}/mkmf.rb
 %{ruby_libdir}/monitor.rb
 %{ruby_libdir}/mutex_m.rb
@@ -1282,7 +1283,7 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 %{gem_dir}/specifications/default/observer-0.1.1.gemspec
 %{gem_dir}/specifications/default/open3-0.1.2.gemspec
 %{gem_dir}/specifications/default/open-uri-0.3.0.gemspec
-%{gem_dir}/specifications/default/optparse-0.3.0.gemspec
+%{gem_dir}/specifications/default/optparse-0.3.1.gemspec
 %{gem_dir}/specifications/default/openssl-%{openssl_version}.gemspec
 %{gem_dir}/specifications/default/ostruct-0.5.5.gemspec
 %{gem_dir}/specifications/default/pathname-0.2.1.gemspec
@@ -1552,8 +1553,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 
 
 %changelog
-* Fri Dec 09 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-174
-- Upgrade to Ruby 3.2.0 (6af6857ecf).
+* Thu Dec 22 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-175
+- Upgrade to Ruby 3.2.0 (d7388f720c).
 
 * Thu Dec 08 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.3-173
 - Disable MJIT test cases on i686 due to issues with PCH.
