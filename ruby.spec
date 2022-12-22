@@ -102,11 +102,13 @@ Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}%{?development_release}
 Release: 175%{?dist}
+# BSD-3-Clause: missing/{crypt,mt19937,setproctitle}.c
+# ISC: missing/strl{cat,cpy}.c
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
 # MIT and CCO: ccan/*
 # zlib: ext/digest/md5/md5.*, ext/nkf/nkf-utf8/nkf.c
-# UCD: some of enc/trans/**/*.src
-License: (Ruby or BSD) and Public Domain and MIT and CC0 and zlib and UCD
+# Unicode-DFS-2015: some of enc/trans/**/*.src
+License: (Ruby OR BSD-2-Clause) AND BSD-3-Clause AND ICS AND Public Domain AND MIT and CC0 AND zlib AND Unicode-DFS-2015
 URL: https://www.ruby-lang.org/
 Source0: https://cache.ruby-lang.org/pub/%{name}/%{major_minor_version}/%{ruby_archive}.tar.xz
 Source1: operating_system.rb
@@ -219,7 +221,6 @@ Ruby or an application embedding Ruby.
 
 %package libs
 Summary:    Libraries necessary to run Ruby
-License:    Ruby or BSD
 Provides:   ruby(release) = %{ruby_release}
 
 # Virtual provides for CCAN copylibs.
@@ -252,7 +253,10 @@ This package includes the libruby, necessary to run Ruby.
 %package -n rubygems
 Summary:    The Ruby standard for packaging ruby libraries
 Version:    %{rubygems_version}
-License:    Ruby or MIT
+# BSD-2-Clause: lib/rubygems/tsort/
+# BSD-2-Clause OR RUBY: lib/rubygems/optparse/
+# MIT: lib/rubygems/resolver/molinillo
+License:    (Ruby OR MIT) AND BSD-2-Clause AND (BSD-2-Clause OR RUBY) AND MIT
 Requires:   ruby(release)
 Recommends: rubygem(bundler) >= %{bundler_version}
 Recommends: rubygem(rdoc) >= %{rdoc_version}
@@ -272,7 +276,7 @@ libraries.
 %package -n rubygems-devel
 Summary:    Macros and development tools for packaging RubyGems
 Version:    %{rubygems_version}
-License:    Ruby or MIT
+License:    MIT
 Requires:   ruby(rubygems) >= %{version}-%{release}
 # Needed for RDoc documentation format generation.
 Requires:   rubygem(json) >= %{json_version}
@@ -311,6 +315,7 @@ StdLib.
 %package -n rubygem-irb
 Summary:    The Interactive Ruby
 Version:    %{irb_version}
+License:    Ruby OR BSD-2-Clause
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 # ruby-default-gems is required to run irb.
@@ -333,8 +338,10 @@ from the terminal.
 %package -n rubygem-rdoc
 Summary:    A tool to generate HTML and command-line documentation for Ruby projects
 Version:    %{rdoc_version}
-# SIL: lib/rdoc/generator/template/darkfish/css/fonts.css
-License:    GPLv2 and Ruby and MIT and OFL
+# BSD-3-Clause: lib/rdoc/generator/darkfish.rb
+# CC-BY-2.5: lib/rdoc/generator/template/darkfish/images/loadingAnimation.gif
+# OFL-1.1-RFN: lib/rdoc/generator/template/darkfish/css/fonts.css
+License:    GPL-2.0 AND Ruby AND BSD-3-Clause AND CC-BY-2.5 AND OFL-1.1-RFN
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   rubygem(io-console) >= %{io_console_version}
@@ -363,7 +370,7 @@ This package contains documentation for %{name}.
 %package -n rubygem-bigdecimal
 Summary:    BigDecimal provides arbitrary-precision floating point decimal arithmetic
 Version:    %{bigdecimal_version}
-License:    Ruby or BSD
+License:    Ruby OR BSD-2-Clause
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(bigdecimal) = %{version}-%{release}
@@ -384,6 +391,7 @@ conversion between base 10 and base 2.
 %package -n rubygem-io-console
 Summary:    IO/Console is a simple console utilizing library
 Version:    %{io_console_version}
+License:    Ruby OR BSD-2-Clause
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(io-console) = %{version}-%{release}
@@ -396,8 +404,8 @@ provide higher layer features, such like curses and readline.
 %package -n rubygem-json
 Summary:    This is a JSON implementation as a Ruby extension in C
 Version:    %{json_version}
-# UCD: ext/json/generator/generator.c
-License:    (Ruby or GPLv2) and UCD
+# Unicode-DFS-2015: ext/json/ext/generator/generator.c
+License:    (Ruby OR BSD-2-Clause) AND Unicode-DFS-2015
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(json) = %{version}-%{release}
@@ -497,7 +505,7 @@ output.
 %package -n rubygem-power_assert
 Summary:    Power Assert for Ruby
 Version:    %{power_assert_version}
-License:    Ruby or BSD
+License:    Ruby OR BSD-2-Clause
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(power_assert) = %{version}-%{release}
@@ -527,7 +535,7 @@ specified in standard Ruby syntax.
 %package -n rubygem-rbs
 Summary:    Type signature for Ruby
 Version:    %{rbs_version}
-License:    Ruby or BSD
+License:    Ruby OR BSD-2-Clause
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Provides:   rubygem(rbs) = %{version}-%{release}
@@ -541,8 +549,7 @@ definitions.
 Summary:    An xUnit family unit testing framework for Ruby
 Version:    %{test_unit_version}
 # lib/test/unit/diff.rb is a double license of the Ruby license and PSF license.
-# lib/test-unit.rb is a dual license of the Ruby license and LGPLv2.1 or later.
-License:    (Ruby or BSD) and (Ruby or BSD or Python) and (Ruby or BSD or LGPLv2+)
+License:    (Ruby OR BSD-2-Clause) AND (Ruby OR BSD-2-Clause OR Python-2.0.1)
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
 Requires:   rubygem(power_assert)
@@ -559,7 +566,7 @@ writing tests, checking results and automated testing in Ruby.
 %package -n rubygem-rexml
 Summary:    An XML toolkit for Ruby
 Version:    %{rexml_version}
-License:    BSD
+License:    BSD-2-Clause
 URL:        https://github.com/ruby/rexml
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
@@ -581,7 +588,7 @@ features such as XPath.
 %package -n rubygem-rss
 Summary:    Family of libraries that support various formats of XML "feeds"
 Version:    %{rss_version}
-License:    BSD
+License:    BSD-2-Clause
 URL:        https://github.com/ruby/rss
 Requires:   ruby(release)
 Requires:   ruby(rubygems) >= %{rubygems_version}
