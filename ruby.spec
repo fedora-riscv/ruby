@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision d7388f720c
+%global revision c5eefb7f37
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -48,9 +48,9 @@
 %global io_console_version 0.6.0
 %global irb_version 1.6.2
 %global json_version 2.6.3
-%global openssl_version 3.1.0.pre
+%global openssl_version 3.1.0
 %global psych_version 5.0.1
-%global racc_version 1.6.1
+%global racc_version 1.6.2
 %global rdoc_version 6.5.0
 %global stringio_version 3.0.4
 
@@ -62,14 +62,14 @@
 %global rexml_version 3.2.5
 %global rss_version 0.2.9
 %global net_ftp_version 0.2.0
-%global net_imap_version 0.3.3
+%global net_imap_version 0.3.4
 %global net_pop_version 0.1.2
 %global net_smtp_version 0.3.3
 %global matrix_version 0.4.2
 %global prime_version 0.1.2
 %global rbs_version 2.8.2
 %global typeprof_version 0.21.3
-%global debug_version 1.7.0
+%global debug_version 1.7.1
 
 %global tapset_libdir %(echo %{_libdir} | sed 's/64//')*
 
@@ -1560,8 +1560,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 
 
 %changelog
-* Thu Dec 22 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-175
-- Upgrade to Ruby 3.2.0 (d7388f720c).
+* Fri Dec 23 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-175
+- Upgrade to Ruby 3.2.0 (c5eefb7f37).
 
 * Thu Dec 08 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.3-173
 - Disable MJIT test cases on i686 due to issues with PCH.
