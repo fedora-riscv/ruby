@@ -43,7 +43,7 @@ diff --git a/common.mk b/common.mk
 index b2e5b2b6d0..f39f81da5c 100644
 --- a/common.mk
 +++ b/common.mk
-@@ -82,7 +82,8 @@ ENC_MK        = enc.mk
+@@ -86,7 +86,8 @@ ENC_MK        = enc.mk
  MAKE_ENC      = -f $(ENC_MK) V="$(V)" UNICODE_HDR_DIR="$(UNICODE_HDR_DIR)" \
  		RUBY="$(BOOTSTRAPRUBY)" MINIRUBY="$(BOOTSTRAPRUBY)" $(mflags)
  
@@ -57,7 +57,7 @@ diff --git a/ruby.c b/ruby.c
 index 60c57d6259..1eec16f2c8 100644
 --- a/ruby.c
 +++ b/ruby.c
-@@ -1623,10 +1623,14 @@ proc_options(long argc, char **argv, ruby_cmdline_options_t *opt, int envopt)
+@@ -1572,10 +1572,14 @@ proc_options(long argc, char **argv, ruby_cmdline_options_t *opt, int envopt)
  
  void Init_builtin_features(void);
  
@@ -72,6 +72,3 @@ index 60c57d6259..1eec16f2c8 100644
      rb_const_remove(rb_cObject, rb_intern_const("TMP_RUBY_PREFIX"));
  }
  
--- 
-2.24.1
-

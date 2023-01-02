@@ -20,15 +20,12 @@ diff --git a/test/-ext-/bug_reporter/test_bug_reporter.rb b/test/-ext-/bug_repor
 index 628fcd0340..2c677cc8a7 100644
 --- a/test/-ext-/bug_reporter/test_bug_reporter.rb
 +++ b/test/-ext-/bug_reporter/test_bug_reporter.rb
-@@ -22,7 +22,7 @@ def test_bug_reporter_add
-     args = ["--disable-gems", "-r-test-/bug_reporter",
+@@ -28,7 +28,7 @@ def test_bug_reporter_add
              "-C", tmpdir]
-     stdin = "register_sample_bug_reporter(12345); Process.kill :SEGV, $$"
+     args.push("--yjit") if yjit_enabled? # We want the printed description to match this process's RUBY_DESCRIPTION
+     stdin = "#{no_core}register_sample_bug_reporter(12345); Process.kill :SEGV, $$"
 -    assert_in_out_err(args, stdin, [], expected_stderr, encoding: "ASCII-8BIT")
 +    assert_in_out_err(args, stdin, [], expected_stderr, encoding: "ASCII-8BIT", timeout_error: nil)
    ensure
      FileUtils.rm_rf(tmpdir) if tmpdir
    end
--- 
-2.27.0
-

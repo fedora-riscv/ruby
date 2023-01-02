@@ -15,7 +15,7 @@ diff --git a/configure.ac b/configure.ac
 index 93af30321d..bc13397e0e 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4068,6 +4068,10 @@ AC_ARG_WITH(vendorarchdir,
+@@ -4231,6 +4231,10 @@ AC_ARG_WITH(vendorarchdir,
              [vendorarchdir=$withval],
              [vendorarchdir=${multiarch+'${rubysitearchprefix}/vendor_ruby'${ruby_version_dir}}${multiarch-'${vendorlibdir}/${sitearch}'}])
  
@@ -26,7 +26,7 @@ index 93af30321d..bc13397e0e 100644
  AS_IF([test "${LOAD_RELATIVE+set}"], [
      AC_DEFINE_UNQUOTED(LOAD_RELATIVE, $LOAD_RELATIVE)
      RUBY_EXEC_PREFIX=''
-@@ -4092,6 +4096,7 @@ AC_SUBST(sitearchdir)dnl
+@@ -4255,6 +4259,7 @@ AC_SUBST(sitearchdir)dnl
  AC_SUBST(vendordir)dnl
  AC_SUBST(vendorlibdir)dnl
  AC_SUBST(vendorarchdir)dnl
@@ -75,7 +75,7 @@ index e9110a17ca..76a1f0a315 100755
  mandir = CONFIG["mandir", true]
  docdir = CONFIG["docdir", true]
  enable_shared = CONFIG["ENABLE_SHARED"] == 'yes'
-@@ -590,7 +591,16 @@ def stub
+@@ -595,7 +596,16 @@ def stub
  install?(:local, :comm, :lib) do
    prepare "library scripts", rubylibdir
    noinst = %w[*.txt *.rdoc *.gemspec]
@@ -92,6 +92,3 @@ index e9110a17ca..76a1f0a315 100755
  end
  
  install?(:local, :comm, :hdr, :'comm-hdr') do
--- 
-1.8.3.1
-

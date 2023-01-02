@@ -11,7 +11,7 @@ diff --git a/configure.ac b/configure.ac
 index 3c13076b82..93af30321d 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -4096,6 +4096,8 @@ AC_SUBST(vendorarchdir)dnl
+@@ -4259,6 +4259,8 @@ AC_SUBST(vendorarchdir)dnl
  AC_SUBST(CONFIGURE, "`echo $0 | sed 's|.*/||'`")dnl
  AC_SUBST(configure_args, "`echo "${ac_configure_args}" | sed 's/\\$/$$/g'`")dnl
  
@@ -20,6 +20,3 @@ index 3c13076b82..93af30321d 100644
  AS_IF([test "${universal_binary-no}" = yes ], [
      arch="universal-${target_os}"
      AS_IF([test "${rb_cv_architecture_available}" = yes], [
--- 
-1.8.3.1
-
