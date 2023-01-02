@@ -10,7 +10,7 @@
 #%%global milestone rc1
 
 # Keep the revision enabled for pre-releases from GIT.
-%global revision c5eefb7f37
+#%%global revision c5eefb7f37
 
 %global ruby_archive %{name}-%{ruby_version}
 
@@ -27,13 +27,13 @@
 %global rubygems_dir %{_datadir}/rubygems
 
 # Bundled libraries versions
-%global rubygems_version 3.4.0.dev
+%global rubygems_version 3.4.1
 %global rubygems_molinillo_version 0.8.0
 %global rubygems_optparse_version 0.3.0
 %global rubygems_tsort_version 0.1.0
 
 # Default gems.
-%global bundler_version 2.4.0.dev
+%global bundler_version 2.4.1
 %global bundler_connection_pool_version 2.3.0
 %global bundler_fileutils_version 1.7.0
 %global bundler_pub_grub_version 0.5.0
@@ -101,7 +101,7 @@
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}%{?development_release}
-Release: 175%{?dist}
+Release: 176%{?dist}
 # BSD-3-Clause: missing/{crypt,mt19937,setproctitle}.c
 # ISC: missing/strl{cat,cpy}.c
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -165,6 +165,10 @@ Patch7: ruby-3.1.0-Don-t-query-RubyVM-FrozenCore-for-class-path.patch
 # Avoid possible timeout errors in TestBugReporter#test_bug_reporter_add.
 # https://bugs.ruby-lang.org/issues/16492
 Patch8: ruby-2.7.1-Timeout-the-test_bug_reporter_add-witout-raising-err.patch
+# Disable syntax_suggest test suite, which tries to download its dependencies.
+# https://bugs.ruby-lang.org/issues/19297
+Patch9: ruby-3.2.0-Revert-Fix-test-syntax-suggest-order.patch
+Patch10: ruby-3.2.0-Revert-Test-syntax_suggest-by-make-check.patch
 
 Requires: %{name}-libs%{?_isa} = %{version}-%{release}
 Suggests: rubypick
@@ -636,6 +640,8 @@ rm -rf ext/fiddle/libffi*
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
+%patch10 -p1
 
 # Provide an example of usage of the tapset:
 cp -a %{SOURCE3} .
@@ -1076,8 +1082,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 %{ruby_libdir}/ipaddr.rb
 %{ruby_libdir}/kconv.rb
 %{ruby_libdir}/logger*
-%dir %{ruby_libdir}/ruby_vm
-%{ruby_libdir}/ruby_vm/mjit
+# https://bugs.ruby-lang.org/issues/19298
+%exclude %{ruby_libdir}/mjit
 %{ruby_libdir}/mkmf.rb
 %{ruby_libdir}/monitor.rb
 %{ruby_libdir}/mutex_m.rb
@@ -1100,6 +1106,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 %{ruby_libdir}/resolv-replace.rb
 %{ruby_libdir}/rinda
 %{ruby_libdir}/ripper*
+%dir %{ruby_libdir}/ruby_vm
+%{ruby_libdir}/ruby_vm/mjit
 %{ruby_libdir}/securerandom.rb
 %{ruby_libdir}/set*
 %{ruby_libdir}/shellwords.rb
@@ -1560,8 +1568,8 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/TestGCCompact#test_moving_objects_between_siz
 
 
 %changelog
-* Fri Dec 23 2022 Vít Ondruch <vondruch@redhat.com> - 3.2.0-175
-- Upgrade to Ruby 3.2.0 (c5eefb7f37).
+* Mon Jan 02 2023 Vít Ondruch <vondruch@redhat.com> - 3.2.0-176
+- Upgrade to Ruby 3.2.0.
 
 * Thu Dec 08 2022 Vít Ondruch <vondruch@redhat.com> - 3.1.3-173
 - Disable MJIT test cases on i686 due to issues with PCH.
