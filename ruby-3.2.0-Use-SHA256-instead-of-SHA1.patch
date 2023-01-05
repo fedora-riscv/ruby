@@ -1,0 +1,39 @@
+From 9b9825d6cdda053fea49eb2f613bc62bde465e89 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?V=C3=ADt=20Ondruch?= <vondruch@redhat.com>
+Date: Wed, 4 Jan 2023 17:23:35 +0100
+Subject: [PATCH] Use SHA256 instead of SHA1
+
+Systems such as CentOS 9 / RHEL 9 are moving away from SHA1 disabling it
+by default via a system-wide crypto policy. This replaces SHA1 with
+SHA256 in similar way as [[1]].
+
+[1]: https://github.com/ruby/openssl/pull/554
+---
+ spec/ruby/library/openssl/x509/name/verify_spec.rb | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/spec/ruby/library/openssl/x509/name/verify_spec.rb b/spec/ruby/library/openssl/x509/name/verify_spec.rb
+index a8bf865bd..6dcfc9946 100644
+--- a/spec/ruby/library/openssl/x509/name/verify_spec.rb
++++ b/spec/ruby/library/openssl/x509/name/verify_spec.rb
+@@ -12,7 +12,7 @@ describe "OpenSSL::X509::Name.verify" do
+     cert.public_key = key.public_key
+     cert.not_before = Time.now - 10
+     cert.not_after = cert.not_before + 365 * 24 * 60 * 60
+-    cert.sign key, OpenSSL::Digest.new('SHA1')
++    cert.sign key, OpenSSL::Digest.new('SHA256')
+     store = OpenSSL::X509::Store.new
+     store.add_cert(cert)
+     [store.verify(cert), store.error, store.error_string].should == [true, 0, "ok"]
+@@ -28,7 +28,7 @@ describe "OpenSSL::X509::Name.verify" do
+     cert.public_key = key.public_key
+     cert.not_before = Time.now - 10
+     cert.not_after = Time.now - 5
+-    cert.sign key, OpenSSL::Digest.new('SHA1')
++    cert.sign key, OpenSSL::Digest.new('SHA256')
+     store = OpenSSL::X509::Store.new
+     store.add_cert(cert)
+     store.verify(cert).should == false
+-- 
+2.38.1
+
