@@ -32,7 +32,7 @@ index d0558697d7..e73841aae7 100644
  RUNNABLE = $(LIBRUBY_RELATIVE:no=un)-runnable
  runnable: $(RUNNABLE) prog $(tooldir)/mkrunnable.rb PHONY
  	$(Q) $(MINIRUBY) $(tooldir)/mkrunnable.rb -v $(EXTOUT)
-@@ -1457,7 +1456,6 @@ test-syntax-suggest-precheck: $(TEST_RUNNABLE)-test-syntax-suggest-precheck
+@@ -1456,7 +1455,6 @@ test-syntax-suggest-precheck: $(TEST_RUNNABLE)-test-syntax-suggest-precheck
  no-test-syntax-suggest-precheck:
  yes-test-syntax-suggest-precheck: main
  
@@ -40,7 +40,7 @@ index d0558697d7..e73841aae7 100644
  no-test-syntax-suggest-prepare: no-test-syntax-suggest-precheck
  yes-test-syntax-suggest-prepare: yes-test-syntax-suggest-precheck
  	$(ACTIONS_GROUP)
-@@ -1467,15 +1465,13 @@ yes-test-syntax-suggest-prepare: yes-test-syntax-suggest-precheck
+@@ -1466,15 +1464,13 @@ yes-test-syntax-suggest-prepare: yes-test-syntax-suggest-precheck
  
  RSPECOPTS =
  SYNTAX_SUGGEST_SPECS =
