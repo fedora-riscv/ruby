@@ -635,10 +635,6 @@ analysis result in RBS format, a standard type description format for Ruby
 %prep
 %setup -q -n %{ruby_archive}
 
-# Remove bundled libraries to be sure they are not used.
-rm -rf ext/psych/yaml
-rm -rf ext/fiddle/libffi*
-
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
