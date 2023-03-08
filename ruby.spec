@@ -720,11 +720,11 @@ test ! "$(ls -A %{buildroot}%{rubygems_dir}/rubygems/ssl_certs/ 2>/dev/null)"
 
 # Move macros file into proper place and replace the %%{name} macro, since it
 # would be wrongly evaluated during build of other packages.
-mkdir -p %{buildroot}%{_rpmconfigdir}/macros.d
-install -m 644 %{SOURCE4} %{buildroot}%{_rpmconfigdir}/macros.d/macros.ruby
-sed -i "s/%%{name}/%{name}/" %{buildroot}%{_rpmconfigdir}/macros.d/macros.ruby
-install -m 644 %{SOURCE5} %{buildroot}%{_rpmconfigdir}/macros.d/macros.rubygems
-sed -i "s/%%{name}/%{name}/" %{buildroot}%{_rpmconfigdir}/macros.d/macros.rubygems
+mkdir -p %{buildroot}%{_rpmmacrodir}
+install -m 644 %{SOURCE4} %{buildroot}%{_rpmmacrodir}/macros.ruby
+sed -i "s/%%{name}/%{name}/" %{buildroot}%{_rpmmacrodir}/macros.ruby
+install -m 644 %{SOURCE5} %{buildroot}%{_rpmmacrodir}/macros.rubygems
+sed -i "s/%%{name}/%{name}/" %{buildroot}%{_rpmmacrodir}/macros.rubygems
 
 # Install dependency generators.
 mkdir -p %{buildroot}%{_rpmconfigdir}/fileattrs
@@ -1032,7 +1032,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %license GPL
 %license LEGAL
 
-%{_rpmconfigdir}/macros.d/macros.ruby
+%{_rpmmacrodir}/macros.ruby
 
 %{_includedir}/*
 %{_libdir}/libruby.so
@@ -1259,7 +1259,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 %exclude %{gem_dir}/cache/*
 
 %files -n rubygems-devel
-%{_rpmconfigdir}/macros.d/macros.rubygems
+%{_rpmmacrodir}/macros.rubygems
 %{_rpmconfigdir}/fileattrs/rubygems.attr
 %{_rpmconfigdir}/rubygems.req
 %{_rpmconfigdir}/rubygems.prov
