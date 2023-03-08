@@ -727,8 +727,8 @@ install -m 644 %{SOURCE5} %{buildroot}%{_rpmmacrodir}/macros.rubygems
 sed -i "s/%%{name}/%{name}/" %{buildroot}%{_rpmmacrodir}/macros.rubygems
 
 # Install dependency generators.
-mkdir -p %{buildroot}%{_rpmconfigdir}/fileattrs
-install -m 644 %{SOURCE8} %{buildroot}%{_rpmconfigdir}/fileattrs
+mkdir -p %{buildroot}%{_fileattrsdir}
+install -m 644 %{SOURCE8} %{buildroot}%{_fileattrsdir}
 install -m 755 %{SOURCE9} %{buildroot}%{_rpmconfigdir}
 install -m 755 %{SOURCE10} %{buildroot}%{_rpmconfigdir}
 install -m 755 %{SOURCE11} %{buildroot}%{_rpmconfigdir}
@@ -1260,7 +1260,7 @@ mv test/ruby/test_jit.rb{,.disable} || :
 
 %files -n rubygems-devel
 %{_rpmmacrodir}/macros.rubygems
-%{_rpmconfigdir}/fileattrs/rubygems.attr
+%{_fileattrsdir}/rubygems.attr
 %{_rpmconfigdir}/rubygems.req
 %{_rpmconfigdir}/rubygems.prov
 %{_rpmconfigdir}/rubygems.con
