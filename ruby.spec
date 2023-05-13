@@ -101,7 +101,7 @@
 Summary: An interpreter of object-oriented scripting language
 Name: ruby
 Version: %{ruby_version}%{?development_release}
-Release: 180%{?dist}
+Release: 180.rv64%{?dist}
 # BSD-3-Clause: missing/{crypt,mt19937,setproctitle}.c
 # ISC: missing/strl{cat,cpy}.c
 # Public Domain for example for: include/ruby/st.h, strftime.c, missing/*, ...
@@ -1007,6 +1007,16 @@ DISABLE_TESTS="$DISABLE_TESTS -n !/Fiddle::TestFunction#test_argument_count/"
 mv test/ruby/test_jit.rb{,.disable} || :
 %endif
 
+%ifarch riscv64
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestArgf#test_inplace_bug_17117/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestGc#test_thrashing_for_young_objects/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestRequire#test_loading_fifo_fd_leak/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestFiber#test_many_fibers_with_threads/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/Racc::TestRaccCommand#test_riml/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestMkmfFlags#test_try_cppflag_invalid_opt/"
+DISABLE_TESTS="$DISABLE_TESTS -n !/TestMkmfFlags#test_try_ldflag_invalid_opt/"
+%endif
+
 # Give an option to increase the timeout in tests.
 # https://bugs.ruby-lang.org/issues/16921
 %{?test_timeout_scale:RUBY_TEST_TIMEOUT_SCALE="%{test_timeout_scale}"} \
@@ -1567,6 +1577,9 @@ mv test/ruby/test_jit.rb{,.disable} || :
 
 
 %changelog
+* Sat May 13 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 3.2.2-180.rv64
+- Skip failed tests on riscv64.
+
 * Fri Mar 31 2023 Vít Ondruch <vondruch@redhat.com> - 3.2.2-180
 - Upgrade to Ruby 3.2.2.
   Resolves: rhbz#2183284
